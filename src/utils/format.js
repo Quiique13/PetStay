@@ -20,3 +20,14 @@ export const pageLabels = {
 export const ageLabels = { Puppy: 'Cachorro', Adult: 'Adulto', Senior: 'Sénior' };
 export const stayLabels = { Boarding: 'Hotel', Daycare: 'Creche' };
 export const breedLabel = breed => ({ 'French Bulldog': 'Bulldog francês' }[breed] ?? breed);
+
+export function initials(name) {
+  const words = name.trim().split(/\s+/);
+  return (words[0]?.[0] ?? "") + (words.length > 1 ? words.at(-1)[0] : "");
+}
+
+export function localDate(offset = 0) {
+  const day = new Date();
+  day.setDate(day.getDate() + offset);
+  return `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, "0")}-${String(day.getDate()).padStart(2, "0")}`;
+}

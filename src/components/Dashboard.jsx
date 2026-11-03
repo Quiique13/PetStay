@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { createRoot } from "react-dom/client";
+import React, { useEffect, useState } from "react";
 import {
   PawPrint,
   LayoutDashboard,
@@ -16,7 +15,6 @@ import {
   X,
   Sun,
   Check,
-  LogOut,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -27,9 +25,16 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
-import "./style.css";
+import { useHotel } from "../context/HotelContext.jsx";
+import { bookingPrice } from "../utils/hotel-data.js";
+import { Brand } from "./Brand.jsx";
+import { HotelAvatar } from "./HotelAvatar.jsx";
+import { HotelProfileForm } from "./HotelProfileForm.jsx";
+import { EmptyState } from "./EmptyState.jsx";
 import {
   money,
+  initials,
+  localDate,
   shortMoney,
   formatDate,
   monthName,
@@ -37,7 +42,7 @@ import {
   ageLabels,
   stayLabels,
   breedLabel,
-} from "./locale.js";
+} from "../utils/format.js";
 const names = [
   "Overview",
   "Bookings",
@@ -46,147 +51,48 @@ const names = [
   "Pricing & seasons",
 ];
 const icons = [LayoutDashboard, CalendarDays, Heart, Wallet, SlidersHorizontal];
-const pics = [
-  "photo-1552053831-71594a27632d",
-  "photo-1587300003388-59208cc962cb",
-  "photo-1583511655857-d19b40a7a54e",
-  "photo-1517849845537-4d257902454a",
-];
-const photo = (i) =>
-  `https://images.unsplash.com/${pics[i % 4]}?w=160&h=160&fit=crop`;
-function saved(k, d) {
-  try {
-    return JSON.parse(localStorage.getItem(k)) ?? d;
-  } catch {
-    return d;
-  }
-}
-function Brand() {
-  const [hasLogo, setHasLogo] = useState(true);
-  return (
-    <a className="brand" href="/" aria-label="MOMO - Hotel & Creche — início">
-      {hasLogo ? (
-        <img
-          className="brand-logo"
-          src="/momo_logo.png"
-          alt="Logótipo MOMO - Hotel & Creche"
-          onError={() => setHasLogo(false)}
-        />
-      ) : (
-        <span className="brand-symbol">
-          <PawPrint size={30} />
-        </span>
-      )}
-      <span className="brand-name">
-        MOMO<small>Hotel &amp; Creche</small>
-      </span>
-    </a>
-  );
-}
-function App() {
+export default function Dashboard() {
+  const storage = useHotel();
   const [page, P] = useState("Overview"),
-    [month, M] = useState(10),
+    [calendarDate, setCalendarDate] = useState(() => new Date()),
     [modal, S] = useState(null),
     [query, Q] = useState(""),
-    [rates, R] = useState(() =>
-      saved("rates", {
-        Puppy: [28, 38],
-        Adult: [24, 34],
-        Senior: [26, 36],
-        day: 18,
-        high: [5, 6, 7, 11],
-      }),
-    ),
-    [guests, G] = useState(() =>
-      saved("guests", [
-        {
-          name: "Cooper",
-          owner: "Emma Wilson",
-          age: "Adult",
-          breed: "Golden Retriever",
-        },
-        { name: "Luna", owner: "James Miller", age: "Puppy", breed: "Beagle" },
-        {
-          name: "Milo",
-          owner: "Sofia Davis",
-          age: "Adult",
-          breed: "French Bulldog",
-        },
-        {
-          name: "Daisy",
-          owner: "Oliver Smith",
-          age: "Senior",
-          breed: "Cocker Spaniel",
-        },
-      ]),
-    ),
-    [bookings, B] = useState(() =>
-      saved("bookings", [
-        {
-          dog: "Cooper",
-          start: "2026-11-02",
-          end: "2026-11-07",
-          type: "Boarding",
-          paid: true,
-          total: 120,
-        },
-        {
-          dog: "Luna",
-          start: "2026-11-03",
-          end: "2026-11-06",
-          type: "Boarding",
-          paid: false,
-          total: 84,
-        },
-        {
-          dog: "Milo",
-          start: "2026-11-03",
-          end: "2026-11-03",
-          type: "Daycare",
-          paid: true,
-          total: 18,
-        },
-        {
-          dog: "Daisy",
-          start: "2026-11-05",
-          end: "2026-11-09",
-          type: "Boarding",
-          paid: false,
-          total: 104,
-        },
-      ]),
-    ),
-    [occupancy, O] = useState(65),
-    [capacity, C] = useState(12);
-  function persist(k, v, f) {
-    f(v);
-    localStorage.setItem(k, JSON.stringify(v));
+    [formError, setFormError] = useState("");
+  const { hotel, rates, guests, bookings, occupancy, capacity } = storage.data;
+  const month = calendarDate.getMonth(),
+    year = calendarDate.getFullYear();
+  const ownerInitials = initials(hotel.owner).toUpperCase();
+  useEffect(() => {
+    setFormError("");
+  }, [modal]);
+  function moveMonth(delta) {
+    setCalendarDate(new Date(year, month + delta, 1));
   }
-  const income = bookings
-    .filter((b) => +b.start.slice(5, 7) === month + 1)
-    .reduce((a, b) => a + b.total, 0);
-  const chart = Array.from({ length: 12 }, (_, i) => ({
-    name: monthName(i, true),
-    value: Math.round(
-      ((new Date(2026, i + 1, 0).getDate() * capacity * occupancy) / 100) *
-        rates.Adult[rates.high.includes(i) ? 1 : 0],
-    ),
-  }));
+  function persist(key, value) {
+    storage.update(key, value);
+  }
+  const monthlyBookings = bookings.filter(
+    (b) => +b.start.slice(0, 4) === year && +b.start.slice(5, 7) === month + 1,
+  );
+  const income = monthlyBookings.reduce(
+    (sum, booking) => sum + booking.total,
+    0,
+  );
+  const chart = Array.from({ length: 12 }, (_, i) => {
+    const rate = rates.Adult[rates.high.includes(i) ? 1 : 0];
+    return {
+      name: monthName(i, true),
+      value:
+        rate === null
+          ? null
+          : Math.round(
+              ((new Date(year, i + 1, 0).getDate() * capacity * occupancy) /
+                100) *
+                rate,
+            ),
+    };
+  });
   const total = chart[month].value;
-  function price(dog, start, end, type) {
-    if (type === "Daycare") return rates.day;
-    let sum = 0,
-      d = new Date(start + "T12:00:00"),
-      e = new Date(end + "T12:00:00");
-    while (d < e) {
-      sum +=
-        rates[guests.find((g) => g.name === dog)?.age || "Adult"][
-          rates.high.includes(d.getMonth()) ? 1 : 0
-        ];
-      d.setDate(d.getDate() + 1);
-    }
-    return sum;
-  }
   const filtered = bookings.filter((b) =>
     b.dog.toLowerCase().includes(query.toLowerCase()),
   );
@@ -194,13 +100,17 @@ function App() {
     <div className="app">
       <aside>
         <Brand />
-        <div className="hotel">
-          <span>🏡</span>
+        <button
+          className="hotel"
+          onClick={() => S("profile")}
+          aria-label="Editar perfil do hotel"
+        >
+          <HotelAvatar hotel={hotel} />
           <div>
-            MOMO - Hotel &amp; Creche
-            <small>Um refúgio para o seu melhor amigo</small>
+            {hotel.name}
+            <small>Editar perfil do hotel</small>
           </div>
-        </div>
+        </button>
         <small className="navlabel">ÁREA DE GESTÃO</small>
         <nav>
           {names.map((n, i) => {
@@ -228,9 +138,10 @@ function App() {
             </button>
           </div>
           <div className="profile">
-            <div className="avatar">LM</div>
+            <div className="avatar">{ownerInitials}</div>
             <div>
-              Leonor Mónica<small>Proprietária do hotel</small>
+              {hotel.owner}
+              <small>Gestão do hotel</small>
             </div>
             <Check size={16} />
           </div>
@@ -254,22 +165,51 @@ function App() {
               <Bell size={19} />
               <b />
             </button>
-            <div className="avatar">LM</div>
+            <button
+              className="profile-trigger"
+              onClick={() => S("profile")}
+              aria-label="Editar perfil do hotel"
+            >
+              <HotelAvatar hotel={hotel} />
+            </button>
           </div>
         </header>
         <section className="content">
+          <div
+            className={`storage-status ${storage.error ? "storage-error" : ""}`}
+          >
+            <span role={storage.error ? "alert" : "status"}>
+              {storage.error
+                ? storage.error.message
+                : storage.status === "saving"
+                  ? "A guardar neste dispositivo…"
+                  : "Dados guardados neste dispositivo."}
+            </span>
+            {storage.error &&
+              (storage.error.status === 409 ? (
+                <button onClick={() => window.location.reload()}>
+                  Recarregar dados
+                </button>
+              ) : (
+                <button onClick={storage.retry}>
+                  Tentar guardar novamente
+                </button>
+              ))}
+          </div>
           <div className="heading">
             <div>
               <div className="eyebrow">
                 MUITO CARINHO. MUITAS CAUDAS A ABANAR.
               </div>
               <h1>
-                {page === "Overview" ? "Bem-vinda, Leonor" : pageLabels[page]}
+                {page === "Overview"
+                  ? `Olá, ${hotel.owner.split(/\s+/)[0]}`
+                  : pageLabels[page]}
                 <span>{page === "Overview" ? " ☀️" : ""}</span>
               </h1>
               <p>
                 {page === "Overview"
-                  ? "Veja o que se passa hoje no MOMO - Hotel & Creche."
+                  ? `Veja o que se passa hoje no ${hotel.name}.`
                   : "Mais tempo para eles. Menos tempo com a papelada."}
               </p>
             </div>
@@ -287,6 +227,24 @@ function App() {
           </div>
           {page === "Overview" && (
             <>
+              {(guests.length === 0 ||
+                rates.day === null ||
+                Object.values(rates).some(
+                  (value) => Array.isArray(value) && value.includes(null),
+                )) && (
+                <div className="setup-checklist">
+                  <div>
+                    <h3>Prepare o seu hotel</h3>
+                    <p>Comece com os seus dados, ao seu ritmo.</p>
+                  </div>
+                  <button onClick={() => S("guest")}>
+                    <Plus size={16} /> Adicionar hóspedes
+                  </button>
+                  <button onClick={() => P("Pricing & seasons")}>
+                    <SlidersHorizontal size={16} /> Definir preços
+                  </button>
+                </div>
+              )}
               <div className="welcome">
                 <div>
                   <span className="tag">ESTADIAS CHEIAS DE ALEGRIA</span>
@@ -315,19 +273,19 @@ function App() {
                 {[
                   [
                     "Hóspedes este mês",
-                    bookings.length,
+                    monthlyBookings.length,
                     "Cada hóspede, um novo amigo",
                     "🐶",
                   ],
                   [
                     "Estadias no hotel",
-                    bookings.filter((b) => b.type === "Boarding").length,
+                    monthlyBookings.filter((b) => b.type === "Boarding").length,
                     "Noites tranquilas, manhãs felizes",
                     "🌙",
                   ],
                   [
                     "Visitas à creche",
-                    bookings.filter((b) => b.type === "Daycare").length,
+                    monthlyBookings.filter((b) => b.type === "Daycare").length,
                     "Um dia inteiro de brincadeira",
                     "☀️",
                   ],
@@ -368,66 +326,86 @@ function App() {
                 <div className="month">
                   <button
                     aria-label="Mês anterior"
-                    onClick={() => M((month + 11) % 12)}
+                    onClick={() => moveMonth(-1)}
                   >
                     <ChevronLeft size={16} />
                   </button>
-                  {monthName(month)} 2026
+                  {monthName(month)} {year}
                   <button
                     aria-label="Mês seguinte"
-                    onClick={() => M((month + 1) % 12)}
+                    onClick={() => moveMonth(1)}
                   >
                     <ChevronRight size={16} />
                   </button>
                 </div>
               </div>
-              <div className="calendar">
-                <div className="calhead">
-                  <span>HÓSPEDE</span>
-                  {Array.from({ length: 7 }, (_, i) => (
-                    <div key={i} className={i === 1 ? "today" : ""}>
-                      <small>
-                        {["SEG", "TER", "QUA", "QUI", "SEX", "SÁB", "DOM"][i]}
-                      </small>
-                      {i + 2}
+              {bookings.length === 0 ? (
+                <EmptyState
+                  title="Ainda não há reservas"
+                  action={
+                    guests.length
+                      ? "Criar primeira reserva"
+                      : "Adicionar primeiro hóspede"
+                  }
+                  onAction={() => S(guests.length ? "booking" : "guest")}
+                >
+                  As estadias dos seus hóspedes vão aparecer aqui.
+                </EmptyState>
+              ) : (
+                <div className="calendar">
+                  <div className="calhead">
+                    <span>HÓSPEDE</span>
+                    {Array.from({ length: 7 }, (_, i) => (
+                      <div key={i}>
+                        <small>
+                          {new Date(year, month, i + 1)
+                            .toLocaleDateString("pt-PT", { weekday: "short" })
+                            .toUpperCase()}
+                        </small>
+                        {i + 1}
+                      </div>
+                    ))}
+                  </div>
+                  {guests.slice(0, 4).map((g, i) => (
+                    <div className="calrow" key={g.name}>
+                      <div className="guestcell">
+                        <span className="guest-avatar">
+                          <PawPrint size={18} />
+                        </span>
+                        <div>
+                          {g.name}
+                          <small>{breedLabel(g.breed)}</small>
+                        </div>
+                      </div>
+                      <div className="track">
+                        {bookings
+                          .filter(
+                            (b) =>
+                              b.dog === g.name &&
+                              +b.start.slice(0, 4) === year &&
+                              +b.start.slice(5, 7) === month + 1 &&
+                              +b.start.slice(8) <= 7,
+                          )
+                          .map((b, j) => (
+                            <button
+                              key={j}
+                              className={"stay stay" + i}
+                              style={{
+                                left: `${(Math.max(0, +b.start.slice(8) - 1) * 100) / 7}%`,
+                                width: `${(Math.min(7, Math.max(1, (new Date(b.end) - new Date(b.start)) / 86400000)) * 100) / 7}%`,
+                              }}
+                              onClick={() => P("Payments")}
+                            >
+                              {b.type === "Daycare" ? "☀" : "☾"}{" "}
+                              {stayLabels[b.type] ?? b.type}
+                              <span>{b.paid ? "Pago" : "Pendente"}</span>
+                            </button>
+                          ))}
+                      </div>
                     </div>
                   ))}
                 </div>
-                {guests.slice(0, 4).map((g, i) => (
-                  <div className="calrow" key={g.name}>
-                    <div className="guestcell">
-                      <img src={photo(i)} alt={`Fotografia de ${g.name}`} />
-                      <div>
-                        {g.name}
-                        <small>{breedLabel(g.breed)}</small>
-                      </div>
-                    </div>
-                    <div className="track">
-                      {bookings
-                        .filter(
-                          (b) =>
-                            b.dog === g.name &&
-                            +b.start.slice(5, 7) === month + 1,
-                        )
-                        .map((b, j) => (
-                          <button
-                            key={j}
-                            className={"stay stay" + i}
-                            style={{
-                              left: `${(Math.max(0, +b.start.slice(8) - 2) * 100) / 7}%`,
-                              width: `${(Math.min(7, Math.max(1, (new Date(b.end) - new Date(b.start)) / 86400000)) * 100) / 7}%`,
-                            }}
-                            onClick={() => P("Payments")}
-                          >
-                            {b.type === "Daycare" ? "☀" : "☾"}{" "}
-                            {stayLabels[b.type] ?? b.type}
-                            <span>{b.paid ? "Pago" : "Pendente"}</span>
-                          </button>
-                        ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              )}
               <div className="legend">
                 <span>
                   <i /> Hotel
@@ -441,22 +419,35 @@ function App() {
               </div>
             </div>
           )}
-          {page === "Guests & clients" && (
-            <div className="guestgrid">
-              {guests.map((g, i) => (
-                <div className="panel guestcard">
-                  <img src={photo(i)} alt={`Fotografia de ${g.name}`} />
-                  <h3>{g.name}</h3>
-                  <p>
-                    {breedLabel(g.breed)} · {ageLabels[g.age] ?? g.age}
-                  </p>
-                  <hr />
-                  <small>TUTOR</small>
-                  <h4>{g.owner}</h4>
-                </div>
-              ))}
-            </div>
-          )}
+          {page === "Guests & clients" &&
+            (guests.length === 0 ? (
+              <div className="panel">
+                <EmptyState
+                  title="O primeiro amigo está por chegar"
+                  action="Adicionar primeiro hóspede"
+                  onAction={() => S("guest")}
+                >
+                  Adicione o nome, o tutor e os dados do seu primeiro hóspede.
+                </EmptyState>
+              </div>
+            ) : (
+              <div className="guestgrid">
+                {guests.map((g) => (
+                  <div className="panel guestcard" key={g.name}>
+                    <span className="guest-avatar guest-avatar-large">
+                      <PawPrint size={32} />
+                    </span>
+                    <h3>{g.name}</h3>
+                    <p>
+                      {breedLabel(g.breed)} · {ageLabels[g.age] ?? g.age}
+                    </p>
+                    <hr />
+                    <small>TUTOR</small>
+                    <h4>{g.owner}</h4>
+                  </div>
+                ))}
+              </div>
+            ))}
           {(page === "Payments" || page === "Bookings") && (
             <div className="panel">
               <div className="panelheading">
@@ -486,6 +477,33 @@ function App() {
                   </tr>
                 </thead>
                 <tbody>
+                  {filtered.length === 0 && (
+                    <tr>
+                      <td colSpan={5}>
+                        <EmptyState
+                          title={
+                            bookings.length
+                              ? "Nenhum resultado"
+                              : page === "Payments"
+                                ? "Ainda não há pagamentos"
+                                : "Ainda não há reservas"
+                          }
+                          action={
+                            bookings.length
+                              ? "Limpar pesquisa"
+                              : "Criar reserva"
+                          }
+                          onAction={() =>
+                            bookings.length ? Q("") : S("booking")
+                          }
+                        >
+                          {bookings.length
+                            ? "Experimente procurar outro hóspede."
+                            : "Os registos aparecem aqui depois de criar a primeira reserva."}
+                        </EmptyState>
+                      </td>
+                    </tr>
+                  )}
                   {filtered.map((b, i) => (
                     <tr key={i}>
                       <td>
@@ -505,7 +523,6 @@ function App() {
                               bookings.map((x) =>
                                 x === b ? { ...x, paid: !x.paid } : x,
                               ),
-                              B,
                             )
                           }
                         >
@@ -546,18 +563,21 @@ function App() {
                           <input
                             type="number"
                             min="0"
-                            value={rates[a][i]}
+                            step="0.01"
+                            value={rates[a][i] ?? ""}
+                            placeholder="Por definir"
+                            aria-label={`Preço de ${ageLabels[a]} — época ${i ? "alta" : "baixa"}`}
                             onChange={(e) =>
-                              persist(
-                                "rates",
-                                {
-                                  ...rates,
-                                  [a]: rates[a].map((v, j) =>
-                                    i === j ? Math.max(0, +e.target.value) : v,
-                                  ),
-                                },
-                                R,
-                              )
+                              persist("rates", {
+                                ...rates,
+                                [a]: rates[a].map((v, j) =>
+                                  i === j
+                                    ? e.target.value === ""
+                                      ? null
+                                      : Math.max(0, +e.target.value)
+                                    : v,
+                                ),
+                              })
                             }
                           />
                         </td>
@@ -572,13 +592,18 @@ function App() {
                   <input
                     type="number"
                     min="0"
-                    value={rates.day}
+                    step="0.01"
+                    value={rates.day ?? ""}
+                    placeholder="Por definir"
+                    aria-label="Preço diário da creche"
                     onChange={(e) =>
-                      persist(
-                        "rates",
-                        { ...rates, day: Math.max(0, +e.target.value) },
-                        R,
-                      )
+                      persist("rates", {
+                        ...rates,
+                        day:
+                          e.target.value === ""
+                            ? null
+                            : Math.max(0, +e.target.value),
+                      })
                     }
                   />{" "}
                   €
@@ -593,16 +618,12 @@ function App() {
                     <button
                       className={rates.high.includes(i) ? "selected" : ""}
                       onClick={() =>
-                        persist(
-                          "rates",
-                          {
-                            ...rates,
-                            high: rates.high.includes(i)
-                              ? rates.high.filter((m) => m !== i)
-                              : [...rates.high, i],
-                          },
-                          R,
-                        )
+                        persist("rates", {
+                          ...rates,
+                          high: rates.high.includes(i)
+                            ? rates.high.filter((m) => m !== i)
+                            : [...rates.high, i],
+                        })
                       }
                     >
                       {c.name} {rates.high.includes(i) && "☀"}
@@ -622,7 +643,7 @@ function App() {
                     </h3>
                     <p>Simulador de receita mensal</p>
                   </div>
-                  <span className="softtag">Projeção para 2026</span>
+                  <span className="softtag">Projeção para {year}</span>
                 </div>
                 <div className="simcontrols">
                   <label>
@@ -632,7 +653,12 @@ function App() {
                       min="1"
                       max="100"
                       value={capacity}
-                      onChange={(e) => C(Math.max(1, +e.target.value))}
+                      onChange={(e) =>
+                        persist(
+                          "capacity",
+                          Math.min(100, Math.max(1, +e.target.value)),
+                        )
+                      }
                     />
                   </label>
                   <label>
@@ -642,59 +668,72 @@ function App() {
                       min="0"
                       max="100"
                       value={occupancy}
-                      onChange={(e) => O(+e.target.value)}
+                      onChange={(e) => persist("occupancy", +e.target.value)}
                     />
                   </label>
                   <div>
-                    <strong>{money(total)}</strong>
+                    <strong>
+                      {total === null ? "Por definir" : money(total)}
+                    </strong>
                     <small>
                       {chart[month].name} · estimativa de hotel para adultos
                     </small>
                   </div>
                 </div>
-                <ResponsiveContainer width="100%" height={180}>
-                  <AreaChart
-                    data={chart}
-                    margin={{ left: 0, right: 20, top: 15, bottom: 0 }}
+                {total === null ? (
+                  <EmptyState
+                    title="O seu simulador começa com os seus preços"
+                    action="Definir preços"
+                    onAction={() => P("Pricing & seasons")}
                   >
-                    <defs>
-                      <linearGradient id="green" x1="0" y1="0" x2="0" y2="1">
-                        <stop
-                          offset="0%"
-                          stopColor="#8ca98c"
-                          stopOpacity={0.35}
-                        />
-                        <stop
-                          offset="100%"
-                          stopColor="#8ca98c"
-                          stopOpacity={0}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid vertical={false} stroke="#eeeee7" />
-                    <XAxis
-                      dataKey="name"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 11, fill: "#959b91" }}
-                    />
-                    <YAxis
-                      tickFormatter={shortMoney}
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 10, fill: "#959b91" }}
-                    />
-                    <Tooltip formatter={money} />
-                    <Area
-                      type="monotone"
-                      dataKey="value"
-                      name="Receita estimada"
-                      stroke="#628268"
-                      strokeWidth={2.5}
-                      fill="url(#green)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                    Defina o preço de hotel para adultos para calcular uma
+                    estimativa.
+                  </EmptyState>
+                ) : (
+                  <ResponsiveContainer width="100%" height={180}>
+                    <AreaChart
+                      data={chart}
+                      margin={{ left: 0, right: 20, top: 15, bottom: 0 }}
+                    >
+                      <defs>
+                        <linearGradient id="green" x1="0" y1="0" x2="0" y2="1">
+                          <stop
+                            offset="0%"
+                            stopColor="#8ca98c"
+                            stopOpacity={0.35}
+                          />
+                          <stop
+                            offset="100%"
+                            stopColor="#8ca98c"
+                            stopOpacity={0}
+                          />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid vertical={false} stroke="#eeeee7" />
+                      <XAxis
+                        dataKey="name"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 11, fill: "#959b91" }}
+                      />
+                      <YAxis
+                        tickFormatter={shortMoney}
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 10, fill: "#959b91" }}
+                      />
+                      <Tooltip formatter={money} />
+                      <Area
+                        type="monotone"
+                        dataKey="value"
+                        name="Receita estimada"
+                        stroke="#628268"
+                        strokeWidth={2.5}
+                        fill="url(#green)"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
               </div>
               <div className="seasoncard">
                 <Sun size={28} />
@@ -716,7 +755,7 @@ function App() {
           )}
           <footer>
             Feito com carinho, para os nossos patudos. <PawPrint size={13} />{" "}
-            <span>MOMO - Hotel &amp; Creche</span>
+            <span>{hotel.name} · PetStay</span>
           </footer>
         </section>
       </main>
@@ -735,37 +774,59 @@ function App() {
                 ? "Um novo amigo de quatro patas"
                 : modal === "booking"
                   ? "Planear uma boa estadia"
-                  : modal === "help"
-                    ? "Bem-vinda ao MOMO - Hotel & Creche"
-                    : "Novidades do seu hotel"}
+                  : modal === "profile"
+                    ? "Perfil do hotel"
+                    : modal === "help"
+                      ? "Bem-vindo ao PetStay"
+                      : "Novidades do seu hotel"}
             </h2>
-            {["guest", "booking"].includes(modal) ? (
+            {modal === "profile" ? (
+              <HotelProfileForm
+                initial={hotel}
+                onSubmit={(profile) => {
+                  persist("hotel", profile);
+                  S(null);
+                }}
+              />
+            ) : modal === "booking" && guests.length === 0 ? (
+              <EmptyState
+                title="Vamos conhecer o primeiro hóspede"
+                action="Adicionar hóspede"
+                onAction={() => S("guest")}
+              >
+                Adicione um hóspede e o respetivo tutor antes de criar a
+                reserva.
+              </EmptyState>
+            ) : ["guest", "booking"].includes(modal) ? (
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   let f = Object.fromEntries(new FormData(e.target));
                   if (modal === "guest") {
-                    persist("guests", [...guests, f], G);
+                    persist("guests", [...guests, f]);
                   } else {
-                    if (f.type === "Boarding" && f.end <= f.start) {
-                      alert(
-                        "A data de saída deve ser posterior à data de entrada.",
+                    let total;
+                    try {
+                      total = bookingPrice(
+                        storage.data,
+                        f.dog,
+                        f.start,
+                        f.end,
+                        f.type,
                       );
+                    } catch (error) {
+                      setFormError(error.message);
                       return;
                     }
-                    persist(
-                      "bookings",
-                      [
-                        ...bookings,
-                        {
-                          ...f,
-                          end: f.type === "Daycare" ? f.start : f.end,
-                          total: price(f.dog, f.start, f.end, f.type),
-                          paid: false,
-                        },
-                      ],
-                      B,
-                    );
+                    persist("bookings", [
+                      ...bookings,
+                      {
+                        ...f,
+                        end: f.type === "Daycare" ? f.start : f.end,
+                        total,
+                        paid: false,
+                      },
+                    ]);
                   }
                   S(null);
                 }}
@@ -774,15 +835,15 @@ function App() {
                   <>
                     <label>
                       Nome do cão
-                      <input name="name" required />
+                      <input name="name" required maxLength={100} />
                     </label>
                     <label>
                       Nome do tutor
-                      <input name="owner" required />
+                      <input name="owner" required maxLength={100} />
                     </label>
                     <label>
                       Raça
-                      <input name="breed" required />
+                      <input name="breed" required maxLength={100} />
                     </label>
                     <label>
                       Faixa etária
@@ -799,7 +860,7 @@ function App() {
                       Hóspede
                       <select name="dog" required>
                         {guests.map((g) => (
-                          <option>{g.name}</option>
+                          <option key={g.name}>{g.name}</option>
                         ))}
                       </select>
                     </label>
@@ -823,18 +884,37 @@ function App() {
                         type="date"
                         name="start"
                         required
-                        defaultValue="2026-11-03"
+                        defaultValue={localDate()}
                       />
                     </label>
                     <label>
                       Data de saída (hotel)
-                      <input type="date" name="end" defaultValue="2026-11-04" />
+                      <input
+                        type="date"
+                        name="end"
+                        defaultValue={localDate(1)}
+                      />
                     </label>
                     <p className="hint">
                       O hotel é cobrado por noite, de acordo com a época e a
                       faixa etária do cão. A creche tem um preço diário.
                     </p>
                   </>
+                )}
+                {formError && (
+                  <div className="form-error" role="alert">
+                    <p>{formError}</p>
+                    <button
+                      type="button"
+                      className="textbutton"
+                      onClick={() => {
+                        S(null);
+                        P("Pricing & seasons");
+                      }}
+                    >
+                      Definir preços
+                    </button>
+                  </div>
                 )}
                 <button className="primary" type="submit">
                   {modal === "guest" ? "Guardar hóspede" : "Criar reserva"}
@@ -843,7 +923,7 @@ function App() {
             ) : (
               <p>
                 {modal === "help"
-                  ? "Adicione os hóspedes, defina os preços por época e crie uma reserva. Acompanhe os saldos em Pagamentos e explore a receita potencial no simulador. As alterações ficam guardadas neste navegador."
+                  ? "Adicione os hóspedes, defina os preços por época e crie uma reserva. Acompanhe os saldos em Pagamentos e explore a receita potencial no simulador. Os dados ficam guardados num ficheiro neste dispositivo, fora do navegador."
                   : `${bookings.filter((b) => !b.paid).length} ${bookings.filter((b) => !b.paid).length === 1 ? "reserva tem pagamentos pendentes" : "reservas têm pagamentos pendentes"}. Aceda a Pagamentos para registar um pagamento.`}
               </p>
             )}
@@ -853,4 +933,3 @@ function App() {
     </div>
   );
 }
-createRoot(document.getElementById("root")).render(<App />);

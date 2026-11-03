@@ -5,3 +5,6 @@ dist/
 .env.*
 !.env.example
 *.log
+
+# Private device data, backups and temporary writes. Never commit this folder.
+/data/
