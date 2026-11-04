@@ -1,6 +1,6 @@
 # PetStay
 
-Aplicação de gestão para proprietários de hotéis para animais, em português de Portugal, desenvolvida com React e Vite. Cada instalação tem um perfil de hotel e guarda os dados no próprio dispositivo.
+Aplicação de gestão para proprietários de hotéis para animais, em português de Portugal, desenvolvida com React, TypeScript e Vite. Cada instalação tem um perfil de hotel e guarda os dados no próprio dispositivo.
 
 ## Funcionalidades
 
@@ -43,7 +43,7 @@ Os dados antigos do navegador não são importados automaticamente. Um hotel já
 npm run build
 ```
 
-Os ficheiros de produção são gerados na pasta `dist/`.
+A compilação verifica primeiro os tipos TypeScript. Os ficheiros de produção são gerados na pasta `dist/`.
 
 Para executar a versão compilada com o mesmo armazenamento no dispositivo:
 
@@ -62,8 +62,11 @@ Para fazer uma cópia externa, pare o servidor e copie a pasta `data/` para um l
 ## Verificar
 
 ```sh
+npm run typecheck
 npm test
 ```
+
+O projeto usa TypeScript em modo estrito nos componentes React, no servidor local, na configuração do Vite e nos testes. Os testes são executados com `tsx` e o test runner do Node.js.
 
 ## Estrutura
 
@@ -74,32 +77,34 @@ petstay/
 ├── src/
 │   ├── assets/                   # Imagens, fontes e outros recursos da aplicação
 │   ├── components/
-│   │   ├── Brand.jsx
-│   │   ├── Dashboard.jsx
-│   │   ├── EmptyState.jsx
-│   │   ├── HotelAvatar.jsx
-│   │   ├── HotelProfileForm.jsx
-│   │   └── Onboarding.jsx
+│   │   ├── Brand.tsx
+│   │   ├── Dashboard.tsx
+│   │   ├── EmptyState.tsx
+│   │   ├── HotelAvatar.tsx
+│   │   ├── HotelProfileForm.tsx
+│   │   └── Onboarding.tsx
 │   ├── hooks/
-│   │   └── useDeviceData.js       # Carregamento, registo e gravação automática
+│   │   └── useDeviceData.ts       # Carregamento, registo e gravação automática
 │   ├── context/
-│   │   └── HotelContext.jsx      # Estado do hotel partilhado pelos componentes
+│   │   └── HotelContext.tsx      # Estado do hotel partilhado pelos componentes
 │   ├── services/
-│   │   └── device-storage.js     # Pedidos à API do servidor local
+│   │   └── device-storage.ts     # Pedidos à API do servidor local
 │   ├── utils/
-│   │   ├── format.js             # Datas, valores, textos e iniciais
-│   │   └── hotel-data.js         # Estado vazio, validação e cálculo de preços
-│   ├── App.jsx                   # Componente principal e seleção do ecrã
-│   ├── main.jsx                  # Entrada React e configuração do provider
+│   │   ├── format.ts             # Datas, valores, textos e iniciais
+│   │   └── hotel-data.ts         # Estado vazio, validação e cálculo de preços
+│   ├── App.tsx                   # Componente principal e seleção do ecrã
+│   ├── main.tsx                  # Entrada React e configuração do provider
+│   ├── types.ts                  # Tipos partilhados do hotel e armazenamento
 │   ├── index.css                 # Estilos globais, fontes e variáveis
 │   └── App.css                   # Estilos dos componentes e apresentação
 ├── server/
-│   └── local-store.js            # API e leitura/gravação no disco
+│   └── local-store.ts            # API e leitura/gravação no disco
 ├── tests/
 ├── data/                         # Dados privados; ignorados pelo Git
 ├── package.json
 ├── package-lock.json
-├── vite.config.js
+├── tsconfig.json                 # Verificação TypeScript em modo estrito
+├── vite.config.ts
 └── README.md
 ```
 

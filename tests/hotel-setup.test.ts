@@ -1,16 +1,16 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { defaultData, newHotelData, validateData, bookingPrice } from "../src/utils/hotel-data.js";
+import { defaultData, newHotelData, validateData, bookingPrice } from "../src/utils/hotel-data.ts";
 
 const profile = { name: "Hotel de teste", owner: "Pessoa", avatar: "" };
 
 test("new hotel registration has no clients, bookings, configured seasons or prices", () => {
   const data = newHotelData(profile);
-  assert.deepEqual(data.guests, []);
+  assert.deepEqual([...data.guests], []);
   assert.deepEqual(data.bookings, []);
   assert.deepEqual(data.rates, { Puppy: [null, null], Adult: [null, null], Senior: [null, null], day: null, high: [] });
   const another = newHotelData({ ...profile, name: "Outro hotel" });
-  data.guests.push({ name: "Teste" });
+  data.guests.push({ name: "Teste", owner: "Tutor", breed: "Teste", age: "Adult" });
   data.rates.Adult[0] = 22;
   assert.deepEqual(another.guests, []);
   assert.equal(another.rates.Adult[0], null);

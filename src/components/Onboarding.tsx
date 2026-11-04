@@ -1,8 +1,8 @@
 import React from "react";
 import { Check } from "lucide-react";
-import { useHotel } from "../context/HotelContext.jsx";
-import { Brand } from "./Brand.jsx";
-import { HotelProfileForm } from "./HotelProfileForm.jsx";
+import { useHotel } from "../context/HotelContext.tsx";
+import { Brand } from "./Brand.tsx";
+import { HotelProfileForm } from "./HotelProfileForm.tsx";
 
 export function Onboarding() {
   const storage = useHotel();

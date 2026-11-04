@@ -2,12 +2,12 @@ const locale = 'pt-PT';
 const currency = new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' });
 const date = new Intl.DateTimeFormat(locale);
 
-export const money = value => currency.format(value);
-export const shortMoney = value => new Intl.NumberFormat(locale, {
+export const money = (value: number) => currency.format(value);
+export const shortMoney = (value: number) => new Intl.NumberFormat(locale, {
   style: 'currency', currency: 'EUR', notation: 'compact', maximumFractionDigits: 1,
 }).format(value);
-export const formatDate = value => date.format(new Date(`${value}T12:00:00`));
-export const monthName = (month, short = false) => new Date(2026, month, 1)
+export const formatDate = (value: string) => date.format(new Date(`${value}T12:00:00`));
+export const monthName = (month: number, short = false) => new Date(2026, month, 1)
   .toLocaleString(locale, { month: short ? 'short' : 'long' });
 export const pageLabels = {
   Overview: 'Visão geral',
@@ -19,11 +19,12 @@ export const pageLabels = {
 // Keep the stored values unchanged so existing guests, bookings and rates still work.
 export const ageLabels = { Puppy: 'Cachorro', Adult: 'Adulto', Senior: 'Sénior' };
 export const stayLabels = { Boarding: 'Hotel', Daycare: 'Creche' };
-export const breedLabel = breed => ({ 'French Bulldog': 'Bulldog francês' }[breed] ?? breed);
+const breedLabels: Record<string, string> = { 'French Bulldog': 'Bulldog francês' };
+export const breedLabel = (breed: string) => breedLabels[breed] ?? breed;
 
-export function initials(name) {
+export function initials(name: string) {
   const words = name.trim().split(/\s+/);
-  return (words[0]?.[0] ?? "") + (words.length > 1 ? words.at(-1)[0] : "");
+  return (words[0]?.[0] ?? "") + (words.length > 1 ? words.at(-1)?.[0] ?? "" : "");
 }
 
 export function localDate(offset = 0) {

@@ -25,12 +25,14 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
-import { useHotel } from "../context/HotelContext.jsx";
-import { bookingPrice } from "../utils/hotel-data.js";
-import { Brand } from "./Brand.jsx";
-import { HotelAvatar } from "./HotelAvatar.jsx";
-import { HotelProfileForm } from "./HotelProfileForm.jsx";
-import { EmptyState } from "./EmptyState.jsx";
+import { useHotel } from "../context/HotelContext.tsx";
+import { bookingPrice, isAgeGroup, isStayType } from "../utils/hotel-data.ts";
+import { asStorageError } from "../types.ts";
+import type { HotelData } from "../types.ts";
+import { Brand } from "./Brand.tsx";
+import { HotelAvatar } from "./HotelAvatar.tsx";
+import { HotelProfileForm } from "./HotelProfileForm.tsx";
+import { EmptyState } from "./EmptyState.tsx";
 import {
   money,
   initials,
@@ -42,33 +44,38 @@ import {
   ageLabels,
   stayLabels,
   breedLabel,
-} from "../utils/format.js";
+} from "../utils/format.ts";
 const names = [
   "Overview",
   "Bookings",
   "Guests & clients",
   "Payments",
   "Pricing & seasons",
-];
+] as const;
+type Page = typeof names[number];
+type Modal = "profile" | "help" | "notifications" | "guest" | "booking";
+const ages = ["Puppy", "Adult", "Senior"] as const;
 const icons = [LayoutDashboard, CalendarDays, Heart, Wallet, SlidersHorizontal];
 export default function Dashboard() {
   const storage = useHotel();
-  const [page, P] = useState("Overview"),
+  const [page, P] = useState<Page>("Overview"),
     [calendarDate, setCalendarDate] = useState(() => new Date()),
-    [modal, S] = useState(null),
+    [modal, S] = useState<Modal | null>(null),
     [query, Q] = useState(""),
     [formError, setFormError] = useState("");
-  const { hotel, rates, guests, bookings, occupancy, capacity } = storage.data;
+  const data = storage.data;
+  if (!data?.hotel) throw new Error("Dashboard requires a registered hotel.");
+  const { hotel, rates, guests, bookings, occupancy, capacity } = data;
   const month = calendarDate.getMonth(),
     year = calendarDate.getFullYear();
   const ownerInitials = initials(hotel.owner).toUpperCase();
   useEffect(() => {
     setFormError("");
   }, [modal]);
-  function moveMonth(delta) {
+  function moveMonth(delta: number) {
     setCalendarDate(new Date(year, month + delta, 1));
   }
-  function persist(key, value) {
+  function persist<Key extends keyof HotelData>(key: Key, value: HotelData[Key]) {
     storage.update(key, value);
   }
   const monthlyBookings = bookings.filter(
@@ -229,9 +236,7 @@ export default function Dashboard() {
             <>
               {(guests.length === 0 ||
                 rates.day === null ||
-                Object.values(rates).some(
-                  (value) => Array.isArray(value) && value.includes(null),
-                )) && (
+                ages.some((age) => rates[age].includes(null))) && (
                 <div className="setup-checklist">
                   <div>
                     <h3>Prepare o seu hotel</h3>
@@ -392,7 +397,7 @@ export default function Dashboard() {
                               className={"stay stay" + i}
                               style={{
                                 left: `${(Math.max(0, +b.start.slice(8) - 1) * 100) / 7}%`,
-                                width: `${(Math.min(7, Math.max(1, (new Date(b.end) - new Date(b.start)) / 86400000)) * 100) / 7}%`,
+                                width: `${(Math.min(7, Math.max(1, (new Date(b.end).getTime() - new Date(b.start).getTime()) / 86400000)) * 100) / 7}%`,
                               }}
                               onClick={() => P("Payments")}
                             >
@@ -555,11 +560,11 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {["Puppy", "Adult", "Senior"].map((a) => (
-                    <tr>
+                  {ages.map((a) => (
+                    <tr key={a}>
                       <td>{ageLabels[a]}</td>
-                      {[0, 1].map((i) => (
-                        <td>
+                      {([0, 1] as const).map((i) => (
+                        <td key={i}>
                           <input
                             type="number"
                             min="0"
@@ -567,18 +572,14 @@ export default function Dashboard() {
                             value={rates[a][i] ?? ""}
                             placeholder="Por definir"
                             aria-label={`Preço de ${ageLabels[a]} — época ${i ? "alta" : "baixa"}`}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              const prices = [...rates[a]];
+                              prices[i] = e.target.value === "" ? null : Math.max(0, +e.target.value);
                               persist("rates", {
                                 ...rates,
-                                [a]: rates[a].map((v, j) =>
-                                  i === j
-                                    ? e.target.value === ""
-                                      ? null
-                                      : Math.max(0, +e.target.value)
-                                    : v,
-                                ),
-                              })
-                            }
+                                [a]: [prices[0], prices[1]],
+                              });
+                            }}
                           />
                         </td>
                       ))}
@@ -616,6 +617,7 @@ export default function Dashboard() {
                 <div className="months">
                   {chart.map((c, i) => (
                     <button
+                      key={i}
                       className={rates.high.includes(i) ? "selected" : ""}
                       onClick={() =>
                         persist("rates", {
@@ -722,7 +724,7 @@ export default function Dashboard() {
                         tickLine={false}
                         tick={{ fontSize: 10, fill: "#959b91" }}
                       />
-                      <Tooltip formatter={money} />
+                      <Tooltip formatter={(value) => money(Number(value))} />
                       <Area
                         type="monotone"
                         dataKey="value"
@@ -801,28 +803,38 @@ export default function Dashboard() {
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  let f = Object.fromEntries(new FormData(e.target));
+                  const fields = new FormData(e.currentTarget);
+                  const field = (name: string): string => {
+                    const value = fields.get(name);
+                    return typeof value === "string" ? value : "";
+                  };
                   if (modal === "guest") {
-                    persist("guests", [...guests, f]);
+                    const age = field("age");
+                    if (!isAgeGroup(age)) return;
+                    persist("guests", [...guests, {
+                      name: field("name"), owner: field("owner"), breed: field("breed"), age,
+                    }]);
                   } else {
+                    const dog = field("dog"), start = field("start"), end = field("end"), type = field("type");
+                    if (!isStayType(type)) return;
                     let total;
                     try {
                       total = bookingPrice(
-                        storage.data,
-                        f.dog,
-                        f.start,
-                        f.end,
-                        f.type,
+                        data,
+                        dog,
+                        start,
+                        end,
+                        type,
                       );
                     } catch (error) {
-                      setFormError(error.message);
+                      setFormError(asStorageError(error).message);
                       return;
                     }
                     persist("bookings", [
                       ...bookings,
                       {
-                        ...f,
-                        end: f.type === "Daycare" ? f.start : f.end,
+                        dog, start, type,
+                        end: type === "Daycare" ? start : end,
                         total,
                         paid: false,
                       },

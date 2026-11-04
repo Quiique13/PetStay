@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import tailwind from "@tailwindcss/vite";
-import { localStoragePlugin } from "./server/local-store.js";
+import { localStoragePlugin } from "./server/local-store.ts";
 
 export default defineConfig({
   plugins: [tailwind(), localStoragePlugin()],

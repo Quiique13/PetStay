@@ -1,41 +1,50 @@
 import { mkdir, readFile, writeFile, rename, copyFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
-import { defaultData, validateData } from "../src/utils/hotel-data.js";
+import { defaultData, isRecord, validateData } from "../src/utils/hotel-data.ts";
+import { asStorageError } from "../src/types.ts";
+import type { StorageError, StorageSnapshot } from "../src/types.ts";
+import type { ServerResponse } from "node:http";
+import type { Connect, Plugin } from "vite";
 
-export function createLocalStore(directory) {
+function isMissingFile(error: unknown): boolean {
+  return error instanceof Error && "code" in error && error.code === "ENOENT";
+}
+
+export function createLocalStore(directory: string) {
   const file = join(directory, "hotel.json");
   const legacyFile = join(directory, "momo.json");
   let writes = Promise.resolve();
 
-  async function read() {
+  async function read(): Promise<StorageSnapshot> {
     let contents;
     try {
       contents = await readFile(file, "utf8");
     } catch (error) {
-      if (error.code !== "ENOENT") throw error;
+      if (!isMissingFile(error)) throw error;
       try { contents = await readFile(legacyFile, "utf8"); }
       catch (legacyError) {
-        if (legacyError.code === "ENOENT") return { data: defaultData(), revision: 0, initialized: false };
+        if (isMissingFile(legacyError)) return { data: defaultData(), revision: 0, initialized: false };
         throw legacyError;
       }
     }
-    const saved = JSON.parse(contents);
-    if (![1, 2].includes(saved.schemaVersion) || !Number.isInteger(saved.revision) || saved.revision < 1) {
+    const saved: unknown = JSON.parse(contents);
+    if (!isRecord(saved) || (saved.schemaVersion !== 1 && saved.schemaVersion !== 2)
+      || typeof saved.revision !== "number" || !Number.isInteger(saved.revision) || saved.revision < 1) {
       throw new Error("Formato de ficheiro desconhecido.");
     }
-    const data = saved.schemaVersion === 1 ? { ...saved.data, hotel: null } : saved.data;
+    const data = saved.schemaVersion === 1 && isRecord(saved.data) ? { ...saved.data, hotel: null } : saved.data;
     return { data: validateData(data), revision: saved.revision, initialized: true };
   }
 
-  function save(data, revision) {
+  function save(input: unknown, revision: number): Promise<StorageSnapshot> {
     // Serialize writes so edits cannot interleave or corrupt the JSON file.
     const operation = writes.then(async () => {
-      validateData(data);
+      const data = validateData(input);
       if (!Number.isInteger(revision) || revision < 0) throw new Error("Revisão inválida.");
       const current = await read();
       if (current.revision !== revision) {
-        const error = new Error("Os dados foram alterados noutra janela. Recarregue a aplicação antes de continuar.");
+        const error: StorageError = new Error("Os dados foram alterados noutra janela. Recarregue a aplicação antes de continuar.");
         error.status = 409;
         throw error;
       }
@@ -47,7 +56,7 @@ export function createLocalStore(directory) {
         if (current.initialized) {
           let previous = file;
           try { await readFile(file); }
-          catch (error) { if (error.code === "ENOENT") previous = legacyFile; else throw error; }
+          catch (error) { if (isMissingFile(error)) previous = legacyFile; else throw error; }
           await copyFile(previous, file + ".bak");
           if (!current.data.hotel && data.hotel && previous === file) {
             await copyFile(previous, join(directory, `before-hotel-setup-${randomUUID()}.json`));
@@ -59,14 +68,14 @@ export function createLocalStore(directory) {
       }
       return { data, revision: record.revision, initialized: true };
     });
-    writes = operation.catch(() => {});
+    writes = operation.then(() => {}, () => {});
     return operation;
   }
   return { read, save };
 }
 
-export function createStorageMiddleware(store) {
-  function reply(response, status, body) {
+export function createStorageMiddleware(store: ReturnType<typeof createLocalStore>): Connect.NextHandleFunction {
+  function reply(response: ServerResponse, status: number, body: unknown) {
     response.writeHead(status, {
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store",
@@ -76,7 +85,7 @@ export function createStorageMiddleware(store) {
   }
   return async (request, response, next) => {
     let path;
-    try { path = decodeURIComponent(new URL(request.url, "http://localhost").pathname); }
+    try { path = decodeURIComponent(new URL(request.url ?? "/", "http://localhost").pathname); }
     catch { return reply(response, 400, { error: "Endereço inválido." }); }
     // Vite also serves project files in development; never serve private data as assets.
     if (/(?:^|\/)data(?:\/|$)/i.test(path.replaceAll("\\", "/"))) {
@@ -84,7 +93,7 @@ export function createStorageMiddleware(store) {
     }
     if (path !== "/api/storage") return next();
     const host = request.headers.host;
-    let hostname;
+    let hostname = "";
     try { hostname = new URL(`http://${host}`).hostname; } catch { /* rejected below */ }
     if (!["localhost", "127.0.0.1", "[::1]"].includes(hostname)
       || (request.headers.origin && request.headers.origin !== `http://${host}`)) {
@@ -102,7 +111,7 @@ export function createStorageMiddleware(store) {
       return reply(response, 415, { error: "É necessário enviar dados em JSON." });
     }
     try {
-      const chunks = [];
+      const chunks: Buffer[] = [];
       let bytes = 0;
       for await (const chunk of request) {
         bytes += chunk.length;
@@ -111,24 +120,26 @@ export function createStorageMiddleware(store) {
         }
         chunks.push(chunk);
       }
-      let body;
+      let body: unknown;
       try { body = JSON.parse(Buffer.concat(chunks).toString("utf8")); }
       catch { return reply(response, 400, { error: "JSON inválido. Nenhuma alteração foi gravada." }); }
-      try { validateData(body?.data); }
-      catch (error) { return reply(response, 400, { error: error.message }); }
-      if (!Number.isInteger(body.revision) || body.revision < 0) {
+      let data;
+      try { data = validateData(isRecord(body) ? body.data : undefined); }
+      catch (error) { return reply(response, 400, { error: asStorageError(error).message }); }
+      if (!isRecord(body) || typeof body.revision !== "number" || !Number.isInteger(body.revision) || body.revision < 0) {
         return reply(response, 400, { error: "Revisão inválida." });
       }
-      return reply(response, 200, await store.save(body.data, body.revision));
+      return reply(response, 200, await store.save(data, body.revision));
     } catch (error) {
-      return reply(response, error.status ?? 500, { error: error.status === 409 ? error.message
+      const failure = asStorageError(error);
+      return reply(response, failure.status ?? 500, { error: failure.status === 409 ? failure.message
         : "Não foi possível guardar os dados neste dispositivo. Verifique o espaço livre e as permissões da pasta data antes de tentar novamente." });
     }
   };
 }
 
-export function localStoragePlugin() {
-  let middleware;
+export function localStoragePlugin(): Plugin {
+  let middleware: Connect.NextHandleFunction;
   return {
     name: "petstay-device-storage",
     configResolved(config) {

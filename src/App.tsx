@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import "./App.css";
-import { useHotel } from "./context/HotelContext.jsx";
-import { Brand } from "./components/Brand.jsx";
-import { Onboarding } from "./components/Onboarding.jsx";
-import Dashboard from "./components/Dashboard.jsx";
+import { useHotel } from "./context/HotelContext.tsx";
+import { Brand } from "./components/Brand.tsx";
+import { Onboarding } from "./components/Onboarding.tsx";
+import Dashboard from "./components/Dashboard.tsx";
 
 export default function App() {
   const storage = useHotel();

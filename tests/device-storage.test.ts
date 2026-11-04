@@ -1,21 +1,26 @@
 import test from "node:test";
+import type { TestContext } from "node:test";
 import assert from "node:assert/strict";
-import { loadDeviceData, saveDeviceData } from "../src/services/device-storage.js";
-import { defaultData, newHotelData } from "../src/utils/hotel-data.js";
-import { fixture } from "./storage-fixture.js";
+import { loadDeviceData, saveDeviceData } from "../src/services/device-storage.ts";
+import { defaultData, newHotelData } from "../src/utils/hotel-data.ts";
+import { fixture } from "./storage-fixture.ts";
 
-async function browser(t, entries) {
+async function browser(t: TestContext, entries: Record<string, string>) {
   const context = await fixture(t, true);
   const realFetch = globalThis.fetch;
-  const previousWindow = globalThis.window;
+  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
   const values = new Map(Object.entries(entries));
-  globalThis.window = { localStorage: {
-    getItem: key => values.get(key) ?? null,
-    removeItem: key => values.delete(key),
+  Object.defineProperty(globalThis, "window", { configurable: true, value: { localStorage: {
+    getItem: (key: string) => values.get(key) ?? null,
+    removeItem: (key: string) => values.delete(key),
     setItem: () => { throw new Error("New data must never be written to browser storage"); },
-  } };
-  globalThis.fetch = (path, options) => realFetch(new URL(path, context.url), options);
-  t.after(() => { globalThis.fetch = realFetch; globalThis.window = previousWindow; });
+  } } });
+  globalThis.fetch = (path, options) => realFetch(new URL(path instanceof Request ? path.url : path, context.url), options);
+  t.after(() => {
+    globalThis.fetch = realFetch;
+    if (previousWindow) Object.defineProperty(globalThis, "window", previousWindow);
+    else Reflect.deleteProperty(globalThis, "window");
+  });
   return { ...context, values };
 }
 

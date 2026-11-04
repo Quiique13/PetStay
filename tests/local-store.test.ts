@@ -3,9 +3,9 @@ import assert from "node:assert/strict";
 import { readFile, writeFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { request as httpRequest } from "node:http";
-import { createLocalStore } from "../server/local-store.js";
-import { defaultData, newHotelData } from "../src/utils/hotel-data.js";
-import { fixture } from "./storage-fixture.js";
+import { createLocalStore } from "../server/local-store.ts";
+import { defaultData, newHotelData } from "../src/utils/hotel-data.ts";
+import { fixture } from "./storage-fixture.ts";
 
 test("clients, bookings, prices and simulator settings survive a new store instance", async t => {
   const { store, directory } = await fixture(t);
@@ -20,7 +20,9 @@ test("clients, bookings, prices and simulator settings survive a new store insta
   const restarted = createLocalStore(directory);
   assert.deepEqual((await restarted.read()).data, data);
   const updated = structuredClone(data);
-  updated.bookings.at(-1).paid = true;
+  const booking = updated.bookings.at(-1);
+  assert.ok(booking);
+  booking.paid = true;
   await restarted.save(updated, 1);
   assert.deepEqual(JSON.parse(await readFile(join(directory, "hotel.json.bak"), "utf8")).data, data);
   assert.deepEqual((await store.read()).data, updated);
@@ -40,7 +42,7 @@ test("invalid data and stale or concurrent writes cannot replace saved records",
   const results = await Promise.allSettled([store.save(a, 1), store.save(b, 1)]);
   assert.equal(results[0].status, "fulfilled");
   assert.equal(results[1].status, "rejected");
-  assert.equal(results[1].reason.status, 409);
+  assert.equal(results[1].status === "rejected" && results[1].reason.status, 409);
   assert.deepEqual((await store.read()).data, a);
 });
 
@@ -58,7 +60,7 @@ test("HTTP API persists data and blocks asset access, foreign origins and invali
   const get = await fetch(url + "/api/storage");
   assert.equal(get.headers.get("cache-control"), "no-store");
   const initial = await get.json();
-  const put = data => fetch(url + "/api/storage", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+  const put = (data: unknown) => fetch(url + "/api/storage", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
   assert.equal((await put({ data: initial.data, revision: 0 })).status, 200);
   assert.equal((await put({ data: initial.data, revision: 0 })).status, 409);
   const invalid = structuredClone(initial.data);
@@ -83,8 +85,7 @@ test("HTTP API persists data and blocks asset access, foreign origins and invali
 
 test("registering a hotel starts clean and preserves the previous legacy file", async t => {
   const { store, directory } = await fixture(t);
-  const legacy = defaultData();
-  delete legacy.hotel;
+  const { hotel: _hotel, ...legacy } = defaultData();
   legacy.guests.push({ name: "Anterior", owner: "Tutor anterior", age: "Adult", breed: "Teste" });
   legacy.rates.day = 19;
   const contents = JSON.stringify({ schemaVersion: 1, revision: 3, data: legacy });

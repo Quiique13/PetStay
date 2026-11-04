@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { loadDeviceData, saveDeviceData } from "../services/device-storage.js";
-import { newHotelData } from "../utils/hotel-data.js";
+import { loadDeviceData, saveDeviceData } from "../services/device-storage.ts";
+import { newHotelData } from "../utils/hotel-data.ts";
+import { asStorageError } from "../types.ts";
+import type { HotelData, HotelProfile, StorageError } from "../types.ts";
 
 export function useDeviceData() {
-  const [data, setData] = useState(null);
-  const [status, setStatus] = useState("loading");
-  const [error, setError] = useState(null);
+  const [data, setData] = useState<HotelData | null>(null);
+  const [status, setStatus] = useState<"loading" | "saved" | "saving" | "error">("loading");
+  const [error, setError] = useState<StorageError | null>(null);
   const [retry, setRetry] = useState(0);
   const revision = useRef(0);
-  const latest = useRef(null);
-  const saved = useRef(null);
+  const latest = useRef<HotelData | null>(null);
+  const saved = useRef<HotelData | null>(null);
   const queue = useRef(Promise.resolve());
   const failed = useRef(false);
 
@@ -26,7 +28,7 @@ export function useDeviceData() {
       setStatus("saved");
     }).catch(cause => {
       if (!active) return;
-      setError(cause);
+      setError(asStorageError(cause));
       setStatus("error");
     });
     return () => { active = false; };
@@ -48,7 +50,7 @@ export function useDeviceData() {
         } catch (cause) {
           failed.current = true;
           setStatus("error");
-          setError(cause);
+          setError(asStorageError(cause));
         }
       });
     }, 250);
@@ -56,7 +58,7 @@ export function useDeviceData() {
   }, [data, retry]);
 
   useEffect(() => {
-    function protectUnsavedChanges(event) {
+    function protectUnsavedChanges(event: BeforeUnloadEvent) {
       if (latest.current !== saved.current) {
         event.preventDefault();
         event.returnValue = "";
@@ -66,7 +68,8 @@ export function useDeviceData() {
     return () => window.removeEventListener("beforeunload", protectUnsavedChanges);
   }, []);
 
-  function update(key, value) {
+  function update<Key extends keyof HotelData>(key: Key, value: HotelData[Key]) {
+    if (!latest.current) return;
     const next = { ...latest.current, [key]: value };
     latest.current = next;
     setData(next);
@@ -80,7 +83,7 @@ export function useDeviceData() {
     setRetry(value => value + 1);
   }
 
-  async function register(hotel) {
+  async function register(hotel: HotelProfile) {
     setStatus("saving");
     setError(null);
     try {
@@ -92,7 +95,7 @@ export function useDeviceData() {
       setStatus("saved");
       return true;
     } catch (cause) {
-      setError(cause);
+      setError(asStorageError(cause));
       setStatus("error");
       return false;
     }
