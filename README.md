@@ -20,6 +20,31 @@ Na primeira abertura, registe o hotel e depois adicione os hóspedes e preços m
 
 A pasta `/data/` está no `.gitignore`, incluindo cópias de segurança e ficheiros temporários. Os seus dados não entram nos commits nem nos pushes habituais. Não use `git add -f data/`, pois essa opção ignora deliberadamente o `.gitignore`.
 
+## Windows — versão portátil
+
+Descarregue **PetStay-1.0.0-windows-x64-portable.exe** na [versão mais recente no GitHub](https://github.com/Quiique13/PetStay/releases/latest). Coloque o ficheiro numa pasta onde possa guardar dados e abra-o com um duplo clique. Não é necessário instalar a aplicação, Node.js ou npm. Esta versão destina-se ao Windows 10/11 de 64 bits (x64).
+
+O executável cria a pasta **`data/` ao seu lado**, com os registos do hotel e uma pasta `.runtime/` para os ficheiros internos da janela. Para transportar a aplicação para outro computador, feche-a e copie **o executável e a pasta `data/` em conjunto**. Para atualizar, feche a aplicação e substitua apenas o executável, mantendo a pasta `data/`. Os downloads não incluem dados de nenhum hotel.
+
+O executável não tem assinatura digital; o Windows poderá apresentar um aviso do SmartScreen. Os ficheiros `SHA256SUMS.txt` da versão permitem verificar a integridade do download com `Get-FileHash` no PowerShell.
+
+Para usar os dados da versão de desenvolvimento, feche os dois servidores e copie a pasta `data/` existente para junto do executável. Preserve uma cópia de segurança antes de a mover ou substituir.
+
+### Criar o executável
+
+Num computador Windows com Node.js 24 e npm:
+
+```sh
+npm ci
+npm test
+npm run build:portable
+npm run test:portable
+```
+
+O resultado fica em `release/PetStay-1.0.0-windows-x64-portable.exe`. A compilação inclui apenas os recursos de produção e o servidor local; a pasta privada `data/` fica excluída. `npm run desktop` abre a versão de desenvolvimento numa janela de aplicação.
+
+O workflow `.github/workflows/portable.yml` também gera o executável no GitHub Actions. Pode ser iniciado manualmente para obter um artefacto ou através de uma tag `v*` para publicar uma versão no GitHub Releases. Atualize a versão em `package.json` e `package-lock.json` antes de criar uma nova tag.
+
 ## Executar localmente
 
 É necessário ter Node.js e npm instalados.
