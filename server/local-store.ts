@@ -37,7 +37,15 @@ export function createLocalStore(directory: string) {
     return { data: validateData(data), revision: saved.revision, initialized: true };
   }
 
-  function save(input: unknown, revision: number): Promise<StorageSnapshot> {
+  async function readRecovery() {
+    try {
+      const record: unknown = JSON.parse(await readFile(join(directory, "before-import.json"), "utf8"));
+      if (!isRecord(record) || record.schemaVersion !== 2) throw new Error("Cópia de recuperação inválida.");
+      return validateData(record.data);
+    } catch (error) { if (isMissingFile(error)) return null; throw error; }
+  }
+
+  function save(input: unknown, revision: number, preserveRecovery = false): Promise<StorageSnapshot> {
     // Serialize writes so edits cannot interleave or corrupt the JSON file.
     const operation = writes.then(async () => {
       const data = validateData(input);
@@ -58,6 +66,13 @@ export function createLocalStore(directory: string) {
           try { await readFile(file); }
           catch (error) { if (isMissingFile(error)) previous = legacyFile; else throw error; }
           await copyFile(previous, file + ".bak");
+          if (preserveRecovery) {
+            const recoveryTemporary = join(directory, `.before-import-${randomUUID()}.tmp`);
+            try {
+              await writeFile(recoveryTemporary, JSON.stringify({ schemaVersion: 2, revision: current.revision, data: current.data }, null, 2) + "\n", { flag: "wx", mode: 0o600 });
+              await rename(recoveryTemporary, join(directory, "before-import.json"));
+            } finally { await rm(recoveryTemporary, { force: true }); }
+          }
           if (!current.data.hotel && data.hotel && previous === file) {
             await copyFile(previous, join(directory, `before-hotel-setup-${randomUUID()}.json`));
           }
@@ -71,7 +86,7 @@ export function createLocalStore(directory: string) {
     writes = operation.then(() => {}, () => {});
     return operation;
   }
-  return { read, save };
+  return { read, save, readRecovery };
 }
 
 export function createStorageMiddleware(store: ReturnType<typeof createLocalStore>): Connect.NextHandleFunction {
@@ -91,7 +106,7 @@ export function createStorageMiddleware(store: ReturnType<typeof createLocalStor
     if (/(?:^|\/)data(?:\/|$)/i.test(path.replaceAll("\\", "/"))) {
       return reply(response, 404, { error: "Ficheiro não disponível." });
     }
-    if (path !== "/api/storage") return next();
+    if (path !== "/api/storage" && path !== "/api/storage/recovery") return next();
     const host = request.headers.host;
     let hostname = "";
     try { hostname = new URL(`http://${host}`).hostname; } catch { /* rejected below */ }
@@ -100,11 +115,15 @@ export function createStorageMiddleware(store: ReturnType<typeof createLocalStor
       return reply(response, 403, { error: "O acesso aos dados só é permitido neste dispositivo." });
     }
     if (request.method === "GET") {
+      if (path === "/api/storage/recovery") {
+        try { return reply(response, 200, { data: await store.readRecovery() }); }
+        catch { return reply(response, 500, { error: "Não foi possível abrir a cópia anterior à importação." }); }
+      }
       try { return reply(response, 200, await store.read()); }
       catch { return reply(response, 500, { error: "Não foi possível ler os dados do dispositivo. O ficheiro foi preservado; verifique a pasta data ou restaure a cópia .bak antes de continuar." }); }
     }
-    if (request.method !== "PUT") {
-      response.setHeader("Allow", "GET, PUT");
+    if (request.method !== "PUT" || path === "/api/storage/recovery") {
+      response.setHeader("Allow", path === "/api/storage/recovery" ? "GET" : "GET, PUT");
       return reply(response, 405, { error: "Método não permitido." });
     }
     if (!request.headers["content-type"]?.startsWith("application/json")) {
@@ -129,7 +148,7 @@ export function createStorageMiddleware(store: ReturnType<typeof createLocalStor
       if (!isRecord(body) || typeof body.revision !== "number" || !Number.isInteger(body.revision) || body.revision < 0) {
         return reply(response, 400, { error: "Revisão inválida." });
       }
-      return reply(response, 200, await store.save(data, body.revision));
+      return reply(response, 200, await store.save(data, body.revision, body.preserveRecovery === true));
     } catch (error) {
       const failure = asStorageError(error);
       return reply(response, failure.status ?? 500, { error: failure.status === 409 ? failure.message

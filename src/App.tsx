@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import "./App.css";
+import "./mobile.css";
 import { useHotel } from "./context/HotelContext.tsx";
 import { Brand } from "./components/Brand.tsx";
 import { Onboarding } from "./components/Onboarding.tsx";

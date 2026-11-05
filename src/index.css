@@ -1,7 +1,8 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&display=swap");
+@import "@fontsource-variable/dm-sans";
+@import "@fontsource-variable/nunito";
 
 :root {
-  font-family: "DM Sans", sans-serif;
+  font-family: "DM Sans Variable", sans-serif;
   color: #3e352c;
   background: #faf8f3;
   font-synthesis: none;
@@ -58,7 +59,7 @@ h2,
 h3,
 h4,
 .brand {
-  font-family: "Nunito", sans-serif;
+  font-family: "Nunito Variable", sans-serif;
 }
 small {
   font-size: 11px;

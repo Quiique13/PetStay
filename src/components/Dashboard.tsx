@@ -15,6 +15,7 @@ import {
   X,
   Sun,
   Check,
+  DatabaseBackup,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -33,6 +34,10 @@ import { Brand } from "./Brand.tsx";
 import { HotelAvatar } from "./HotelAvatar.tsx";
 import { HotelProfileForm } from "./HotelProfileForm.tsx";
 import { EmptyState } from "./EmptyState.tsx";
+import { DataTransfer } from "./DataTransfer.tsx";
+import { InstallMobile } from "./InstallMobile.tsx";
+import { isMobileApp } from "../services/storage-mode.ts";
+import hotelDog from "../assets/hotel-dog.jpg";
 import {
   money,
   initials,
@@ -53,7 +58,7 @@ const names = [
   "Pricing & seasons",
 ] as const;
 type Page = typeof names[number];
-type Modal = "profile" | "help" | "notifications" | "guest" | "booking";
+type Modal = "profile" | "help" | "notifications" | "guest" | "booking" | "data";
 const ages = ["Puppy", "Adult", "Senior"] as const;
 const icons = [LayoutDashboard, CalendarDays, Heart, Wallet, SlidersHorizontal];
 export default function Dashboard() {
@@ -71,6 +76,27 @@ export default function Dashboard() {
   const ownerInitials = initials(hotel.owner).toUpperCase();
   useEffect(() => {
     setFormError("");
+    if (!modal) return;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const dialog = document.querySelector<HTMLElement>(".dialog");
+    dialog?.querySelector<HTMLElement>("button, input, select, a[href]")?.focus();
+    function keyboard(event: KeyboardEvent) {
+      if (event.key === "Escape") S(null);
+      if (event.key !== "Tab" || !dialog) return;
+      const elements = Array.from(dialog.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), a[href], summary'))
+        .filter(element => element.getClientRects().length > 0);
+      const first = elements[0], last = elements.at(-1);
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    }
+    document.addEventListener("keydown", keyboard);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", keyboard);
+      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus();
+    };
   }, [modal]);
   function moveMonth(delta: number) {
     setCalendarDate(new Date(year, month + delta, 1));
@@ -119,17 +145,20 @@ export default function Dashboard() {
           </div>
         </button>
         <small className="navlabel">ÁREA DE GESTÃO</small>
-        <nav>
+        <nav aria-label="Navegação principal">
           {names.map((n, i) => {
             let Icon = icons[i];
             return (
               <button
                 className={page === n ? "active" : ""}
+                aria-current={page === n ? "page" : undefined}
+                aria-label={pageLabels[n]}
                 onClick={() => P(n)}
                 key={n}
               >
                 <Icon size={19} />
-                {pageLabels[n]}
+                <span className="nav-desktop">{pageLabels[n]}</span>
+                <span className="nav-mobile">{["Início", "Reservas", "Hóspedes", "Pagamentos", "Preços"][i]}</span>
                 {n === "Bookings" && <em>{bookings.length}</em>}
               </button>
             );
@@ -162,6 +191,7 @@ export default function Dashboard() {
             {pageLabels[page]}
           </div>
           <div className="headerRight">
+            <button className="data-trigger" onClick={() => S("data")} aria-label="Dados e cópias"><DatabaseBackup size={20} /><span>Dados e cópias</span></button>
             <span>
               <i /> Hotel aberto
             </span>
@@ -182,6 +212,7 @@ export default function Dashboard() {
           </div>
         </header>
         <section className="content">
+          {isMobileApp && <InstallMobile />}
           <div
             className={`storage-status ${storage.error ? "storage-error" : ""}`}
           >
@@ -266,7 +297,7 @@ export default function Dashboard() {
                 <div className="dogscene">
                   <span className="spark">✧</span>
                   <img
-                    src="https://images.unsplash.com/photo-1552053831-71594a27632d?w=700&h=450&fit=crop"
+                    src={hotelDog}
                     alt="Cão de raça Golden Retriever"
                   />
                   <div className="dogbadge">
@@ -471,7 +502,7 @@ export default function Dashboard() {
                   />
                 </label>
               </div>
-              <table>
+              <table className="records-table">
                 <thead>
                   <tr>
                     <th>Hóspede</th>
@@ -511,15 +542,15 @@ export default function Dashboard() {
                   )}
                   {filtered.map((b, i) => (
                     <tr key={i}>
-                      <td>
+                      <td data-label="Hóspede">
                         <strong>{b.dog}</strong>
                       </td>
-                      <td>{stayLabels[b.type] ?? b.type}</td>
-                      <td>
+                      <td data-label="Estadia">{stayLabels[b.type] ?? b.type}</td>
+                      <td data-label="Datas" className="record-dates">
                         {formatDate(b.start)} → {formatDate(b.end)}
                       </td>
-                      <td>{money(b.total)}</td>
-                      <td>
+                      <td data-label="Total">{money(b.total)}</td>
+                      <td data-label="Pagamento">
                         <button
                           className={b.paid ? "paid" : "pending"}
                           onClick={() =>
@@ -551,7 +582,7 @@ export default function Dashboard() {
                   </p>
                 </div>
               </div>
-              <table>
+              <table className="pricing-table">
                 <thead>
                   <tr>
                     <th>Faixa etária</th>
@@ -763,7 +794,7 @@ export default function Dashboard() {
       </main>
       {modal && (
         <div className="overlay">
-          <div className="dialog">
+          <div className="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
             <button
               className="close"
               onClick={() => S(null)}
@@ -771,18 +802,20 @@ export default function Dashboard() {
             >
               <X />
             </button>
-            <h2>
+            <h2 id="dialog-title">
               {modal === "guest"
                 ? "Um novo amigo de quatro patas"
                 : modal === "booking"
                   ? "Planear uma boa estadia"
                   : modal === "profile"
                     ? "Perfil do hotel"
+                    : modal === "data"
+                      ? "Dados e cópias"
                     : modal === "help"
                       ? "Bem-vindo ao PetStay"
                       : "Novidades do seu hotel"}
             </h2>
-            {modal === "profile" ? (
+            {modal === "data" ? <DataTransfer /> : modal === "profile" ? (
               <HotelProfileForm
                 initial={hotel}
                 onSubmit={(profile) => {
@@ -935,7 +968,7 @@ export default function Dashboard() {
             ) : (
               <p>
                 {modal === "help"
-                  ? "Adicione os hóspedes, defina os preços por época e crie uma reserva. Acompanhe os saldos em Pagamentos e explore a receita potencial no simulador. Os dados ficam guardados num ficheiro neste dispositivo, fora do navegador."
+                  ? `Adicione os hóspedes, defina os preços por época e crie uma reserva. Acompanhe os saldos em Pagamentos e explore a receita potencial no simulador. ${isMobileApp ? "Os dados ficam guardados neste navegador, no telemóvel. Exporte cópias regularmente em Dados e cópias." : "Os dados ficam guardados num ficheiro neste dispositivo. Use Dados e cópias para transferir o hotel para o telemóvel."}`
                   : `${bookings.filter((b) => !b.paid).length} ${bookings.filter((b) => !b.paid).length === 1 ? "reserva tem pagamentos pendentes" : "reservas têm pagamentos pendentes"}. Aceda a Pagamentos para registar um pagamento.`}
               </p>
             )}

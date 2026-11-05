@@ -3,6 +3,9 @@ import { Check } from "lucide-react";
 import { useHotel } from "../context/HotelContext.tsx";
 import { Brand } from "./Brand.tsx";
 import { HotelProfileForm } from "./HotelProfileForm.tsx";
+import { DataTransfer } from "./DataTransfer.tsx";
+import { InstallMobile } from "./InstallMobile.tsx";
+import { isMobileApp } from "../services/storage-mode.ts";
 
 export function Onboarding() {
   const storage = useHotel();
@@ -26,6 +29,8 @@ export function Onboarding() {
       <p>Crie o perfil do hotel. Depois, adicione os seus hóspedes e defina os seus preços, ao seu ritmo.</p>
       <HotelProfileForm onSubmit={storage.register} busy={storage.status === "saving"} error={storage.error} submitLabel="Criar o meu hotel" />
       <p className="setup-note">O seu hotel começa com uma ficha limpa: sem hóspedes, reservas ou preços predefinidos.</p>
+      <details className="onboarding-import"><summary>Já tem um hotel? Importar cópia</summary><DataTransfer /></details>
+      {isMobileApp && <InstallMobile />}
     </section>
   </main>;
 }

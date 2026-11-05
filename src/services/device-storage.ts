@@ -1,5 +1,7 @@
 import { isRecord, validateData } from "../utils/hotel-data.ts";
 import type { HotelData, StorageError, StorageSnapshot } from "../types.ts";
+import { isMobileApp } from "./storage-mode.ts";
+import { loadMobileData, loadMobileRecovery, saveMobileData } from "./mobile-storage.ts";
 
 const endpoint = "/api/storage";
 
@@ -26,15 +28,26 @@ async function request(options?: RequestInit): Promise<StorageSnapshot> {
   return { data: validateData(body.data), revision: body.revision, initialized: body.initialized };
 }
 
-export function saveDeviceData(data: HotelData, revision: number) {
+export function saveDeviceData(data: HotelData, revision: number, preserveRecovery = false) {
+  if (isMobileApp) return saveMobileData(data, revision, preserveRecovery);
   return request({
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ data, revision }),
+    body: JSON.stringify({ data, revision, preserveRecovery }),
   });
 }
 
 // A new hotel always starts clean; browser data is never imported automatically.
 export function loadDeviceData() {
+  if (isMobileApp) return loadMobileData();
   return request();
+}
+
+export async function loadImportRecovery(): Promise<HotelData | null> {
+  if (isMobileApp) return (await loadMobileRecovery())?.data ?? null;
+  const response = await fetch("/api/storage/recovery", { cache: "no-store" });
+  if (!response.ok) throw new Error("Não foi possível abrir a cópia anterior à importação.");
+  const body: unknown = await response.json();
+  if (!isRecord(body)) throw new Error("A cópia de recuperação é inválida.");
+  return body.data === null ? null : validateData(body.data);
 }

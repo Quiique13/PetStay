@@ -327,7 +327,7 @@ aside {
 }
 .brand-name small {
   display: block;
-  font-family: "DM Sans", sans-serif;
+  font-family: "DM Sans Variable", sans-serif;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -682,7 +682,7 @@ h2 {
 }
 .stat strong {
   display: block;
-  font-family: "Nunito", sans-serif;
+  font-family: "Nunito Variable", sans-serif;
   font-size: 29px;
   margin: 6px 0;
 }
@@ -714,7 +714,7 @@ h2 {
   margin-top: 6px;
 }
 .count {
-  font-family: "DM Sans", sans-serif;
+  font-family: "DM Sans Variable", sans-serif;
   font-size: 9px;
   font-weight: 500;
   background: #f3f1e9;
@@ -917,7 +917,7 @@ h2 {
   margin-left: auto;
 }
 .simcontrols > div > strong {
-  font-family: "Nunito", sans-serif;
+  font-family: "Nunito Variable", sans-serif;
   display: block;
   color: #526e43;
   font-size: 25px;

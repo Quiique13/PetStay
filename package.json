@@ -1,6 +1,6 @@
 {
   "name": "petstay",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "main": "dist-desktop/main.cjs",
   "description": "PetStay — gestão de hotéis para animais",
@@ -8,6 +8,10 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "npm run typecheck && vite build",
+    "dev:mobile": "vite --mode mobile --host 127.0.0.1",
+    "build:mobile": "npm run typecheck && vite build --mode mobile",
+    "preview:mobile": "vite preview --mode mobile --host 127.0.0.1 --port 4174",
+    "test:mobile": "npm run build:mobile && npm run build && playwright test",
     "typecheck": "tsc --noEmit",
     "start": "vite preview --host 127.0.0.1",
     "test": "tsx --test tests/*.test.ts",
@@ -17,6 +21,8 @@
     "test:portable": "node scripts/smoke-portable.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/dm-sans": "^5.3.0",
+    "@fontsource-variable/nunito": "^5.3.0",
     "@tailwindcss/vite": "^4.0.0",
     "lucide-react": "^0.468.0",
     "react": "^19.0.0",
@@ -26,13 +32,16 @@
     "vite": "^6.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "electron": "^45.2.3",
     "electron-builder": "^26.18.0",
     "esbuild": "^0.28.2",
+    "fake-indexeddb": "^6.2.7",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vite-plugin-pwa": "^2.0.0"
   }
 }

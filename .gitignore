@@ -1,5 +1,8 @@
 node_modules/
 dist/
+dist-mobile/
+playwright-report/
+test-results/
 dist-desktop/
 release/
 .vite/
@@ -10,3 +13,4 @@ release/
 
 # Private device data, backups and temporary writes. Never commit this folder.
 /data/
+petstay-*.json

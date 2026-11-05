@@ -38,4 +38,11 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create $env:GITHUB_REF_NAME release/*-portable.exe release/SHA256SUMS.txt --verify-tag --title "PetStay $env:GITHUB_REF_NAME" --generate-notes
+        run: |
+          gh release view $env:GITHUB_REF_NAME --json tagName
+          if ($LASTEXITCODE -eq 0) {
+            Write-Output 'This version is already published. The verified CI build remains available as an artifact.'
+          } else {
+            gh release create $env:GITHUB_REF_NAME release/*-portable.exe release/SHA256SUMS.txt --verify-tag --title "PetStay $env:GITHUB_REF_NAME" --generate-notes
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }

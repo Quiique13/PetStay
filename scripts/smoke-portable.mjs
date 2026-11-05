@@ -5,7 +5,8 @@ import { copyFile, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 
-const executable = resolve(process.argv[2] ?? "release/PetStay-1.0.0-windows-x64-portable.exe");
+const { version } = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
+const executable = resolve(process.argv[2] ?? `release/PetStay-${version}-windows-x64-portable.exe`);
 const temporary = await mkdtemp(join(tmpdir(), "petstay-portable-test-"));
 const copy = join(temporary, "PetStay.exe");
 await copyFile(executable, copy);

@@ -7,6 +7,24 @@ import { createLocalStore } from "../server/local-store.ts";
 import { defaultData, newHotelData } from "../src/utils/hotel-data.ts";
 import { fixture } from "./storage-fixture.ts";
 
+test("desktop import recovery remains available after subsequent automatic saves", async t => {
+  const { store, url } = await fixture(t, true);
+  assert.equal((await (await fetch(url + "/api/storage/recovery")).json()).data, null);
+  const original = newHotelData({ name: "Original desktop", owner: "Pessoa", avatar: "" });
+  await store.save(original, 0);
+  const imported = newHotelData({ name: "From mobile", owner: "Pessoa", avatar: "" });
+  const response = await fetch(url + "/api/storage", {
+    method: "PUT", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: imported, revision: 1, preserveRecovery: true }),
+  });
+  assert.equal(response.status, 200);
+  await store.save({ ...imported, occupancy: 50 }, 2);
+  assert.deepEqual((await (await fetch(url + "/api/storage/recovery")).json()).data, original);
+  assert.equal((await fetch(url + "/api/storage/recovery", { headers: { Origin: "https://example.com" } })).status, 403);
+  assert.equal((await fetch(url + "/api/storage/recovery", { method: "PUT" })).status, 405);
+  assert.equal((await fetch(url + "/data/before-import.json")).status, 404);
+});
+
 test("clients, bookings, prices and simulator settings survive a new store instance", async t => {
   const { store, directory } = await fixture(t);
   assert.equal((await store.read()).initialized, false);
