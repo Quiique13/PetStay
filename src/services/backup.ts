@@ -40,4 +40,3 @@ export function backupFileName(data: HotelData, date = new Date()): string {
     .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 50) || "hotel";
   return `petstay-${name}-${date.toISOString().replace(/[:.]/g, "-")}.json`;
 }
-
