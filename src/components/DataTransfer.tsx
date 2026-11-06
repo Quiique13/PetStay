@@ -1,3 +1,4 @@
+import { useLanguage } from "../context/LanguageContext.tsx";
 import { useEffect, useState } from "react";
 import { Download, Upload, Share2, RotateCcw, CheckCircle2 } from "lucide-react";
 import { useHotel } from "../context/HotelContext.tsx";
@@ -8,6 +9,7 @@ import { isMobileApp } from "../services/storage-mode.ts";
 import { asStorageError } from "../types.ts";
 
 export function DataTransfer() {
+  const { t, locale } = useLanguage();
   const storage = useHotel();
   const [preview, setPreview] = useState<BackupPreview | null>(null);
   const [confirmed, setConfirmed] = useState(false);
@@ -63,45 +65,44 @@ export function DataTransfer() {
     finally { setBusy(false); }
   }
 
-  return <section className="data-transfer" aria-label="Dados e cópias" aria-busy={busy}>
-    <p>Leve o seu hotel consigo. Exporte uma cópia neste dispositivo e importe-a no computador ou no telemóvel.</p>
+  return <section className="data-transfer" aria-label={t("Dados e cópias")} aria-busy={busy}>
+    <p>{t("Leve o seu hotel consigo. Exporte uma cópia neste dispositivo e importe-a no computador ou no telemóvel.")}</p>
     <div className="transfer-actions">
-      {storage.data?.hotel && <button className="primary" disabled={busy} onClick={exportData}><Download size={18} /> Exportar cópia</button>}
+      {storage.data?.hotel && <button className="primary" disabled={busy} onClick={exportData}><Download size={18} />{" "}{t("Exportar cópia")}</button>}
       <label className={`secondary file-picker ${busy ? "disabled" : ""}`}>
-        <Upload size={18} /> Escolher cópia para importar
-        <input aria-label="Ficheiro de cópia PetStay" type="file" accept=".json,application/json" disabled={busy} onChange={event => {
+        <Upload size={18} />{" "}{t("Escolher cópia para importar")}<input aria-label={t("Ficheiro de cópia PetStay")} type="file" accept=".json,application/json" disabled={busy} onChange={event => {
           const file = event.currentTarget.files?.[0];
           event.currentTarget.value = "";
           void selectFile(file);
         }} />
       </label>
     </div>
-    {downloadUrl && shareFile && <a className="primary" href={downloadUrl} download={shareFile.name}><Download size={18} /> Guardar ficheiro</a>}
+    {downloadUrl && shareFile && <a className="primary" href={downloadUrl} download={shareFile.name}><Download size={18} />{" "}{t("Guardar ficheiro")}</a>}
     {shareFile && navigator.canShare?.({ files: [shareFile] }) && <button className="secondary" disabled={busy} onClick={async () => {
-      try { await navigator.share({ files: [shareFile], title: "Cópia PetStay" }); }
+      try { await navigator.share({ files: [shareFile], title: t("Cópia PetStay") }); }
       catch (cause) { if (!(cause instanceof Error && cause.name === "AbortError")) setError("Não foi possível partilhar. Use o ficheiro guardado nas transferências."); }
-    }}><Share2 size={18} /> Partilhar cópia</button>}
-    <p className="transfer-note">A cópia inclui o perfil e avatar, hóspedes e tutores, reservas, pagamentos, preços e simulador. Transfira o ficheiro por AirDrop, cabo ou um serviço de ficheiros à sua escolha.</p>
+    }}><Share2 size={18} />{" "}{t("Partilhar cópia")}</button>}
+    <p className="transfer-note">{t("A cópia inclui o perfil e avatar, hóspedes e tutores, reservas, pagamentos, preços e simulador. Transfira o ficheiro por AirDrop, cabo ou um serviço de ficheiros à sua escolha.")}</p>
     {preview && <div className="import-preview">
-      <span className="eyebrow">PRÉ-VISUALIZAÇÃO DA CÓPIA</span>
+      <span className="eyebrow">{t("PRÉ-VISUALIZAÇÃO DA CÓPIA")}</span>
       <h3>{preview.data.hotel?.name}</h3>
       <p>{preview.data.hotel?.owner}</p>
       <dl>
-        <div><dt>Hóspedes</dt><dd>{preview.data.guests.length}</dd></div>
-        <div><dt>Reservas</dt><dd>{preview.data.bookings.length}</dd></div>
-        <div><dt>Pagas</dt><dd>{preview.data.bookings.filter(booking => booking.paid).length}</dd></div>
+        <div><dt>{t("Hóspedes")}</dt><dd>{preview.data.guests.length}</dd></div>
+        <div><dt>{t("Reservas")}</dt><dd>{preview.data.bookings.length}</dd></div>
+        <div><dt>{t("Pagas")}</dt><dd>{preview.data.bookings.filter(booking => booking.paid).length}</dd></div>
       </dl>
-      {preview.exportedAt && <p>Exportada em {new Date(preview.exportedAt).toLocaleString("pt-PT")}</p>}
-      <p>A importação substitui todos os dados deste dispositivo. Não junta alterações feitas nos dois dispositivos. A versão anterior fica disponível em «Recuperar dados anteriores».</p>
-      {storage.data?.hotel && <label className="confirm-import"><input type="checkbox" checked={confirmed} disabled={busy} onChange={event => setConfirmed(event.target.checked)} /> Confirmo que quero substituir os dados deste dispositivo.</label>}
+      {preview.exportedAt && <p>{t("Exportada em {date}", { date: new Date(preview.exportedAt).toLocaleString(locale) })}</p>}
+      <p>{t("A importação substitui todos os dados deste dispositivo. Não junta alterações feitas nos dois dispositivos. A versão anterior fica disponível em «Recuperar dados anteriores».")}</p>
+      {storage.data?.hotel && <label className="confirm-import"><input type="checkbox" checked={confirmed} disabled={busy} onChange={event => setConfirmed(event.target.checked)} />{" "}{t("Confirmo que quero substituir os dados deste dispositivo.")}</label>}
       <div className="transfer-actions">
-        <button className="primary" disabled={busy || (!!storage.data?.hotel && !confirmed)} onClick={importData}>{busy ? "A importar…" : "Importar e substituir"}</button>
-        <button className="secondary" disabled={busy} onClick={() => { setPreview(null); setConfirmed(false); }}>Cancelar</button>
+        <button className="primary" disabled={busy || (!!storage.data?.hotel && !confirmed)} onClick={importData}>{busy ? t("A importar…") : t("Importar e substituir")}</button>
+        <button className="secondary" disabled={busy} onClick={() => { setPreview(null); setConfirmed(false); }}>{t("Cancelar")}</button>
       </div>
     </div>}
-    {error && <p className="form-error" role="alert">{error}</p>}
-    {message && <p className="transfer-success" role="status"><CheckCircle2 size={18} />{message}</p>}
-    {storage.data?.hotel && <button className="textbutton recovery-action" disabled={busy} onClick={recovery}><RotateCcw size={15} /> Recuperar dados anteriores</button>}
-    <p className="transfer-note">Os dispositivos funcionam de forma independente. Para levar alterações de volta, exporte uma nova cópia no dispositivo mais atualizado. Guarde estas cópias num local privado.</p>
+    {error && <p className="form-error" role="alert">{t(error)}</p>}
+    {message && <p className="transfer-success" role="status"><CheckCircle2 size={18} />{t(message)}</p>}
+    {storage.data?.hotel && <button className="textbutton recovery-action" disabled={busy} onClick={recovery}><RotateCcw size={15} />{" "}{t("Recuperar dados anteriores")}</button>}
+    <p className="transfer-note">{t("Os dispositivos funcionam de forma independente. Para levar alterações de volta, exporte uma nova cópia no dispositivo mais atualizado. Guarde estas cópias num local privado.")}</p>
   </section>;
 }

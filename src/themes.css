@@ -1,0 +1,86 @@
+:root {
+  color-scheme: light;
+  --page-bg: #faf8f3;
+  --surface: #fffefb;
+  --surface-soft: #f3f1e9;
+  --text: #3e352c;
+  --muted: #767467;
+  --line: #eae5da;
+  --green: #547447;
+  --accent-text: #42603b;
+  --accent-soft: #edf1e7;
+  --accent-border: #dce3ce;
+  --brown: #724326;
+  --warm-bg: #f4ecd9;
+  --warm-text: #876630;
+  --warm-border: #e7dcc4;
+  --violet-bg: #e9e3f0;
+  --violet-text: #7b628f;
+  --error-text: #973f2b;
+  --error-bg: #fff0e8;
+  --error-border: #edc9b8;
+  --focus: #d8a149;
+  --chart: #628268;
+  color: var(--text);
+  background: var(--page-bg);
+}
+:root[data-color-scheme="ocean"] {
+  --green: #326b91;
+  --accent-text: #235a80;
+  --accent-soft: #e7f0f7;
+  --accent-border: #cbdfe9;
+  --brown: #235a80;
+  --chart: #5286aa;
+}
+:root[data-color-scheme="berry"] {
+  --green: #87506c;
+  --accent-text: #783956;
+  --accent-soft: #f5eaf0;
+  --accent-border: #e8cfdc;
+  --brown: #783956;
+  --chart: #a16e8a;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page-bg: #191d21;
+  --surface: #22272c;
+  --surface-soft: #2b3137;
+  --text: #ece9e2;
+  --muted: #b3b5ad;
+  --line: #3b4249;
+  --green: #476b40;
+  --accent-text: #b2d6a5;
+  --accent-soft: #2a3a2b;
+  --accent-border: #445543;
+  --brown: #e7c59f;
+  --warm-bg: #383126;
+  --warm-text: #e2c38b;
+  --warm-border: #584c38;
+  --violet-bg: #393042;
+  --violet-text: #d0b7e4;
+  --error-text: #ffb9a6;
+  --error-bg: #422d2a;
+  --error-border: #865047;
+  --focus: #e4b971;
+  --chart: #a4c397;
+}
+:root[data-theme="dark"][data-color-scheme="ocean"] {
+  --green: #326b91;
+  --accent-text: #a5d4f2;
+  --accent-soft: #263b4a;
+  --accent-border: #405e73;
+  --brown: #a5d4f2;
+  --chart: #95c6e6;
+}
+:root[data-theme="dark"][data-color-scheme="berry"] {
+  --green: #87506c;
+  --accent-text: #efb4d1;
+  --accent-soft: #412c39;
+  --accent-border: #725064;
+  --brown: #efb4d1;
+  --chart: #d9a3be;
+}
+input, select { background: var(--surface); }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--green); }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline-color: var(--focus); }
+::selection { background: var(--accent-border); color: var(--text); }

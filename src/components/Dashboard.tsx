@@ -1,3 +1,4 @@
+import { useLanguage } from "../context/LanguageContext.tsx";
 import React, { useEffect, useState } from "react";
 import {
   PawPrint,
@@ -16,6 +17,7 @@ import {
   Sun,
   Check,
   DatabaseBackup,
+  Settings,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -35,16 +37,14 @@ import { HotelAvatar } from "./HotelAvatar.tsx";
 import { HotelProfileForm } from "./HotelProfileForm.tsx";
 import { EmptyState } from "./EmptyState.tsx";
 import { DataTransfer } from "./DataTransfer.tsx";
+import { SettingsPage } from "./SettingsPage.tsx";
 import { InstallMobile } from "./InstallMobile.tsx";
 import { isMobileApp } from "../services/storage-mode.ts";
 import hotelDog from "../assets/hotel-dog.jpg";
 import {
-  money,
+  createFormatters,
   initials,
   localDate,
-  shortMoney,
-  formatDate,
-  monthName,
   pageLabels,
   ageLabels,
   stayLabels,
@@ -56,12 +56,28 @@ const names = [
   "Guests & clients",
   "Payments",
   "Pricing & seasons",
+  "Settings",
 ] as const;
-type Page = typeof names[number];
-type Modal = "profile" | "help" | "notifications" | "guest" | "booking" | "data";
+type Page = (typeof names)[number];
+type Modal =
+  | "profile"
+  | "help"
+  | "notifications"
+  | "guest"
+  | "booking"
+  | "data";
 const ages = ["Puppy", "Adult", "Senior"] as const;
-const icons = [LayoutDashboard, CalendarDays, Heart, Wallet, SlidersHorizontal];
+const icons = [
+  LayoutDashboard,
+  CalendarDays,
+  Heart,
+  Wallet,
+  SlidersHorizontal,
+  Settings,
+];
 export default function Dashboard() {
+  const { t, locale } = useLanguage();
+  const { money, shortMoney, formatDate, monthName } = createFormatters(locale);
   const storage = useHotel();
   const [page, P] = useState<Page>("Overview"),
     [calendarDate, setCalendarDate] = useState(() => new Date()),
@@ -81,27 +97,43 @@ export default function Dashboard() {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const dialog = document.querySelector<HTMLElement>(".dialog");
-    dialog?.querySelector<HTMLElement>("button, input, select, a[href]")?.focus();
+    dialog
+      ?.querySelector<HTMLElement>("button, input, select, a[href]")
+      ?.focus();
     function keyboard(event: KeyboardEvent) {
       if (event.key === "Escape") S(null);
       if (event.key !== "Tab" || !dialog) return;
-      const elements = Array.from(dialog.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), a[href], summary'))
-        .filter(element => element.getClientRects().length > 0);
-      const first = elements[0], last = elements.at(-1);
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
-      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      const elements = Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          "button:not(:disabled), input:not(:disabled), select:not(:disabled), a[href], summary",
+        ),
+      ).filter((element) => element.getClientRects().length > 0);
+      const first = elements[0],
+        last = elements.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      }
+      if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
     }
     document.addEventListener("keydown", keyboard);
     return () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", keyboard);
-      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus();
+      if (previousFocus instanceof HTMLElement && previousFocus.isConnected)
+        previousFocus.focus();
     };
   }, [modal]);
   function moveMonth(delta: number) {
     setCalendarDate(new Date(year, month + delta, 1));
   }
-  function persist<Key extends keyof HotelData>(key: Key, value: HotelData[Key]) {
+  function persist<Key extends keyof HotelData>(
+    key: Key,
+    value: HotelData[Key],
+  ) {
     storage.update(key, value);
   }
   const monthlyBookings = bookings.filter(
@@ -134,31 +166,42 @@ export default function Dashboard() {
       <aside>
         <Brand />
         <button
-          className="hotel"
+          className={t("hotel")}
           onClick={() => S("profile")}
-          aria-label="Editar perfil do hotel"
+          aria-label={t("Editar perfil do hotel")}
         >
           <HotelAvatar hotel={hotel} />
           <div>
             {hotel.name}
-            <small>Editar perfil do hotel</small>
+            <small>{t("Editar perfil do hotel")}</small>
           </div>
         </button>
-        <small className="navlabel">ÁREA DE GESTÃO</small>
-        <nav aria-label="Navegação principal">
+        <small className="navlabel">{t("ÁREA DE GESTÃO")}</small>
+        <nav aria-label={t("Navegação principal")}>
           {names.map((n, i) => {
             let Icon = icons[i];
             return (
               <button
                 className={page === n ? "active" : ""}
                 aria-current={page === n ? "page" : undefined}
-                aria-label={pageLabels[n]}
+                aria-label={t(pageLabels[n])}
                 onClick={() => P(n)}
                 key={n}
               >
                 <Icon size={19} />
-                <span className="nav-desktop">{pageLabels[n]}</span>
-                <span className="nav-mobile">{["Início", "Reservas", "Hóspedes", "Pagamentos", "Preços"][i]}</span>
+                <span className="nav-desktop">{t(pageLabels[n])}</span>
+                <span className="nav-mobile">
+                  {
+                    [
+                      t("Início"),
+                      t("Reservas"),
+                      t("Hóspedes"),
+                      t("Pagamentos"),
+                      t("Preços"),
+                      t("Ajustes"),
+                    ][i]
+                  }
+                </span>
                 {n === "Bookings" && <em>{bookings.length}</em>}
               </button>
             );
@@ -167,17 +210,19 @@ export default function Dashboard() {
         <div className="asidebottom">
           <div className="help">
             <span>🐾</span>
-            <h4>Uma ajuda, muito carinho.</h4>
-            <p>Tudo o que precisa para gerir o seu hotel, num só lugar.</p>
+            <h4>{t("Uma ajuda, muito carinho.")}</h4>
+            <p>
+              {t("Tudo o que precisa para gerir o seu hotel, num só lugar.")}
+            </p>
             <button onClick={() => S("help")}>
-              Conheça a sua área de gestão <ArrowUpRight size={15} />
+              {t("Conheça a sua área de gestão")} <ArrowUpRight size={15} />
             </button>
           </div>
           <div className="profile">
             <div className="avatar">{ownerInitials}</div>
             <div>
               {hotel.owner}
-              <small>Gestão do hotel</small>
+              <small>{t("Gestão do hotel")}</small>
             </div>
             <Check size={16} />
           </div>
@@ -186,18 +231,25 @@ export default function Dashboard() {
       <main>
         <header>
           <div>
-            <span className="crumb">Área de gestão</span>
+            <span className="crumb">{t("Área de gestão")}</span>
             <span className="slash">/</span>
-            {pageLabels[page]}
+            {t(pageLabels[page])}
           </div>
           <div className="headerRight">
-            <button className="data-trigger" onClick={() => S("data")} aria-label="Dados e cópias"><DatabaseBackup size={20} /><span>Dados e cópias</span></button>
+            <button
+              className="data-trigger"
+              onClick={() => S("data")}
+              aria-label={t("Dados e cópias")}
+            >
+              <DatabaseBackup size={20} />
+              <span>{t("Dados e cópias")}</span>
+            </button>
             <span>
-              <i /> Hotel aberto
+              <i /> {t("Hotel aberto")}
             </span>
             <button
               onClick={() => S("notifications")}
-              aria-label="Notificações"
+              aria-label={t("Notificações")}
             >
               <Bell size={19} />
               <b />
@@ -205,7 +257,7 @@ export default function Dashboard() {
             <button
               className="profile-trigger"
               onClick={() => S("profile")}
-              aria-label="Editar perfil do hotel"
+              aria-label={t("Editar perfil do hotel")}
             >
               <HotelAvatar hotel={hotel} />
             </button>
@@ -218,51 +270,62 @@ export default function Dashboard() {
           >
             <span role={storage.error ? "alert" : "status"}>
               {storage.error
-                ? storage.error.message
+                ? t(storage.error.message)
                 : storage.status === "saving"
-                  ? "A guardar neste dispositivo…"
-                  : "Dados guardados neste dispositivo."}
+                  ? t("A guardar neste dispositivo…")
+                  : t("Dados guardados neste dispositivo.")}
             </span>
             {storage.error &&
               (storage.error.status === 409 ? (
                 <button onClick={() => window.location.reload()}>
-                  Recarregar dados
+                  {t("Recarregar dados")}
                 </button>
               ) : (
                 <button onClick={storage.retry}>
-                  Tentar guardar novamente
+                  {t("Tentar guardar novamente")}
                 </button>
               ))}
           </div>
           <div className="heading">
             <div>
               <div className="eyebrow">
-                MUITO CARINHO. MUITAS CAUDAS A ABANAR.
+                {page === "Settings"
+                  ? t("O SEU HOTEL, À SUA MEDIDA")
+                  : t("MUITO CARINHO. MUITAS CAUDAS A ABANAR.")}
               </div>
               <h1>
                 {page === "Overview"
-                  ? `Olá, ${hotel.owner.split(/\s+/)[0]}`
-                  : pageLabels[page]}
+                  ? t("Olá, {name}", { name: hotel.owner.split(/\s+/)[0] })
+                  : t(pageLabels[page])}
                 <span>{page === "Overview" ? " ☀️" : ""}</span>
               </h1>
               <p>
                 {page === "Overview"
-                  ? `Veja o que se passa hoje no ${hotel.name}.`
-                  : "Mais tempo para eles. Menos tempo com a papelada."}
+                  ? t("Veja o que se passa hoje no {hotel}.", {
+                      hotel: hotel.name,
+                    })
+                  : page === "Settings"
+                    ? t("Gira o seu perfil, o hotel e a aparência do PetStay.")
+                    : t("Mais tempo para eles. Menos tempo com a papelada.")}
               </p>
             </div>
-            <button
-              className="primary"
-              onClick={() =>
-                S(page === "Guests & clients" ? "guest" : "booking")
-              }
-            >
-              <Plus size={18} />
-              {page === "Guests & clients"
-                ? "Adicionar hóspede"
-                : "Nova reserva"}
-            </button>
+            {page !== "Settings" && (
+              <button
+                className="primary"
+                onClick={() =>
+                  S(page === "Guests & clients" ? "guest" : "booking")
+                }
+              >
+                <Plus size={18} />
+                {page === "Guests & clients"
+                  ? t("Adicionar hóspede")
+                  : t("Nova reserva")}
+              </button>
+            )}
           </div>
+          {page === "Settings" && (
+            <SettingsPage onPricing={() => P("Pricing & seasons")} />
+          )}
           {page === "Overview" && (
             <>
               {(guests.length === 0 ||
@@ -270,65 +333,62 @@ export default function Dashboard() {
                 ages.some((age) => rates[age].includes(null))) && (
                 <div className="setup-checklist">
                   <div>
-                    <h3>Prepare o seu hotel</h3>
-                    <p>Comece com os seus dados, ao seu ritmo.</p>
+                    <h3>{t("Prepare o seu hotel")}</h3>
+                    <p>{t("Comece com os seus dados, ao seu ritmo.")}</p>
                   </div>
                   <button onClick={() => S("guest")}>
-                    <Plus size={16} /> Adicionar hóspedes
+                    <Plus size={16} /> {t("Adicionar hóspedes")}
                   </button>
                   <button onClick={() => P("Pricing & seasons")}>
-                    <SlidersHorizontal size={16} /> Definir preços
+                    <SlidersHorizontal size={16} /> {t("Definir preços")}
                   </button>
                 </div>
               )}
               <div className="welcome">
                 <div>
-                  <span className="tag">ESTADIAS CHEIAS DE ALEGRIA</span>
+                  <span className="tag">{t("ESTADIAS CHEIAS DE ALEGRIA")}</span>
                   <h2>
-                    Corações cheios.
+                    {t("Corações cheios.")}
                     <br />
-                    Caudas a abanar.
+                    {t("Caudas a abanar.")}
                   </h2>
-                  <p>Conforto para eles. Tranquilidade para si.</p>
+                  <p>{t("Conforto para eles. Tranquilidade para si.")}</p>
                   <button onClick={() => P("Bookings")}>
-                    Veja quem está hospedado <ArrowUpRight size={17} />
+                    {t("Veja quem está hospedado")} <ArrowUpRight size={17} />
                   </button>
                 </div>
                 <div className="dogscene">
                   <span className="spark">✧</span>
-                  <img
-                    src={hotelDog}
-                    alt="Cão de raça Golden Retriever"
-                  />
+                  <img src={hotelDog} alt={t("Cão de raça Golden Retriever")} />
                   <div className="dogbadge">
-                    <Heart size={16} fill="#df997b" /> Uma segunda casa
+                    <Heart size={16} fill="#df997b" /> {t("Uma segunda casa")}
                   </div>
                 </div>
               </div>
               <div className="stats">
                 {[
                   [
-                    "Hóspedes este mês",
+                    t("Hóspedes este mês"),
                     monthlyBookings.length,
-                    "Cada hóspede, um novo amigo",
+                    t("Cada hóspede, um novo amigo"),
                     "🐶",
                   ],
                   [
-                    "Estadias no hotel",
+                    t("Estadias no hotel"),
                     monthlyBookings.filter((b) => b.type === "Boarding").length,
-                    "Noites tranquilas, manhãs felizes",
+                    t("Noites tranquilas, manhãs felizes"),
                     "🌙",
                   ],
                   [
-                    "Visitas à creche",
+                    t("Visitas à creche"),
                     monthlyBookings.filter((b) => b.type === "Daycare").length,
-                    "Um dia inteiro de brincadeira",
+                    t("Um dia inteiro de brincadeira"),
                     "☀️",
                   ],
                   [
-                    "Receita das reservas",
+                    t("Receita das reservas"),
                     money(income),
-                    "Das reservas deste mês",
+                    t("Das reservas deste mês"),
                     "💶",
                   ],
                 ].map(([a, b, c, d]) => (
@@ -350,25 +410,25 @@ export default function Dashboard() {
                 <div>
                   <h3>
                     {page === "Overview"
-                      ? "Calendário de estadias"
-                      : "Calendário de reservas"}{" "}
+                      ? t("Calendário de estadias")
+                      : t("Calendário de reservas")}{" "}
                     <span className="count">
                       {bookings.length}{" "}
-                      {bookings.length === 1 ? "estadia" : "estadias"}
+                      {bookings.length === 1 ? t("estadia") : t("estadias")}
                     </span>
                   </h3>
-                  <p>Pequenas aventuras, tudo planeado.</p>
+                  <p>{t("Pequenas aventuras, tudo planeado.")}</p>
                 </div>
                 <div className="month">
                   <button
-                    aria-label="Mês anterior"
+                    aria-label={t("Mês anterior")}
                     onClick={() => moveMonth(-1)}
                   >
                     <ChevronLeft size={16} />
                   </button>
                   {monthName(month)} {year}
                   <button
-                    aria-label="Mês seguinte"
+                    aria-label={t("Mês seguinte")}
                     onClick={() => moveMonth(1)}
                   >
                     <ChevronRight size={16} />
@@ -377,25 +437,25 @@ export default function Dashboard() {
               </div>
               {bookings.length === 0 ? (
                 <EmptyState
-                  title="Ainda não há reservas"
+                  title={t("Ainda não há reservas")}
                   action={
                     guests.length
-                      ? "Criar primeira reserva"
-                      : "Adicionar primeiro hóspede"
+                      ? t("Criar primeira reserva")
+                      : t("Adicionar primeiro hóspede")
                   }
                   onAction={() => S(guests.length ? "booking" : "guest")}
                 >
-                  As estadias dos seus hóspedes vão aparecer aqui.
+                  {t("As estadias dos seus hóspedes vão aparecer aqui.")}
                 </EmptyState>
               ) : (
                 <div className="calendar">
                   <div className="calhead">
-                    <span>HÓSPEDE</span>
+                    <span>{t("HÓSPEDE")}</span>
                     {Array.from({ length: 7 }, (_, i) => (
                       <div key={i}>
                         <small>
                           {new Date(year, month, i + 1)
-                            .toLocaleDateString("pt-PT", { weekday: "short" })
+                            .toLocaleDateString(locale, { weekday: "short" })
                             .toUpperCase()}
                         </small>
                         {i + 1}
@@ -410,7 +470,7 @@ export default function Dashboard() {
                         </span>
                         <div>
                           {g.name}
-                          <small>{breedLabel(g.breed)}</small>
+                          <small>{breedLabel(g.breed, t)}</small>
                         </div>
                       </div>
                       <div className="track">
@@ -433,8 +493,8 @@ export default function Dashboard() {
                               onClick={() => P("Payments")}
                             >
                               {b.type === "Daycare" ? "☀" : "☾"}{" "}
-                              {stayLabels[b.type] ?? b.type}
-                              <span>{b.paid ? "Pago" : "Pendente"}</span>
+                              {t(stayLabels[b.type] ?? b.type)}
+                              <span>{b.paid ? t("Pago") : t("Pendente")}</span>
                             </button>
                           ))}
                       </div>
@@ -444,13 +504,13 @@ export default function Dashboard() {
               )}
               <div className="legend">
                 <span>
-                  <i /> Hotel
+                  <i /> {t("Hotel")}
                 </span>
                 <span>
-                  <i /> Creche
+                  <i /> {t("Creche")}
                 </span>
                 <button onClick={() => P("Bookings")}>
-                  Ver todas as reservas <ArrowUpRight size={15} />
+                  {t("Ver todas as reservas")} <ArrowUpRight size={15} />
                 </button>
               </div>
             </div>
@@ -459,11 +519,13 @@ export default function Dashboard() {
             (guests.length === 0 ? (
               <div className="panel">
                 <EmptyState
-                  title="O primeiro amigo está por chegar"
-                  action="Adicionar primeiro hóspede"
+                  title={t("O primeiro amigo está por chegar")}
+                  action={t("Adicionar primeiro hóspede")}
                   onAction={() => S("guest")}
                 >
-                  Adicione o nome, o tutor e os dados do seu primeiro hóspede.
+                  {t(
+                    "Adicione o nome, o tutor e os dados do seu primeiro hóspede.",
+                  )}
                 </EmptyState>
               </div>
             ) : (
@@ -475,10 +537,10 @@ export default function Dashboard() {
                     </span>
                     <h3>{g.name}</h3>
                     <p>
-                      {breedLabel(g.breed)} · {ageLabels[g.age] ?? g.age}
+                      {breedLabel(g.breed, t)} · {t(ageLabels[g.age] ?? g.age)}
                     </p>
                     <hr />
-                    <small>TUTOR</small>
+                    <small>{t("TUTOR")}</small>
                     <h4>{g.owner}</h4>
                   </div>
                 ))}
@@ -489,14 +551,14 @@ export default function Dashboard() {
               <div className="panelheading">
                 <h3>
                   {page === "Payments"
-                    ? "Pagamentos e saldos"
-                    : "Todas as reservas"}
+                    ? t("Pagamentos e saldos")
+                    : t("Todas as reservas")}
                 </h3>
                 <label className="search">
                   <Search size={16} />
                   <input
-                    aria-label="Procurar hóspede"
-                    placeholder="Procurar hóspede…"
+                    aria-label={t("Procurar hóspede")}
+                    placeholder={t("Procurar hóspede…")}
                     value={query}
                     onChange={(e) => Q(e.target.value)}
                   />
@@ -505,11 +567,11 @@ export default function Dashboard() {
               <table className="records-table">
                 <thead>
                   <tr>
-                    <th>Hóspede</th>
-                    <th>Estadia</th>
-                    <th>Datas</th>
-                    <th>Total</th>
-                    <th>Pagamento</th>
+                    <th>{t("Hóspede")}</th>
+                    <th>{t("Estadia")}</th>
+                    <th>{t("Datas")}</th>
+                    <th>{t("Total")}</th>
+                    <th>{t("Pagamento")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -519,38 +581,42 @@ export default function Dashboard() {
                         <EmptyState
                           title={
                             bookings.length
-                              ? "Nenhum resultado"
+                              ? t("Nenhum resultado")
                               : page === "Payments"
-                                ? "Ainda não há pagamentos"
-                                : "Ainda não há reservas"
+                                ? t("Ainda não há pagamentos")
+                                : t("Ainda não há reservas")
                           }
                           action={
                             bookings.length
-                              ? "Limpar pesquisa"
-                              : "Criar reserva"
+                              ? t("Limpar pesquisa")
+                              : t("Criar reserva")
                           }
                           onAction={() =>
                             bookings.length ? Q("") : S("booking")
                           }
                         >
                           {bookings.length
-                            ? "Experimente procurar outro hóspede."
-                            : "Os registos aparecem aqui depois de criar a primeira reserva."}
+                            ? t("Experimente procurar outro hóspede.")
+                            : t(
+                                "Os registos aparecem aqui depois de criar a primeira reserva.",
+                              )}
                         </EmptyState>
                       </td>
                     </tr>
                   )}
                   {filtered.map((b, i) => (
                     <tr key={i}>
-                      <td data-label="Hóspede">
+                      <td data-label={t("Hóspede")}>
                         <strong>{b.dog}</strong>
                       </td>
-                      <td data-label="Estadia">{stayLabels[b.type] ?? b.type}</td>
-                      <td data-label="Datas" className="record-dates">
+                      <td data-label={t("Estadia")}>
+                        {t(stayLabels[b.type] ?? b.type)}
+                      </td>
+                      <td data-label={t("Datas")} className="record-dates">
                         {formatDate(b.start)} → {formatDate(b.end)}
                       </td>
-                      <td data-label="Total">{money(b.total)}</td>
-                      <td data-label="Pagamento">
+                      <td data-label={t("Total")}>{money(b.total)}</td>
+                      <td data-label={t("Pagamento")}>
                         <button
                           className={b.paid ? "paid" : "pending"}
                           onClick={() =>
@@ -562,7 +628,7 @@ export default function Dashboard() {
                             )
                           }
                         >
-                          {b.paid ? "✓ Pago" : "Marcar como pago"}
+                          {b.paid ? t("✓ Pago") : t("Marcar como pago")}
                         </button>
                       </td>
                     </tr>
@@ -575,25 +641,26 @@ export default function Dashboard() {
             <div className="panel">
               <div className="panelheading">
                 <div>
-                  <h3>Um preço justo para cada hóspede</h3>
+                  <h3>{t("Um preço justo para cada hóspede")}</h3>
                   <p>
-                    Preços do hotel por noite. Cachorro: menos de 1 ano ·
-                    Adulto: 1–7 anos · Sénior: 8 ou mais anos.
+                    {t(
+                      "Preços do hotel por noite. Cachorro: menos de 1 ano · Adulto: 1–7 anos · Sénior: 8 ou mais anos.",
+                    )}
                   </p>
                 </div>
               </div>
               <table className="pricing-table">
                 <thead>
                   <tr>
-                    <th>Faixa etária</th>
-                    <th>Época baixa (€)</th>
-                    <th>Época alta (€)</th>
+                    <th>{t("Faixa etária")}</th>
+                    <th>{t("Época baixa (€)")}</th>
+                    <th>{t("Época alta (€)")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {ages.map((a) => (
                     <tr key={a}>
-                      <td>{ageLabels[a]}</td>
+                      <td>{t(ageLabels[a])}</td>
                       {([0, 1] as const).map((i) => (
                         <td key={i}>
                           <input
@@ -601,11 +668,19 @@ export default function Dashboard() {
                             min="0"
                             step="0.01"
                             value={rates[a][i] ?? ""}
-                            placeholder="Por definir"
-                            aria-label={`Preço de ${ageLabels[a]} — época ${i ? "alta" : "baixa"}`}
+                            placeholder={t("Por definir")}
+                            aria-label={t(
+                              i
+                                ? "Preço de {age} — época alta"
+                                : "Preço de {age} — época baixa",
+                              { age: t(ageLabels[a]) },
+                            )}
                             onChange={(e) => {
                               const prices = [...rates[a]];
-                              prices[i] = e.target.value === "" ? null : Math.max(0, +e.target.value);
+                              prices[i] =
+                                e.target.value === ""
+                                  ? null
+                                  : Math.max(0, +e.target.value);
                               persist("rates", {
                                 ...rates,
                                 [a]: [prices[0], prices[1]],
@@ -620,14 +695,14 @@ export default function Dashboard() {
               </table>
               <div className="season">
                 <h4>
-                  Preço diário da creche{" "}
+                  {t("Preço diário da creche")}{" "}
                   <input
                     type="number"
                     min="0"
                     step="0.01"
                     value={rates.day ?? ""}
-                    placeholder="Por definir"
-                    aria-label="Preço diário da creche"
+                    placeholder={t("Por definir")}
+                    aria-label={t("Preço diário da creche")}
                     onChange={(e) =>
                       persist("rates", {
                         ...rates,
@@ -640,10 +715,11 @@ export default function Dashboard() {
                   />{" "}
                   €
                 </h4>
-                <h4>Escolha os meses de época alta</h4>
+                <h4>{t("Escolha os meses de época alta")}</h4>
                 <p>
-                  Os restantes meses usam os preços de época baixa. As
-                  alterações são guardadas automaticamente.
+                  {t(
+                    "Os restantes meses usam os preços de época baixa. As alterações são guardadas automaticamente.",
+                  )}
                 </p>
                 <div className="months">
                   {chart.map((c, i) => (
@@ -672,15 +748,17 @@ export default function Dashboard() {
                 <div className="panelheading">
                   <div>
                     <h3>
-                      Um olhar sobre o potencial <span>↗</span>
+                      {t("Um olhar sobre o potencial")} <span>↗</span>
                     </h3>
-                    <p>Simulador de receita mensal</p>
+                    <p>{t("Simulador de receita mensal")}</p>
                   </div>
-                  <span className="softtag">Projeção para {year}</span>
+                  <span className="softtag">
+                    {t("Projeção para {year}", { year })}
+                  </span>
                 </div>
                 <div className="simcontrols">
                   <label>
-                    Vagas{" "}
+                    {t("Vagas")}{" "}
                     <input
                       type="number"
                       min="1"
@@ -695,7 +773,7 @@ export default function Dashboard() {
                     />
                   </label>
                   <label>
-                    Ocupação <strong>{occupancy}%</strong>
+                    {t("Ocupação")} <strong>{occupancy}%</strong>
                     <input
                       type="range"
                       min="0"
@@ -706,21 +784,24 @@ export default function Dashboard() {
                   </label>
                   <div>
                     <strong>
-                      {total === null ? "Por definir" : money(total)}
+                      {total === null ? t("Por definir") : money(total)}
                     </strong>
                     <small>
-                      {chart[month].name} · estimativa de hotel para adultos
+                      {t("{month} · estimativa de hotel para adultos", {
+                        month: chart[month].name,
+                      })}
                     </small>
                   </div>
                 </div>
                 {total === null ? (
                   <EmptyState
-                    title="O seu simulador começa com os seus preços"
-                    action="Definir preços"
+                    title={t("O seu simulador começa com os seus preços")}
+                    action={t("Definir preços")}
                     onAction={() => P("Pricing & seasons")}
                   >
-                    Defina o preço de hotel para adultos para calcular uma
-                    estimativa.
+                    {t(
+                      "Defina o preço de hotel para adultos para calcular uma estimativa.",
+                    )}
                   </EmptyState>
                 ) : (
                   <ResponsiveContainer width="100%" height={180}>
@@ -732,35 +813,43 @@ export default function Dashboard() {
                         <linearGradient id="green" x1="0" y1="0" x2="0" y2="1">
                           <stop
                             offset="0%"
-                            stopColor="#8ca98c"
+                            stopColor="var(--chart)"
                             stopOpacity={0.35}
                           />
                           <stop
                             offset="100%"
-                            stopColor="#8ca98c"
+                            stopColor="var(--chart)"
                             stopOpacity={0}
                           />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid vertical={false} stroke="#eeeee7" />
+                      <CartesianGrid vertical={false} stroke="var(--line)" />
                       <XAxis
                         dataKey="name"
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 11, fill: "#959b91" }}
+                        tick={{ fontSize: 11, fill: "var(--muted)" }}
                       />
                       <YAxis
                         tickFormatter={shortMoney}
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 10, fill: "#959b91" }}
+                        tick={{ fontSize: 10, fill: "var(--muted)" }}
                       />
-                      <Tooltip formatter={(value) => money(Number(value))} />
+                      <Tooltip
+                        formatter={(value) => money(Number(value))}
+                        contentStyle={{
+                          background: "var(--surface)",
+                          borderColor: "var(--line)",
+                          color: "var(--text)",
+                        }}
+                        itemStyle={{ color: "var(--accent-text)" }}
+                      />
                       <Area
                         type="monotone"
                         dataKey="value"
-                        name="Receita estimada"
-                        stroke="#628268"
+                        name={t("Receita estimada")}
+                        stroke="var(--chart)"
                         strokeWidth={2.5}
                         fill="url(#green)"
                       />
@@ -770,52 +859,60 @@ export default function Dashboard() {
               </div>
               <div className="seasoncard">
                 <Sun size={28} />
-                <span>PLANEIE COM TRANQUILIDADE</span>
+                <span>{t("PLANEIE COM TRANQUILIDADE")}</span>
                 <h3>
-                  Cada época
+                  {t("Cada época")}
                   <br />
-                  tem o seu encanto.
+                  {t("tem o seu encanto.")}
                 </h3>
                 <p>
-                  Defina os preços para os verões mais concorridos e os dias
-                  tranquilos. Nós fazemos as contas.
+                  {t(
+                    "Defina os preços para os verões mais concorridos e os dias tranquilos. Nós fazemos as contas.",
+                  )}
                 </p>
                 <button onClick={() => P("Pricing & seasons")}>
-                  Gerir preços por época <ArrowUpRight size={17} />
+                  {t("Gerir preços por época")} <ArrowUpRight size={17} />
                 </button>
               </div>
             </div>
           )}
           <footer>
-            Feito com carinho, para os nossos patudos. <PawPrint size={13} />{" "}
-            <span>{hotel.name} · PetStay</span>
+            {t("Feito com carinho, para os nossos patudos.")}{" "}
+            <PawPrint size={13} /> <span>{hotel.name} · PetStay</span>
           </footer>
         </section>
       </main>
       {modal && (
         <div className="overlay">
-          <div className="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+          <div
+            className="dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="dialog-title"
+          >
             <button
               className="close"
               onClick={() => S(null)}
-              aria-label="Fechar"
+              aria-label={t("Fechar")}
             >
               <X />
             </button>
             <h2 id="dialog-title">
               {modal === "guest"
-                ? "Um novo amigo de quatro patas"
+                ? t("Um novo amigo de quatro patas")
                 : modal === "booking"
-                  ? "Planear uma boa estadia"
+                  ? t("Planear uma boa estadia")
                   : modal === "profile"
-                    ? "Perfil do hotel"
+                    ? t("Perfil do hotel")
                     : modal === "data"
-                      ? "Dados e cópias"
-                    : modal === "help"
-                      ? "Bem-vindo ao PetStay"
-                      : "Novidades do seu hotel"}
+                      ? t("Dados e cópias")
+                      : modal === "help"
+                        ? t("Bem-vindo ao PetStay")
+                        : t("Novidades do seu hotel")}
             </h2>
-            {modal === "data" ? <DataTransfer /> : modal === "profile" ? (
+            {modal === "data" ? (
+              <DataTransfer />
+            ) : modal === "profile" ? (
               <HotelProfileForm
                 initial={hotel}
                 onSubmit={(profile) => {
@@ -825,12 +922,13 @@ export default function Dashboard() {
               />
             ) : modal === "booking" && guests.length === 0 ? (
               <EmptyState
-                title="Vamos conhecer o primeiro hóspede"
-                action="Adicionar hóspede"
+                title={t("Vamos conhecer o primeiro hóspede")}
+                action={t("Adicionar hóspede")}
                 onAction={() => S("guest")}
               >
-                Adicione um hóspede e o respetivo tutor antes de criar a
-                reserva.
+                {t(
+                  "Adicione um hóspede e o respetivo tutor antes de criar a reserva.",
+                )}
               </EmptyState>
             ) : ["guest", "booking"].includes(modal) ? (
               <form
@@ -844,21 +942,24 @@ export default function Dashboard() {
                   if (modal === "guest") {
                     const age = field("age");
                     if (!isAgeGroup(age)) return;
-                    persist("guests", [...guests, {
-                      name: field("name"), owner: field("owner"), breed: field("breed"), age,
-                    }]);
+                    persist("guests", [
+                      ...guests,
+                      {
+                        name: field("name"),
+                        owner: field("owner"),
+                        breed: field("breed"),
+                        age,
+                      },
+                    ]);
                   } else {
-                    const dog = field("dog"), start = field("start"), end = field("end"), type = field("type");
+                    const dog = field("dog"),
+                      start = field("start"),
+                      end = field("end"),
+                      type = field("type");
                     if (!isStayType(type)) return;
                     let total;
                     try {
-                      total = bookingPrice(
-                        data,
-                        dog,
-                        start,
-                        end,
-                        type,
-                      );
+                      total = bookingPrice(data, dog, start, end, type);
                     } catch (error) {
                       setFormError(asStorageError(error).message);
                       return;
@@ -866,7 +967,9 @@ export default function Dashboard() {
                     persist("bookings", [
                       ...bookings,
                       {
-                        dog, start, type,
+                        dog,
+                        start,
+                        type,
                         end: type === "Daycare" ? start : end,
                         total,
                         paid: false,
@@ -879,30 +982,30 @@ export default function Dashboard() {
                 {modal === "guest" ? (
                   <>
                     <label>
-                      Nome do cão
+                      {t("Nome do cão")}
                       <input name="name" required maxLength={100} />
                     </label>
                     <label>
-                      Nome do tutor
+                      {t("Nome do tutor")}
                       <input name="owner" required maxLength={100} />
                     </label>
                     <label>
-                      Raça
+                      {t("Raça")}
                       <input name="breed" required maxLength={100} />
                     </label>
                     <label>
-                      Faixa etária
+                      {t("Faixa etária")}
                       <select name="age">
-                        <option value="Puppy">Cachorro</option>
-                        <option value="Adult">Adulto</option>
-                        <option value="Senior">Sénior</option>
+                        <option value="Puppy">{t("Cachorro")}</option>
+                        <option value="Adult">{t("Adulto")}</option>
+                        <option value="Senior">{t("Sénior")}</option>
                       </select>
                     </label>
                   </>
                 ) : (
                   <>
                     <label>
-                      Hóspede
+                      {t("Hóspede")}
                       <select name="dog" required>
                         {guests.map((g) => (
                           <option key={g.name}>{g.name}</option>
@@ -914,17 +1017,17 @@ export default function Dashboard() {
                       className="textbutton"
                       onClick={() => S("guest")}
                     >
-                      + Adicionar primeiro um novo hóspede
+                      {t("+ Adicionar primeiro um novo hóspede")}
                     </button>
                     <label>
-                      Tipo de estadia
+                      {t("Tipo de estadia")}
                       <select name="type">
-                        <option value="Boarding">Hotel</option>
-                        <option value="Daycare">Creche</option>
+                        <option value="Boarding">{t("Hotel")}</option>
+                        <option value="Daycare">{t("Creche")}</option>
                       </select>
                     </label>
                     <label>
-                      Data de entrada / dia de creche
+                      {t("Data de entrada / dia de creche")}
                       <input
                         type="date"
                         name="start"
@@ -933,7 +1036,7 @@ export default function Dashboard() {
                       />
                     </label>
                     <label>
-                      Data de saída (hotel)
+                      {t("Data de saída (hotel)")}
                       <input
                         type="date"
                         name="end"
@@ -941,14 +1044,15 @@ export default function Dashboard() {
                       />
                     </label>
                     <p className="hint">
-                      O hotel é cobrado por noite, de acordo com a época e a
-                      faixa etária do cão. A creche tem um preço diário.
+                      {t(
+                        "O hotel é cobrado por noite, de acordo com a época e a faixa etária do cão. A creche tem um preço diário.",
+                      )}
                     </p>
                   </>
                 )}
                 {formError && (
                   <div className="form-error" role="alert">
-                    <p>{formError}</p>
+                    <p>{t(formError)}</p>
                     <button
                       type="button"
                       className="textbutton"
@@ -957,19 +1061,26 @@ export default function Dashboard() {
                         P("Pricing & seasons");
                       }}
                     >
-                      Definir preços
+                      {t("Definir preços")}
                     </button>
                   </div>
                 )}
                 <button className="primary" type="submit">
-                  {modal === "guest" ? "Guardar hóspede" : "Criar reserva"}
+                  {modal === "guest"
+                    ? t("Guardar hóspede")
+                    : t("Criar reserva")}
                 </button>
               </form>
             ) : (
               <p>
                 {modal === "help"
-                  ? `Adicione os hóspedes, defina os preços por época e crie uma reserva. Acompanhe os saldos em Pagamentos e explore a receita potencial no simulador. ${isMobileApp ? "Os dados ficam guardados neste navegador, no telemóvel. Exporte cópias regularmente em Dados e cópias." : "Os dados ficam guardados num ficheiro neste dispositivo. Use Dados e cópias para transferir o hotel para o telemóvel."}`
-                  : `${bookings.filter((b) => !b.paid).length} ${bookings.filter((b) => !b.paid).length === 1 ? "reserva tem pagamentos pendentes" : "reservas têm pagamentos pendentes"}. Aceda a Pagamentos para registar um pagamento.`}
+                  ? `${t("Adicione os hóspedes, defina os preços por época e crie uma reserva. Acompanhe os saldos em Pagamentos e explore a receita potencial no simulador.")} ${t(isMobileApp ? "Os dados ficam guardados neste navegador, no telemóvel. Exporte cópias regularmente em Dados e cópias." : "Os dados ficam guardados num ficheiro neste dispositivo. Use Dados e cópias para transferir o hotel para o telemóvel.")}`
+                  : t(
+                      bookings.filter((b) => !b.paid).length === 1
+                        ? "{count} reserva tem pagamentos pendentes. Aceda a Pagamentos para registar um pagamento."
+                        : "{count} reservas têm pagamentos pendentes. Aceda a Pagamentos para registar um pagamento.",
+                      { count: bookings.filter((b) => !b.paid).length },
+                    )}
               </p>
             )}
           </div>

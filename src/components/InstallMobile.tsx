@@ -1,3 +1,4 @@
+import { useLanguage } from "../context/LanguageContext.tsx";
 import { useEffect, useState } from "react";
 import { Download, Smartphone, RefreshCw } from "lucide-react";
 import { useRegisterSW } from "virtual:pwa-register/react";
@@ -9,6 +10,7 @@ interface InstallPrompt extends Event {
 }
 
 export function InstallMobile() {
+  const { t } = useLanguage();
   const storage = useHotel();
   const [prompt, setPrompt] = useState<InstallPrompt | null>(null);
   const [installed, setInstalled] = useState(() => window.matchMedia("(display-mode: standalone)").matches
@@ -32,23 +34,23 @@ export function InstallMobile() {
     return () => { active = false; window.removeEventListener("beforeinstallprompt", available); window.removeEventListener("appinstalled", complete); };
   }, []);
 
-  return <section className="mobile-install" aria-label="Instalar PetStay">
+  return <section className="mobile-install" aria-label={t("Instalar PetStay")}>
     <Smartphone size={21} />
     <div>
-      <strong>{installed ? "O seu hotel, sempre consigo" : "PetStay no seu ecrã principal"}</strong>
-      <p>{offlineReady || cached ? "Pronto para usar sem ligação, com os dados neste dispositivo." : "Abra uma vez com ligação para preparar o uso offline."}</p>
-      {!installed && !prompt && <p>No iPhone: Safari → Partilhar → Adicionar ao ecrã principal. No Android: menu do navegador → Instalar aplicação.</p>}
-      {error && <p role="alert">{error}</p>}
+      <strong>{installed ? t("O seu hotel, sempre consigo") : t("PetStay no seu ecrã principal")}</strong>
+      <p>{offlineReady || cached ? t("Pronto para usar sem ligação, com os dados neste dispositivo.") : t("Abra uma vez com ligação para preparar o uso offline.")}</p>
+      {!installed && !prompt && <p>{t("No iPhone: Safari → Partilhar → Adicionar ao ecrã principal. No Android: menu do navegador → Instalar aplicação.")}</p>}
+      {error && <p role="alert">{t(error)}</p>}
     </div>
     {prompt && <button className="secondary" onClick={async () => {
       await prompt.prompt();
       const choice = await prompt.userChoice;
       if (choice.outcome === "accepted") setPrompt(null);
       void navigator.storage?.persist?.().catch(() => {});
-    }}><Download size={16} /> Instalar</button>}
+    }}><Download size={16} />{" "}{t("Instalar")}</button>}
     {needRefresh && <button className="secondary" disabled={storage.status !== "saved"} onClick={async () => {
       try { await storage.flush(); await updateServiceWorker(true); }
       catch { setError("Guarde as alterações antes de atualizar a aplicação."); }
-    }}><RefreshCw size={16} /> Atualizar aplicação</button>}
+    }}><RefreshCw size={16} />{" "}{t("Atualizar aplicação")}</button>}
   </section>;
 }

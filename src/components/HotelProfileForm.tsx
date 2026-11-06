@@ -1,3 +1,4 @@
+import { useLanguage } from "../context/LanguageContext.tsx";
 import { useState } from "react";
 import type { ChangeEvent } from "react";
 import type { HotelProfile, StorageError } from "../types.ts";
@@ -13,6 +14,7 @@ interface HotelProfileFormProps {
 }
 
 export function HotelProfileForm({ initial, onSubmit, busy, error, submitLabel = "Guardar alterações" }: HotelProfileFormProps) {
+  const { t } = useLanguage();
   const [name, setName] = useState(initial?.name ?? "");
   const [owner, setOwner] = useState(initial?.owner ?? "");
   const [avatar, setAvatar] = useState(initial?.avatar ?? "");
@@ -44,17 +46,16 @@ export function HotelProfileForm({ initial, onSubmit, busy, error, submitLabel =
     <div className="avatar-picker">
       <HotelAvatar hotel={{ name, avatar }} large />
       <div>
-        <label className="upload-avatar"><Upload size={15} /> Escolher avatar
-          <input type="file" accept="image/png,image/jpeg,image/webp" disabled={busy || reading} onChange={upload} />
+        <label className="upload-avatar"><Upload size={15} />{" "}{t("Escolher avatar")}<input type="file" accept="image/png,image/jpeg,image/webp" disabled={busy || reading} onChange={upload} />
         </label>
-        <p>PNG, JPG ou WebP · até 1 MB · opcional</p>
-        {avatar && <button type="button" className="textbutton" disabled={busy || reading} onClick={() => setAvatar("")}>Remover imagem</button>}
+        <p>{t("PNG, JPG ou WebP · até 1 MB · opcional")}</p>
+        {avatar && <button type="button" className="textbutton" disabled={busy || reading} onClick={() => setAvatar("")}>{t("Remover imagem")}</button>}
       </div>
     </div>
-    <label>Nome do hotel<input name="hotelName" placeholder="Como se chama o seu hotel?" autoComplete="organization" maxLength={100} required value={name} disabled={busy} onChange={event => setName(event.target.value)} /></label>
-    <label>O seu nome<input name="ownerName" placeholder="Como se chama?" autoComplete="name" maxLength={100} required value={owner} disabled={busy} onChange={event => setOwner(event.target.value)} /></label>
-    {(uploadError || error) && <p className="form-error" role="alert">{uploadError || error?.message}</p>}
-    {error?.status === 409 && <button type="button" onClick={() => window.location.reload()}>Recarregar dados</button>}
-    <button className="primary" type="submit" disabled={busy || reading}>{busy ? "A guardar…" : reading ? "A preparar imagem…" : submitLabel}<ArrowRight size={16} /></button>
+    <label>{t("Nome do hotel")}<input name="hotelName" placeholder={t("Como se chama o seu hotel?")} autoComplete="organization" maxLength={100} required value={name} disabled={busy} onChange={event => setName(event.target.value)} /></label>
+    <label>{t("O seu nome")}<input name="ownerName" placeholder={t("Como se chama?")} autoComplete="name" maxLength={100} required value={owner} disabled={busy} onChange={event => setOwner(event.target.value)} /></label>
+    {(uploadError || error) && <p className="form-error" role="alert">{t(uploadError || error?.message || "")}</p>}
+    {error?.status === 409 && <button type="button" onClick={() => window.location.reload()}>{t("Recarregar dados")}</button>}
+    <button className="primary" type="submit" disabled={busy || reading}>{busy ? t("A guardar…") : reading ? t("A preparar imagem…") : t(submitLabel)}<ArrowRight size={16} /></button>
   </form>;
 }

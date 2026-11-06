@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 100svh;
-  background: #faf8f3;
+  background: var(--page-bg);
 }
 .onboarding-story {
   display: flex;
@@ -10,7 +10,7 @@
   justify-content: space-between;
   gap: 64px;
   padding: clamp(32px, 5vw, 80px);
-  background: #eaf0e2;
+  background: var(--accent-soft);
 }
 .onboarding-story .brand {
   margin: 0;
@@ -18,12 +18,12 @@
 .onboarding-story h1 {
   font-size: clamp(38px, 4.3vw, 66px);
   line-height: 1.12;
-  color: #42603b;
+  color: var(--accent-text);
   letter-spacing: -2px;
   margin: 16px 0 24px;
 }
 .onboarding-story p {
-  color: #6d7c62;
+  color: var(--accent-text);
   font-size: 15px;
   line-height: 1.8;
   max-width: 370px;
@@ -39,14 +39,14 @@
   display: flex;
   gap: 12px;
   align-items: center;
-  color: #547447;
+  color: var(--accent-text);
   font-size: 12px;
 }
 .onboarding-story li svg {
   flex-shrink: 0;
 }
 .onboarding-story > small {
-  color: #839276;
+  color: var(--accent-text);
 }
 .onboarding-card {
   align-self: center;
@@ -60,7 +60,7 @@
   margin: 12px 0;
 }
 .onboarding-card > p {
-  color: #8c897c;
+  color: var(--muted);
   font-size: 13px;
   line-height: 1.8;
 }
@@ -99,7 +99,7 @@
 .avatar-picker p,
 .dialog .avatar-picker p {
   font-size: 10px;
-  color: #8c897c;
+  color: var(--muted);
   margin: 9px 0;
   line-height: 1.5;
 }
@@ -109,8 +109,8 @@
   gap: 7px;
   position: relative;
   cursor: pointer;
-  border: 1px solid #dcdacb;
-  background: #fffefb;
+  border: 1px solid var(--line);
+  background: var(--surface);
   border-radius: 8px;
   padding: 9px 12px;
   font-size: 11px;
@@ -124,7 +124,7 @@
   padding: 0;
 }
 .upload-avatar:focus-within {
-  outline: 3px solid #d8a149;
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 .hotel-avatar {
@@ -134,8 +134,8 @@
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: #e9efdf;
-  color: #547447;
+  background: var(--accent-soft);
+  color: var(--accent-text);
   font-size: 14px;
   font-weight: 800;
   overflow: hidden;
@@ -155,7 +155,7 @@
 .onboarding-card .setup-note {
   margin-top: 26px;
   padding-top: 20px;
-  border-top: 1px solid #eae5da;
+  border-top: 1px solid var(--line);
   font-size: 11px;
 }
 .empty-state {
@@ -168,8 +168,8 @@
   width: 52px;
   height: 52px;
   border-radius: 16px;
-  background: #f1f2e8;
-  color: #8a9f76;
+  background: var(--accent-soft);
+  color: var(--accent-text);
   margin-bottom: 14px;
 }
 .empty-state h3 {
@@ -178,7 +178,7 @@
 .empty-state p,
 .dialog .empty-state p {
   font-size: 12px;
-  color: #8c897c;
+  color: var(--muted);
   margin: 9px auto 20px;
   line-height: 1.7;
   max-width: 340px;
@@ -188,14 +188,14 @@
 }
 .form-error,
 .dialog .form-error p {
-  color: #973f2b;
+  color: var(--error-text);
   font-size: 12px;
   line-height: 1.7;
 }
 .form-error {
   border-radius: 9px;
   padding: 12px;
-  background: #fff0e8;
+  background: var(--error-bg);
 }
 .form-error .textbutton {
   margin-top: 10px;
@@ -206,8 +206,8 @@
   flex-wrap: wrap;
   gap: 14px;
   padding: 20px;
-  border: 1px solid #e1e7d5;
-  background: #f1f4e9;
+  border: 1px solid var(--accent-border);
+  background: var(--accent-soft);
   border-radius: 12px;
   margin-bottom: 22px;
 }
@@ -219,18 +219,18 @@
 }
 .setup-checklist p {
   font-size: 11px;
-  color: #8c897c;
+  color: var(--muted);
   margin-top: 5px;
 }
 .setup-checklist button {
   display: flex;
   align-items: center;
   gap: 7px;
-  background: #fffefb;
-  border: 1px solid #dce3ce;
+  background: var(--surface);
+  border: 1px solid var(--accent-border);
   padding: 10px;
   border-radius: 8px;
-  color: #547447;
+  color: var(--accent-text);
   font-size: 11px;
 }
 .guest-avatar {
@@ -239,8 +239,8 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #f1ebdb;
-  color: #9d875d;
+  background: var(--warm-bg);
+  color: var(--warm-text);
   flex-shrink: 0;
 }
 .guest-avatar-large {
@@ -264,14 +264,14 @@
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 20px;
-  color: #547447;
+  color: var(--accent-text);
   font-size: 11px;
   line-height: 1.6;
 }
 .storage-error {
-  color: #8b3d2c;
-  background: #fff0e8;
-  border: 1px solid #edc9b8;
+  color: var(--error-text);
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
   padding: 12px 16px;
   border-radius: 9px;
 }
@@ -287,7 +287,7 @@
 aside {
   width: 258px;
   flex-shrink: 0;
-  background: #fffefb;
+  background: var(--surface);
   border-right: 1px solid var(--line);
   padding: 28px 22px;
   display: flex;
@@ -314,7 +314,7 @@ aside {
   height: 58px;
   display: grid;
   place-items: center;
-  background: #f3e3c7;
+  background: var(--warm-bg);
   color: var(--brown);
   border-radius: 18px;
 }
@@ -393,7 +393,7 @@ table input[type="number"] {
 .navlabel {
   font-size: 9px;
   letter-spacing: 1.6px;
-  color: #aaa696;
+  color: var(--muted);
   margin: 0 12px 10px;
 }
 nav {
@@ -408,11 +408,11 @@ nav button {
   padding: 13px 12px;
   border-radius: 9px;
   font-size: 12px;
-  color: #7e8072;
+  color: var(--muted);
 }
 nav button.active {
-  color: var(--green);
-  background: #edf1e7;
+  color: var(--accent-text);
+  background: var(--accent-soft);
   font-weight: 700;
 }
 nav button em {
@@ -420,7 +420,7 @@ nav button em {
   font-size: 10px;
   font-style: normal;
   border-radius: 5px;
-  background: #dfe7d5;
+  background: var(--accent-soft);
   padding: 3px 6px;
 }
 .asidebottom {
@@ -428,7 +428,7 @@ nav button em {
   padding-top: 32px;
 }
 .help {
-  background: #f8f2e5;
+  background: var(--warm-bg);
   border-radius: 13px;
   padding: 17px 14px;
 }
@@ -468,7 +468,7 @@ nav button em {
   height: 34px;
   display: grid;
   place-items: center;
-  background: #f0dfca;
+  background: var(--warm-bg);
   color: var(--brown);
   border-radius: 50%;
   font-size: 11px;
@@ -483,7 +483,7 @@ nav button em {
 }
 .profile > svg {
   margin-left: auto;
-  color: var(--green);
+  color: var(--accent-text);
 }
 main {
   flex: 1;
@@ -497,14 +497,14 @@ header {
   align-items: center;
   padding: 0 38px;
   font-size: 11px;
-  background: #fffefb;
+  background: var(--surface);
 }
 .crumb {
   color: var(--muted);
 }
 .slash {
   margin: 0 12px;
-  color: #c7c5b9;
+  color: var(--muted);
 }
 .headerRight {
   display: flex;
@@ -512,14 +512,14 @@ header {
   gap: 22px;
 }
 .headerRight > span {
-  color: #747c67;
+  color: var(--muted);
   font-size: 10px;
 }
 .headerRight i {
   display: inline-block;
   width: 6px;
   height: 6px;
-  background: #7d9b64;
+  background: var(--accent-text);
   border-radius: 50%;
   margin-right: 6px;
 }
@@ -552,7 +552,7 @@ header {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 1.7px;
-  color: #9b9b82;
+  color: var(--muted);
   margin-bottom: 9px;
 }
 h1 {
@@ -585,9 +585,9 @@ h1 span {
   display: flex;
   justify-content: space-between;
   overflow: hidden;
-  border: 1px solid #e8ddc5;
+  border: 1px solid var(--warm-border);
   border-radius: 16px;
-  background: #f4ecd9;
+  background: var(--warm-bg);
   min-height: 244px;
   margin-bottom: 22px;
 }
@@ -598,7 +598,7 @@ h1 span {
 .tag {
   font-size: 8px;
   letter-spacing: 1.6px;
-  color: #8c7755;
+  color: var(--muted);
   font-weight: 700;
 }
 h2 {
@@ -610,7 +610,7 @@ h2 {
 }
 .welcome p {
   font-size: 11px;
-  color: #9b8870;
+  color: var(--muted);
 }
 .welcome button {
   font-size: 11px;
@@ -647,7 +647,7 @@ h2 {
   position: absolute;
   bottom: 24px;
   right: 20px;
-  background: #fffdf4;
+  background: var(--surface);
   box-shadow: 0 4px 12px #4930150f;
   padding: 10px 13px;
   border-radius: 9px;
@@ -665,7 +665,7 @@ h2 {
 }
 .stat {
   padding: 18px;
-  background: #fffefb;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 12px;
 }
@@ -674,7 +674,7 @@ h2 {
   justify-content: space-between;
   align-items: center;
   font-size: 11px;
-  color: #848777;
+  color: var(--muted);
 }
 .stat i {
   font-style: normal;
@@ -688,10 +688,10 @@ h2 {
 }
 .stat small {
   font-size: 9px;
-  color: #9a9c8c;
+  color: var(--muted);
 }
 .panel {
-  background: #fffefb;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 13px;
   margin-bottom: 22px;
@@ -717,11 +717,11 @@ h2 {
   font-family: "DM Sans Variable", sans-serif;
   font-size: 9px;
   font-weight: 500;
-  background: #f3f1e9;
+  background: var(--surface-soft);
   padding: 4px 7px;
   border-radius: 5px;
   margin-left: 7px;
-  color: #9c9d8b;
+  color: var(--muted);
 }
 .month {
   display: flex;
@@ -751,7 +751,7 @@ h2 {
 .calhead {
   border-bottom: 1px solid var(--line);
   padding: 0 0 13px;
-  color: #929580;
+  color: var(--muted);
   font-size: 11px;
 }
 .calhead > span {
@@ -768,12 +768,12 @@ h2 {
   margin-bottom: 6px;
 }
 .calhead .today {
-  color: var(--green);
+  color: var(--accent-text);
   font-weight: 700;
 }
 .calrow {
   min-height: 68px;
-  border-bottom: 1px solid #f1eee5;
+  border-bottom: 1px solid var(--line);
 }
 .guestcell {
   display: flex;
@@ -802,8 +802,8 @@ h2 {
     to right,
     transparent 0,
     transparent calc(100% / 7 - 1px),
-    #f0eee7 calc(100% / 7 - 1px),
-    #f0eee7 calc(100% / 7)
+    var(--line) calc(100% / 7 - 1px),
+    var(--line) calc(100% / 7)
   );
   overflow: hidden;
 }
@@ -818,8 +818,8 @@ h2 {
   text-align: left;
   font-size: 9px;
   padding: 0 10px;
-  background: #e6ecd9;
-  color: #61764b;
+  background: var(--accent-soft);
+  color: var(--accent-text);
   white-space: nowrap;
   overflow: hidden;
 }
@@ -829,16 +829,16 @@ h2 {
   opacity: 0.7;
 }
 .stay1 {
-  background: #f3e5cf;
-  color: #98713e;
+  background: var(--warm-bg);
+  color: var(--warm-text);
 }
 .stay2 {
-  background: #f9ead0;
-  color: #a78240;
+  background: var(--warm-bg);
+  color: var(--warm-text);
 }
 .stay3 {
-  background: #e9e3f0;
-  color: #8b789c;
+  background: var(--violet-bg);
+  color: var(--violet-text);
 }
 .legend {
   display: flex;
@@ -857,10 +857,10 @@ h2 {
   width: 7px;
   height: 7px;
   border-radius: 2px;
-  background: #c5d4b0;
+  background: var(--accent-border);
 }
 .legend > span:nth-child(2) i {
-  background: #ecd2a3;
+  background: var(--warm-border);
 }
 .legend button {
   display: flex;
@@ -868,7 +868,7 @@ h2 {
   gap: 8px;
   margin-left: auto;
   font-size: 10px;
-  color: var(--green);
+  color: var(--accent-text);
 }
 .bottomgrid {
   display: grid;
@@ -876,14 +876,14 @@ h2 {
   gap: 20px;
 }
 .earnings .panelheading h3 span {
-  color: #98a887;
+  color: var(--accent-text);
 }
 .softtag {
   font-size: 9px;
-  background: #f4f3eb;
+  background: var(--surface-soft);
   border-radius: 5px;
   padding: 6px 8px;
-  color: #9a9d89;
+  color: var(--muted);
 }
 .simcontrols {
   display: flex;
@@ -919,38 +919,38 @@ h2 {
 .simcontrols > div > strong {
   font-family: "Nunito Variable", sans-serif;
   display: block;
-  color: #526e43;
+  color: var(--accent-text);
   font-size: 25px;
 }
 .simcontrols small {
   font-size: 8px;
 }
 .seasoncard {
-  border: 1px solid #e7dcc4;
+  border: 1px solid var(--warm-border);
   border-radius: 13px;
-  background: #f1e9d6;
+  background: var(--warm-bg);
   padding: 24px;
   margin-bottom: 22px;
 }
 .seasoncard > svg {
-  color: #bb9947;
+  color: var(--warm-text);
   margin-bottom: 12px;
 }
 .seasoncard > span {
   display: block;
   font-size: 8px;
   letter-spacing: 1.4px;
-  color: #ab956c;
+  color: var(--muted);
 }
 .seasoncard h3 {
   font-size: 23px;
   line-height: 1.2;
-  color: #7e6844;
+  color: var(--warm-text);
   margin: 12px 0;
 }
 .seasoncard p {
   font-size: 10px;
-  color: #9d8d72;
+  color: var(--muted);
   line-height: 1.8;
 }
 .seasoncard button {
@@ -959,7 +959,7 @@ h2 {
   gap: 8px;
   font-size: 10px;
   font-weight: 700;
-  color: #8a734c;
+  color: var(--warm-text);
   margin-top: 16px;
   padding: 0;
 }
@@ -968,7 +968,7 @@ footer {
   align-items: center;
   gap: 6px;
   font-size: 9px;
-  color: #a5a594;
+  color: var(--muted);
   padding: 3px 0;
 }
 footer > span {
@@ -1023,7 +1023,7 @@ th {
   letter-spacing: 0.6px;
   font-weight: 500;
   color: var(--muted);
-  background: #faf9f3;
+  background: var(--surface-soft);
 }
 th,
 td {
@@ -1054,12 +1054,12 @@ tr:last-child td {
   font-size: 10px;
   border-radius: 6px;
   padding: 7px 10px;
-  background: #eaf0e2;
-  color: var(--green);
+  background: var(--accent-soft);
+  color: var(--accent-text);
 }
 .pending {
-  background: #f6ead1;
-  color: #a17f3d;
+  background: var(--warm-bg);
+  color: var(--warm-text);
 }
 .season {
   padding: 23px;
@@ -1089,9 +1089,9 @@ tr:last-child td {
   font-size: 11px;
 }
 .months button.selected {
-  background: #f3e5ca;
-  border-color: #dcc496;
-  color: #8c6c33;
+  background: var(--warm-bg);
+  border-color: var(--warm-border);
+  color: var(--warm-text);
 }
 .overlay {
   position: fixed;
@@ -1110,7 +1110,7 @@ tr:last-child td {
   max-height: 90vh;
   overflow: auto;
   border-radius: 18px;
-  background: #fffefb;
+  background: var(--surface);
   padding: 32px;
 }
 .close {
@@ -1148,7 +1148,7 @@ tr:last-child td {
   padding: 0;
   text-align: left;
   font-size: 11px;
-  color: var(--green);
+  color: var(--accent-text);
 }
 @media (min-width: 1600px) {
   .content {

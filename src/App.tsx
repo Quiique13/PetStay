@@ -1,3 +1,4 @@
+import { useLanguage } from "./context/LanguageContext.tsx";
 import React, { useEffect } from "react";
 import "./App.css";
 import "./mobile.css";
@@ -7,29 +8,27 @@ import { Onboarding } from "./components/Onboarding.tsx";
 import Dashboard from "./components/Dashboard.tsx";
 
 export default function App() {
+  const { t } = useLanguage();
   const storage = useHotel();
   useEffect(() => {
     document.title = storage.data?.hotel
       ? `${storage.data.hotel.name} | PetStay`
-      : "PetStay — gestão de hotéis para animais";
-  }, [storage.data?.hotel?.name]);
+      : t("PetStay — gestão de hotéis para animais");
+  }, [storage.data?.hotel?.name, t]);
   if (!storage.data) {
     return (
       <main className="storage-screen">
         <Brand />
         <h1>
           {storage.error
-            ? "Não foi possível abrir os dados"
-            : "A abrir os dados do dispositivo…"}
+            ? t("Não foi possível abrir os dados")
+            : t("A abrir os dados do dispositivo…")}
         </h1>
         <p role={storage.error ? "alert" : "status"}>
-          {storage.error?.message ??
-            "A preparar os seus hóspedes, reservas e preços."}
+          {t(storage.error?.message ?? "A preparar os seus hóspedes, reservas e preços.")}
         </p>
         {storage.error && (
-          <button className="primary" onClick={storage.retry}>
-            Tentar novamente
-          </button>
+          <button className="primary" onClick={storage.retry}>{t("Tentar novamente")}</button>
         )}
       </main>
     );
@@ -37,4 +36,3 @@ export default function App() {
   if (!storage.data.hotel) return <Onboarding />;
   return <Dashboard />;
 }
-
