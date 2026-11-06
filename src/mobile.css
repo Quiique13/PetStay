@@ -1,109 +1,457 @@
-.nav-mobile { display: none; }
-.secondary {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  border: 1px solid var(--accent-border); border-radius: 9px; background: var(--surface);
-  color: var(--accent-text); font-size: 12px; font-weight: 600; padding: 12px 16px;
-  cursor: pointer; line-height: 1.5;
+.nav-mobile {
+  display: none;
 }
-button:disabled, .disabled { opacity: .55; cursor: wait; }
-.data-trigger { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; }
-.data-trigger span { font-size: 11px; }
-.data-transfer { display: grid; gap: 18px; text-align: left; }
-.data-transfer > p, .data-transfer .import-preview p { font-size: 12px; line-height: 1.8; color: var(--muted); }
-.transfer-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.file-picker { position: relative; }
-.file-picker input { position: absolute; width: 1px; height: 1px; opacity: 0; padding: 0; }
-.file-picker:focus-within { outline: 3px solid var(--focus); outline-offset: 3px; }
-.import-preview { display: grid; gap: 14px; border: 1px solid var(--accent-border); border-radius: 12px; background: var(--accent-soft); padding: 20px; }
-.import-preview h3 { font-size: 20px; overflow-wrap: anywhere; }
-.import-preview dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0; }
-.import-preview dt { font-size: 11px; color: var(--muted); }
-.import-preview dd { font-size: 24px; font-weight: 700; margin: 6px 0 0; }
-.import-preview .confirm-import { display: flex; align-items: flex-start; gap: 10px; font-size: 12px; line-height: 1.7; }
-.confirm-import input { flex-shrink: 0; margin: 4px 0 0; accent-color: var(--accent-text); width: 18px; height: 18px; }
-.data-transfer .transfer-success { display: flex; gap: 9px; align-items: flex-start; color: var(--accent-text); background: var(--accent-soft); padding: 14px; border-radius: 9px; }
-.transfer-success svg { flex-shrink: 0; margin-top: 2px; }
-.data-transfer .transfer-note { font-size: 11px; }
-.recovery-action { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; }
-.onboarding-import { margin-top: 24px; border-top: 1px solid var(--line); padding-top: 20px; }
-.onboarding-import summary { color: var(--accent-text); font-size: 13px; font-weight: 700; cursor: pointer; padding: 10px 0; }
-.onboarding-import .data-transfer { margin-top: 16px; }
-.mobile-install { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px; border: 1px solid var(--accent-border); background: var(--accent-soft); border-radius: 12px; margin-bottom: 20px; color: var(--accent-text); }
-.mobile-install > svg { flex-shrink: 0; }
-.mobile-install > div { flex: 1; min-width: 180px; }
-.mobile-install strong { font-size: 12px; }
-.mobile-install p { font-size: 11px; line-height: 1.7; margin-top: 4px; color: var(--accent-text); }
-.onboarding-card .mobile-install { margin-top: 24px; }
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--accent-border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--accent-text);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 12px 16px;
+  cursor: pointer;
+  line-height: 1.5;
+}
+button:disabled,
+.disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+.data-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+}
+.data-trigger span {
+  font-size: 11px;
+}
+.data-transfer {
+  display: grid;
+  gap: 18px;
+  text-align: left;
+}
+.data-transfer > p,
+.data-transfer .import-preview p {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+.transfer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.file-picker {
+  position: relative;
+}
+.file-picker input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  padding: 0;
+}
+.file-picker:focus-within {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+.import-preview {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--accent-border);
+  border-radius: 12px;
+  background: var(--accent-soft);
+  padding: 20px;
+}
+.import-preview h3 {
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+.import-preview dl {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 0;
+}
+.import-preview dt {
+  font-size: 11px;
+  color: var(--muted);
+}
+.import-preview dd {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 6px 0 0;
+}
+.import-preview .confirm-import {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.confirm-import input {
+  flex-shrink: 0;
+  margin: 4px 0 0;
+  accent-color: var(--accent-text);
+  width: 18px;
+  height: 18px;
+}
+.data-transfer .transfer-success {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  padding: 14px;
+  border-radius: 9px;
+}
+.transfer-success svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.data-transfer .transfer-note {
+  font-size: 11px;
+}
+.recovery-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+}
+.onboarding-import {
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+.onboarding-import summary {
+  color: var(--accent-text);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 10px 0;
+}
+.onboarding-import .data-transfer {
+  margin-top: 16px;
+}
+.mobile-install {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--accent-border);
+  background: var(--accent-soft);
+  border-radius: 12px;
+  margin-bottom: 20px;
+  color: var(--accent-text);
+}
+.mobile-install > svg {
+  flex-shrink: 0;
+}
+.mobile-install > div {
+  flex: 1;
+  min-width: 180px;
+}
+.mobile-install strong {
+  font-size: 12px;
+}
+.mobile-install p {
+  font-size: 11px;
+  line-height: 1.7;
+  margin-top: 4px;
+  color: var(--accent-text);
+}
+.onboarding-card .mobile-install {
+  margin-top: 24px;
+}
 
 @media (max-width: 800px) {
-  html { scroll-padding-bottom: 100px; }
-  body { overscroll-behavior-y: none; }
-  .app { min-height: 100svh; }
-  aside { padding: max(16px, env(safe-area-inset-top)) 20px 12px; overflow: visible; }
-  aside .brand-symbol { width: 38px; height: 38px; border-radius: 12px; }
-  aside .brand-symbol svg { width: 25px; }
-  aside .brand-name { font-size: 23px; }
-  aside .brand-name small { font-size: 9px; margin-top: 4px; max-width: none; }
-  aside nav {
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 5;
-    display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0;
-    background: var(--surface); backdrop-filter: blur(12px); border-top: 1px solid var(--line);
-    margin: 0; padding: 6px max(5px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(5px, env(safe-area-inset-left));
+  html {
+    scroll-padding-bottom: 100px;
   }
-  aside nav button { min-height: 58px; display: flex; flex-direction: column; justify-content: center; gap: 5px; padding: 8px 2px; font-size: 10px; border-radius: 12px; }
-  aside nav button svg { width: 21px; height: 21px; }
-  .nav-desktop { display: none; }
-  .nav-mobile { display: inline; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
-  nav button em { display: none; }
-  header { position: sticky; top: 0; z-index: 4; height: 64px; gap: 8px; padding: 0 20px; }
-  header .crumb, header .slash { display: none; }
-  .headerRight { gap: 12px; }
-  .headerRight > span { display: none; }
-  .headerRight > button { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
-  .data-trigger span { display: none; }
-  .content { padding: 20px max(16px, env(safe-area-inset-right)) calc(100px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
-  .storage-status { margin-bottom: 18px; }
-  .onboarding { grid-template-columns: 1fr; }
-  .onboarding-story { gap: 22px; padding: 24px; }
-  .onboarding-story h1 { font-size: 36px; margin: 10px 0; letter-spacing: -1px; }
-  .onboarding-story p { font-size: 13px; }
-  .onboarding-story ul, .onboarding-story > small { display: none; }
-  .onboarding-card { padding: 30px 24px max(30px, env(safe-area-inset-bottom)); max-width: 600px; }
-  .onboarding-card h2 { font-size: 27px; }
-  input:not([type="checkbox"]):not([type="range"]), select, .search input { font-size: 16px; min-height: 44px; }
-  .primary, .secondary, .months button, .pending, .paid { min-height: 44px; }
-  .panelheading { flex-wrap: wrap; }
-  .panelheading .search { width: 100%; }
-  .search input { width: 100%; }
-  .panel .records-table, .panel .pricing-table { min-width: 0; }
-  .records-table thead { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
-  .records-table tbody { display: grid; gap: 12px; padding: 0 16px 16px; }
-  .records-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; padding: 18px; border: 1px solid var(--line); border-radius: 12px; }
-  .records-table tr:last-child { border: 1px solid var(--line); }
-  .records-table td { display: block; padding: 0; border: 0; font-size: 13px; overflow-wrap: anywhere; }
-  .records-table td::before { display: block; content: attr(data-label); font-size: 10px; color: var(--muted); margin-bottom: 6px; }
-  .records-table .record-dates, .records-table td[colspan] { grid-column: 1 / -1; }
-  .pricing-table th, .pricing-table td { padding: 14px 8px; }
-  .pricing-table th { font-size: 10px; letter-spacing: 0; }
-  .pricing-table input[type="number"] { width: 100%; max-width: 120px; padding: 8px; }
-  .pricing-table td:first-child { font-size: 12px; }
-  .season { padding: 20px 16px; }
-  .overlay { padding: 10px; padding-bottom: max(10px, env(safe-area-inset-bottom)); z-index: 20; }
-  .dialog { width: min(100%, 520px); max-height: calc(100dvh - 20px - env(safe-area-inset-bottom)); padding: 28px 22px; overscroll-behavior: contain; }
-  .close { width: 44px; height: 44px; display: grid; place-items: center; top: 3px; right: 3px; }
-  .dialog h2 { padding-right: 24px; }
-  .data-transfer .transfer-actions > .primary, .data-transfer .transfer-actions > .secondary { width: 100%; white-space: normal; }
-  .import-preview { padding: 16px; }
-  .legend { flex-wrap: wrap; }
+  body {
+    overscroll-behavior-y: none;
+  }
+  .app {
+    min-height: 100svh;
+  }
+  aside {
+    padding: max(16px, env(safe-area-inset-top)) 20px 12px;
+    overflow: visible;
+  }
+  aside .brand-symbol {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+  }
+  aside .brand-symbol svg {
+    width: 25px;
+  }
+  aside .brand-name {
+    font-size: 23px;
+  }
+  aside .brand-name small {
+    font-size: 9px;
+    margin-top: 4px;
+    max-width: none;
+  }
+  aside nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0;
+    background: var(--surface);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--line);
+    margin: 0;
+    padding: 6px max(5px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom)) max(5px, env(safe-area-inset-left));
+  }
+  aside nav button {
+    min-height: 58px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px 2px;
+    font-size: 10px;
+    border-radius: 12px;
+  }
+  aside nav button svg {
+    width: 21px;
+    height: 21px;
+  }
+  .nav-desktop {
+    display: none;
+  }
+  .nav-mobile {
+    display: inline;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  nav button em {
+    display: none;
+  }
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    height: 64px;
+    gap: 8px;
+    padding: 0 20px;
+  }
+  header .crumb,
+  header .slash {
+    display: none;
+  }
+  .headerRight {
+    gap: 12px;
+  }
+  .headerRight > span {
+    display: none;
+  }
+  .headerRight > button {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .data-trigger span {
+    display: none;
+  }
+  .content {
+    padding: 20px max(16px, env(safe-area-inset-right))
+      calc(100px + env(safe-area-inset-bottom))
+      max(16px, env(safe-area-inset-left));
+  }
+  .storage-status {
+    margin-bottom: 18px;
+  }
+  .onboarding {
+    grid-template-columns: 1fr;
+  }
+  .onboarding-story {
+    gap: 22px;
+    padding: 24px;
+  }
+  .onboarding-story h1 {
+    font-size: 36px;
+    margin: 10px 0;
+    letter-spacing: -1px;
+  }
+  .onboarding-story p {
+    font-size: 13px;
+  }
+  .onboarding-story ul,
+  .onboarding-story > small {
+    display: none;
+  }
+  .onboarding-card {
+    padding: 30px 24px max(30px, env(safe-area-inset-bottom));
+    max-width: 600px;
+  }
+  .onboarding-card h2 {
+    font-size: 27px;
+  }
+  input:not([type="checkbox"]):not([type="range"]),
+  select,
+  .search input {
+    font-size: 16px;
+    min-height: 44px;
+  }
+  .primary,
+  .secondary,
+  .months button,
+  .pending,
+  .paid {
+    min-height: 44px;
+  }
+  .panelheading {
+    flex-wrap: wrap;
+  }
+  .panelheading .search {
+    width: 100%;
+  }
+  .search input {
+    width: 100%;
+  }
+  .panel .records-table,
+  .panel .pricing-table {
+    min-width: 0;
+  }
+  .records-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    clip-path: inset(50%);
+    overflow: hidden;
+  }
+  .records-table tbody {
+    display: grid;
+    gap: 12px;
+    padding: 0 16px 16px;
+  }
+  .records-table tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 12px;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .records-table tr:last-child {
+    border: 1px solid var(--line);
+  }
+  .records-table td {
+    display: block;
+    padding: 0;
+    border: 0;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+  .records-table td::before {
+    display: block;
+    content: attr(data-label);
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .records-table .record-dates,
+  .records-table td[colspan] {
+    grid-column: 1 / -1;
+  }
+  .pricing-table th,
+  .pricing-table td {
+    padding: 14px 8px;
+  }
+  .pricing-table th {
+    font-size: 10px;
+    letter-spacing: 0;
+  }
+  .pricing-table input[type="number"] {
+    width: 100%;
+    max-width: 120px;
+    padding: 8px;
+  }
+  .pricing-table td:first-child {
+    font-size: 12px;
+  }
+  .season {
+    padding: 20px 16px;
+  }
+  .overlay {
+    padding: 10px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    z-index: 20;
+  }
+  .dialog {
+    width: min(100%, 520px);
+    max-height: calc(100dvh - 20px - env(safe-area-inset-bottom));
+    padding: 28px 22px;
+    overscroll-behavior: contain;
+  }
+  .close {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    top: 3px;
+    right: 3px;
+  }
+  .dialog h2 {
+    padding-right: 24px;
+  }
+  .data-transfer .transfer-actions > .primary,
+  .data-transfer .transfer-actions > .secondary {
+    width: 100%;
+    white-space: normal;
+  }
+  .import-preview {
+    padding: 16px;
+  }
+  .legend {
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 360px) {
-  .nav-mobile { font-size: 9px; letter-spacing: -.2px; }
-  .content { padding-left: 12px; padding-right: 12px; }
-  .stat { padding: 12px; }
-  .stat > span { font-size: 10px; }
-  .stat strong { font-size: 25px; }
-  .onboarding-card { padding-left: 20px; padding-right: 20px; }
-  .avatar-picker { gap: 12px; }
-  .hotel-avatar-large { width: 68px; height: 68px; }
+  .nav-mobile {
+    font-size: 9px;
+    letter-spacing: -0.2px;
+  }
+  .content {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .stat {
+    padding: 12px;
+  }
+  .stat > span {
+    font-size: 10px;
+  }
+  .stat strong {
+    font-size: 25px;
+  }
+  .onboarding-card {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .avatar-picker {
+    gap: 12px;
+  }
+  .hotel-avatar-large {
+    width: 68px;
+    height: 68px;
+  }
 }

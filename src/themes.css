@@ -80,7 +80,21 @@
   --brown: #efb4d1;
   --chart: #d9a3be;
 }
-input, select { background: var(--surface); }
-input[type="checkbox"], input[type="radio"] { accent-color: var(--green); }
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline-color: var(--focus); }
-::selection { background: var(--accent-border); color: var(--text); }
+input,
+select {
+  background: var(--surface);
+}
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--green);
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline-color: var(--focus);
+}
+::selection {
+  background: var(--accent-border);
+  color: var(--text);
+}

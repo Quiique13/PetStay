@@ -25,10 +25,15 @@ export default function App() {
             : t("A abrir os dados do dispositivo…")}
         </h1>
         <p role={storage.error ? "alert" : "status"}>
-          {t(storage.error?.message ?? "A preparar os seus hóspedes, reservas e preços.")}
+          {t(
+            storage.error?.message ??
+              "A preparar os seus hóspedes, reservas e preços.",
+          )}
         </p>
         {storage.error && (
-          <button className="primary" onClick={storage.retry}>{t("Tentar novamente")}</button>
+          <button className="primary" onClick={storage.retry}>
+            {t("Tentar novamente")}
+          </button>
         )}
       </main>
     );

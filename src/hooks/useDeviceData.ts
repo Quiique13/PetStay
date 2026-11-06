@@ -6,7 +6,9 @@ import type { HotelData, HotelProfile, StorageError } from "../types.ts";
 
 export function useDeviceData() {
   const [data, setData] = useState<HotelData | null>(null);
-  const [status, setStatus] = useState<"loading" | "saved" | "saving" | "error">("loading");
+  const [status, setStatus] = useState<
+    "loading" | "saved" | "saving" | "error"
+  >("loading");
   const [error, setError] = useState<StorageError | null>(null);
   const [retry, setRetry] = useState(0);
   const revision = useRef(0);
@@ -23,18 +25,22 @@ export function useDeviceData() {
     if (latest.current) return;
     setStatus("loading");
     setError(null);
-    loadDeviceData().then(result => {
-      if (!active) return;
-      revision.current = result.revision;
-      latest.current = saved.current = result.data;
-      setData(result.data);
-      setStatus("saved");
-    }).catch(cause => {
-      if (!active) return;
-      setError(asStorageError(cause));
-      setStatus("error");
-    });
-    return () => { active = false; };
+    loadDeviceData()
+      .then((result) => {
+        if (!active) return;
+        revision.current = result.revision;
+        latest.current = saved.current = result.data;
+        setData(result.data);
+        setStatus("saved");
+      })
+      .catch((cause) => {
+        if (!active) return;
+        setError(asStorageError(cause));
+        setStatus("error");
+      });
+    return () => {
+      active = false;
+    };
   }, [retry]);
 
   function reportFailure(cause: unknown) {
@@ -45,38 +51,65 @@ export function useDeviceData() {
   }
 
   async function write(next: HotelData, preserveRecovery = false) {
-    const result = await saveDeviceData(next, revision.current, preserveRecovery);
+    const result = await saveDeviceData(
+      next,
+      revision.current,
+      preserveRecovery,
+    );
     revision.current = result.revision;
     saved.current = next;
-    if (latest.current === next) { setStatus("saved"); setError(null); }
+    if (latest.current === next) {
+      setStatus("saved");
+      setError(null);
+    }
   }
 
   function persistLatest() {
     // Read the latest value when the operation runs, never a stale timer closure.
-    const operation = queue.current.then(async () => {
-      if (failed.current) throw lastFailure.current ?? new Error("Resolva o erro de gravação antes de transferir dados.");
-      const next = latest.current;
-      if (next && saved.current !== next) await write(next);
-    }).catch(cause => { reportFailure(cause); throw cause; });
+    const operation = queue.current
+      .then(async () => {
+        if (failed.current)
+          throw (
+            lastFailure.current ??
+            new Error("Resolva o erro de gravação antes de transferir dados.")
+          );
+        const next = latest.current;
+        if (next && saved.current !== next) await write(next);
+      })
+      .catch((cause) => {
+        reportFailure(cause);
+        throw cause;
+      });
     queue.current = operation.catch(() => {});
     return operation;
   }
 
   useEffect(() => {
     if (!data || saved.current === data || replacing.current) return;
-    timer.current = setTimeout(() => { void persistLatest().catch(() => {}); }, 250);
-    return () => { if (timer.current) clearTimeout(timer.current); };
+    timer.current = setTimeout(() => {
+      void persistLatest().catch(() => {});
+    }, 250);
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+    };
   }, [data, retry]);
 
   useEffect(() => {
     function flushOnBackground() {
-      if (document.visibilityState === "hidden" && latest.current !== saved.current && !failed.current) {
+      if (
+        document.visibilityState === "hidden" &&
+        latest.current !== saved.current &&
+        !failed.current
+      ) {
         if (timer.current) clearTimeout(timer.current);
         void persistLatest().catch(() => {});
       }
     }
     function protectUnsavedChanges(event: BeforeUnloadEvent) {
-      if (latest.current !== saved.current) { event.preventDefault(); event.returnValue = ""; }
+      if (latest.current !== saved.current) {
+        event.preventDefault();
+        event.returnValue = "";
+      }
     }
     document.addEventListener("visibilitychange", flushOnBackground);
     window.addEventListener("beforeunload", protectUnsavedChanges);
@@ -86,7 +119,10 @@ export function useDeviceData() {
     };
   }, []);
 
-  function update<Key extends keyof HotelData>(key: Key, value: HotelData[Key]) {
+  function update<Key extends keyof HotelData>(
+    key: Key,
+    value: HotelData[Key],
+  ) {
     if (!latest.current || replacing.current) return;
     const next = { ...latest.current, [key]: value };
     latest.current = next;
@@ -99,13 +135,14 @@ export function useDeviceData() {
     lastFailure.current = null;
     setError(null);
     setStatus(data ? "saving" : "loading");
-    setRetry(value => value + 1);
+    setRetry((value) => value + 1);
   }
 
   async function flush(): Promise<HotelData> {
     if (timer.current) clearTimeout(timer.current);
     await persistLatest();
-    if (!latest.current) throw new Error("Os dados ainda não estão disponíveis.");
+    if (!latest.current)
+      throw new Error("Os dados ainda não estão disponíveis.");
     while (saved.current !== latest.current) await persistLatest();
     return latest.current;
   }
@@ -127,14 +164,31 @@ export function useDeviceData() {
       });
       queue.current = operation.catch(() => {});
       await operation;
-    } catch (cause) { reportFailure(cause); throw cause; }
-    finally { replacing.current = false; }
+    } catch (cause) {
+      reportFailure(cause);
+      throw cause;
+    } finally {
+      replacing.current = false;
+    }
   }
 
   async function register(hotel: HotelProfile) {
-    try { await replaceData(newHotelData(hotel), false); return true; }
-    catch { return false; }
+    try {
+      await replaceData(newHotelData(hotel), false);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
-  return { data, update, status, error, retry: retrySave, register, flush, replaceData };
+  return {
+    data,
+    update,
+    status,
+    error,
+    retry: retrySave,
+    register,
+    flush,
+    replaceData,
+  };
 }
