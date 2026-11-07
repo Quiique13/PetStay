@@ -1,4 +1,5 @@
 import type { AgeGroup, HotelData, HotelProfile, StayType } from "../types.ts";
+import { daysInSeasonMonth, isSeasonDate, nightlyRate } from "./seasons.ts";
 
 export function defaultData(): HotelData {
   return {
@@ -45,8 +46,8 @@ function isHotelData(data: unknown): data is HotelData {
     if (!Array.isArray(prices) || prices.length !== 2 || !prices.every(price)) return false;
   }
   if (!price(data.rates.day) || !Array.isArray(data.rates.high)
-    || !data.rates.high.every(month => Number.isInteger(month) && month >= 0 && month <= 11)
-    || new Set(data.rates.high).size !== data.rates.high.length) return false;
+    || !data.rates.high.every(range => isRecord(range)
+      && isSeasonDate(range.start) && isSeasonDate(range.end))) return false;
   if (!Array.isArray(data.guests) || !data.guests.every((guest: unknown) => isRecord(guest)
     && text(guest.name) && text(guest.owner) && text(guest.breed)
     && isAgeGroup(guest.age))) return false;
@@ -61,6 +62,16 @@ function isHotelData(data: unknown): data is HotelData {
 }
 
 export function validateData(data: unknown): HotelData {
+  // Existing device files and backups stored zero-based high-season months.
+  if (isRecord(data) && isRecord(data.rates) && Array.isArray(data.rates.high)
+    && data.rates.high.length > 0
+    && data.rates.high.every(month => Number.isInteger(month) && month >= 0 && month <= 11)
+    && new Set(data.rates.high).size === data.rates.high.length) {
+    data = { ...data, rates: { ...data.rates, high: data.rates.high.map((month: number) => ({
+      start: `${String(month + 1).padStart(2, "0")}-01`,
+      end: `${String(month + 1).padStart(2, "0")}-${daysInSeasonMonth(month + 1)}`,
+    })) } };
+  }
   if (!isHotelData(data)) throw new Error("Os dados têm um formato inválido. Nenhuma alteração foi gravada.");
   return data;
 }
@@ -78,7 +89,7 @@ export function bookingPrice(data: HotelData, dog: string, start: string, end: s
     throw new Error("A data de saída deve ser posterior à data de entrada.");
   }
   while (day < last) {
-    const rate = data.rates[guest.age][data.rates.high.includes(day.getMonth()) ? 1 : 0];
+    const rate = nightlyRate(data.rates, guest.age, day);
     if (rate === null) throw new Error("Defina o preço de hotel para a faixa etária e época desta estadia em Preços e épocas.");
     total += rate;
     day.setDate(day.getDate() + 1);

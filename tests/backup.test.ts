@@ -7,7 +7,7 @@ test("a portable backup preserves every field and can also read the existing des
   const data = newHotelData({ name: "Hotel São João", owner: "João", avatar: "data:image/png;base64,aGVsbG8=" });
   data.guests.push({ name: "Bobi", owner: "Maria", breed: "Labrador", age: "Adult" });
   data.bookings.push({ dog: "Bobi", start: "2026-11-10", end: "2026-11-12", type: "Boarding", total: 48.5, paid: true });
-  data.rates = { Puppy: [20, 25], Adult: [24.25, 30], Senior: [22, 28], day: 15, high: [6, 7] };
+  data.rates = { Puppy: [20, 25], Adult: [24.25, 30], Senior: [22, 28], day: 15, high: [{ start: "07-15", end: "08-20" }] };
   data.capacity = 18; data.occupancy = 73;
   const date = new Date("2026-11-05T12:34:56Z");
   assert.deepEqual(parseBackup(serializeBackup(data, date)), { data, exportedAt: date.toISOString() });

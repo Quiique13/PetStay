@@ -37,7 +37,9 @@ test("language changes translate the whole app and preserve profiles and unsaved
       overview: "Vue d’ensemble",
       greeting: "Bonjour, Élodie",
       pricing: "Tarifs et saisons",
-      month: "janv.",
+      month: "janvier",
+      addPeriod: "Ajouter une période de haute saison",
+      startMonth: "Mois de début de la période 1",
       season: "Tarif Chiot — haute saison",
       newGuest: "Ajouter un pensionnaire",
       guestTitle: "Un nouvel ami à quatre pattes",
@@ -53,7 +55,9 @@ test("language changes translate the whole app and preserve profiles and unsaved
       overview: "Resumen",
       greeting: "Hola, Élodie",
       pricing: "Precios y temporadas",
-      month: "ene",
+      month: "enero",
+      addPeriod: "Añadir período de temporada alta",
+      startMonth: "Mes de inicio del período 1",
       season: "Precio de Cachorro — temporada alta",
       newGuest: "Añadir huésped",
       guestTitle: "Un nuevo amigo de cuatro patas",
@@ -69,7 +73,9 @@ test("language changes translate the whole app and preserve profiles and unsaved
       overview: "Visão geral",
       greeting: "Olá, Élodie",
       pricing: "Preços e épocas",
-      month: "jan.",
+      month: "janeiro",
+      addPeriod: "Adicionar período de época alta",
+      startMonth: "Mês de início do período 1",
       season: "Preço de Cachorro — época alta",
       newGuest: "Adicionar hóspede",
       guestTitle: "Um novo amigo de quatro patas",
@@ -85,7 +91,9 @@ test("language changes translate the whole app and preserve profiles and unsaved
       overview: "Overview",
       greeting: "Hello, Élodie",
       pricing: "Pricing & seasons",
-      month: "Jan",
+      month: "January",
+      addPeriod: "Add high-season period",
+      startMonth: "Start month for period 1",
       season: "Puppy price — high season",
       newGuest: "Add guest",
       guestTitle: "A new four-legged friend",
@@ -119,9 +127,12 @@ test("language changes translate the whole app and preserve profiles and unsaved
     await page
       .getByRole("button", { name: variant.pricing, exact: true })
       .click();
-    await expect(
-      page.getByRole("button", { name: variant.month, exact: true }),
-    ).toBeVisible();
+    const addPeriod = page.getByRole("button", { name: variant.addPeriod, exact: true });
+    await expect(addPeriod).toBeVisible();
+    if (index === 0) await addPeriod.click();
+    const startMonth = page.getByRole("combobox", { name: variant.startMonth, exact: true });
+    await expect(startMonth).toBeVisible();
+    await expect(startMonth).toContainText(variant.month);
     await expect(
       page.getByRole("spinbutton", { name: variant.season, exact: true }),
     ).toBeVisible();

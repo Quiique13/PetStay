@@ -25,9 +25,15 @@ export interface Booking {
   total: number;
 }
 
+export interface SeasonRange {
+  /** Inclusive month/day boundaries (MM-DD), repeated every year. */
+  start: string;
+  end: string;
+}
+
 export type Rates = Record<AgeGroup, SeasonalPrices> & {
   day: Price;
-  high: number[];
+  high: SeasonRange[];
 };
 
 export interface HotelData {

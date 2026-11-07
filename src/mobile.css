@@ -312,7 +312,7 @@ button:disabled,
   }
   .primary,
   .secondary,
-  .months button,
+  .season-add,
   .pending,
   .paid {
     min-height: 44px;

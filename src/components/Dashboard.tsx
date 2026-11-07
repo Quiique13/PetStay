@@ -38,6 +38,8 @@ import { HotelProfileForm } from "./HotelProfileForm.tsx";
 import { EmptyState } from "./EmptyState.tsx";
 import { DataTransfer } from "./DataTransfer.tsx";
 import { SettingsPage } from "./SettingsPage.tsx";
+import { SeasonEditor } from "./SeasonEditor.tsx";
+import { monthlyRevenue } from "../utils/seasons.ts";
 import { InstallMobile } from "./InstallMobile.tsx";
 import { isMobileApp } from "../services/storage-mode.ts";
 import hotelDog from "../assets/hotel-dog.jpg";
@@ -144,17 +146,9 @@ export default function Dashboard() {
     0,
   );
   const chart = Array.from({ length: 12 }, (_, i) => {
-    const rate = rates.Adult[rates.high.includes(i) ? 1 : 0];
     return {
       name: monthName(i, true),
-      value:
-        rate === null
-          ? null
-          : Math.round(
-              ((new Date(year, i + 1, 0).getDate() * capacity * occupancy) /
-                100) *
-                rate,
-            ),
+      value: monthlyRevenue(rates, year, i, capacity, occupancy),
     };
   });
   const total = chart[month].value;
@@ -715,30 +709,7 @@ export default function Dashboard() {
                   />{" "}
                   €
                 </h4>
-                <h4>{t("Escolha os meses de época alta")}</h4>
-                <p>
-                  {t(
-                    "Os restantes meses usam os preços de época baixa. As alterações são guardadas automaticamente.",
-                  )}
-                </p>
-                <div className="months">
-                  {chart.map((c, i) => (
-                    <button
-                      key={i}
-                      className={rates.high.includes(i) ? "selected" : ""}
-                      onClick={() =>
-                        persist("rates", {
-                          ...rates,
-                          high: rates.high.includes(i)
-                            ? rates.high.filter((m) => m !== i)
-                            : [...rates.high, i],
-                        })
-                      }
-                    >
-                      {c.name} {rates.high.includes(i) && "☀"}
-                    </button>
-                  ))}
-                </div>
+                <SeasonEditor ranges={rates.high} onChange={high => persist("rates", { ...rates, high })} />
               </div>
             </div>
           )}

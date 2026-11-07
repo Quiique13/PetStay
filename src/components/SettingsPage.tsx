@@ -181,7 +181,7 @@ export function SettingsPage({ onPricing }: { onPricing: () => void }) {
           <div>
             <h2 id="hotel-operations-title">{t("Preços e épocas do hotel")}</h2>
             <p>
-              {t("Defina os preços por idade, creche e meses de época alta.")}
+              {t("Defina os preços por idade, creche e dias de época alta.")}
             </p>
           </div>
         </div>

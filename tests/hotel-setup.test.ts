@@ -43,7 +43,7 @@ test("manually entered prices use each night's season and the guest's age", () =
   const data = defaultData();
   data.guests.push({ name: "Teste", owner: "Tutor", age: "Senior", breed: "Teste" });
   data.rates.Senior = [22.5, 30.25];
-  data.rates.high = [11];
+  data.rates.high = [{ start: "12-01", end: "12-31" }];
   assert.equal(bookingPrice(data, "Teste", "2026-11-30", "2026-12-02", "Boarding"), 52.75);
   data.rates.Senior[1] = null;
   assert.throws(() => bookingPrice(data, "Teste", "2026-11-30", "2026-12-02", "Boarding"), /Defina/);

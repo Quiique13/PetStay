@@ -1,6 +1,36 @@
 // Each entry contains English, French, and Spanish, in that order.
 // Portuguese source messages are also the translation keys.
 export const messages = {
+  "Defina os preços por idade, creche e dias de época alta.": [
+    "Set prices by age, daycare rates, and high-season days.",
+    "Définissez les tarifs par âge, les tarifs de garderie et les jours de haute saison.",
+    "Define los precios por edad, las tarifas de guardería y los días de temporada alta.",
+  ],
+  "Escolha os dias de época alta": ["Choose high-season days", "Choisissez les jours de haute saison", "Elige los días de temporada alta"],
+  "Os períodos repetem-se todos os anos e incluem o primeiro e o último dia. Os restantes dias usam os preços de época baixa. As alterações são guardadas automaticamente.": [
+    "Periods repeat every year and include the first and last day. Other days use low-season prices. Changes are saved automatically.",
+    "Les périodes se répètent chaque année et incluent le premier et le dernier jour. Les autres jours utilisent les tarifs de basse saison. Les modifications sont enregistrées automatiquement.",
+    "Los períodos se repiten cada año e incluyen el primer y el último día. Los demás días usan precios de temporada baja. Los cambios se guardan automáticamente.",
+  ],
+  "Se o fim for anterior ao início, o período termina no ano seguinte.": [
+    "If the end is before the start, the period ends the following year.",
+    "Si la fin précède le début, la période se termine l’année suivante.",
+    "Si el fin es anterior al inicio, el período termina el año siguiente.",
+  ],
+  "Período {number}": ["Period {number}", "Période {number}", "Período {number}"],
+  Desde: ["From", "Du", "Desde"],
+  Até: ["Through", "Au", "Hasta"],
+  "Dia de início do período {number}": ["Start day for period {number}", "Jour de début de la période {number}", "Día de inicio del período {number}"],
+  "Dia de fim do período {number}": ["End day for period {number}", "Jour de fin de la période {number}", "Día de fin del período {number}"],
+  "Mês de início do período {number}": ["Start month for period {number}", "Mois de début de la période {number}", "Mes de inicio del período {number}"],
+  "Mês de fim do período {number}": ["End month for period {number}", "Mois de fin de la période {number}", "Mes de fin del período {number}"],
+  "Remover período {number}": ["Remove period {number}", "Supprimer la période {number}", "Eliminar período {number}"],
+  "Sem períodos de época alta. Todos os dias usam os preços de época baixa.": [
+    "No high-season periods. All days use low-season prices.",
+    "Aucune période de haute saison. Tous les jours utilisent les tarifs de basse saison.",
+    "No hay períodos de temporada alta. Todos los días usan precios de temporada baja.",
+  ],
+  "Adicionar período de época alta": ["Add high-season period", "Ajouter une période de haute saison", "Añadir período de temporada alta"],
   Idioma: ["Language", "Langue", "Idioma"],
   "Idioma da aplicação": [
     "App language",

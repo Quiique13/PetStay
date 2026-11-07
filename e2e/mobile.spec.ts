@@ -37,7 +37,7 @@ test("desktop → mobile → desktop keeps hotel records and confirms replacemen
     Adult: [24.25, 30],
     Senior: [22, 28],
     day: 15,
-    high: [6, 7],
+    high: [{ start: "07-15", end: "08-20" }],
   };
   data.capacity = 18;
   data.occupancy = 73;
