@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { request } from "node:http";
-import { startDesktopServer } from "../desktop/server.ts";
+import { startDesktopServer } from "../server/desktop-server.ts";
 import { newHotelData } from "../src/utils/hotel-data.ts";
 import { fixture } from "./storage-fixture.ts";
 

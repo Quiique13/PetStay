@@ -3,7 +3,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { createLocalStore } from "../server/local-store.ts";
-import { startDesktopServer } from "../desktop/server.ts";
+import { startDesktopServer } from "../server/desktop-server.ts";
 import { newHotelData } from "../src/utils/hotel-data.ts";
 
 test("desktop → mobile → desktop keeps hotel records and confirms replacement", async ({

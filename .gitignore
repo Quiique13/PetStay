@@ -4,6 +4,7 @@ dist-mobile/
 playwright-report/
 test-results/
 dist-desktop/
+# Windows packaging tools and release artifacts stay local; downloads go in GitHub Releases.
 release/
 .vite/
 .env

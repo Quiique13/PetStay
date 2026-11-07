@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
-import { createLocalStore, createStorageMiddleware } from "../server/local-store.ts";
+import { createLocalStore, createStorageMiddleware } from "./local-store.ts";
 
 const contentTypes: Record<string, string> = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
