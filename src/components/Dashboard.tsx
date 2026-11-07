@@ -878,7 +878,11 @@ export default function Dashboard() {
           )}
           <footer>
             {t("Feito com carinho, para os nossos patudos.")}{" "}
-            <PawPrint size={13} /> <span>{hotel.name} · PetStay</span>
+            <PawPrint size={13} />
+            <span>
+              {hotel.name} · PetStay{" "}
+              <span className="app-version">v{import.meta.env.VITE_APP_VERSION}</span>
+            </span>
           </footer>
         </section>
       </main>

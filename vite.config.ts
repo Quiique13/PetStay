@@ -2,12 +2,18 @@ import { defineConfig } from "vite";
 import tailwind from "@tailwindcss/vite";
 import { localStoragePlugin } from "./server/local-store.ts";
 import { VitePWA } from "vite-plugin-pwa";
+import { readFileSync } from "node:fs";
+
+const { version } = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")) as { version: string };
 
 export default defineConfig(({ mode }) => {
   const mobile = mode === "mobile";
   return {
   base: mobile ? (process.env.PETSTAY_MOBILE_BASE ?? "./") : "/",
-  define: { "import.meta.env.VITE_STORAGE_MODE": JSON.stringify(mobile ? "mobile" : "desktop") },
+  define: {
+    "import.meta.env.VITE_STORAGE_MODE": JSON.stringify(mobile ? "mobile" : "desktop"),
+    "import.meta.env.VITE_APP_VERSION": JSON.stringify(version),
+  },
   build: { outDir: mobile ? "dist-mobile" : "dist" },
   plugins: [tailwind(), ...(!mobile ? [localStoragePlugin()] : []), VitePWA({
     disable: !mobile,

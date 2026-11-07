@@ -974,6 +974,9 @@ footer {
 footer > span {
   margin-left: auto;
 }
+.app-version {
+  white-space: nowrap;
+}
 .guestgrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
