@@ -1,7 +1,7 @@
 export type AgeGroup = "Puppy" | "Adult" | "Senior";
 export type StayType = "Boarding" | "Daycare";
 export type Price = number | null;
-export type SeasonalPrices = [Price, Price];
+export type SeasonalPrices = [Price, Price, Price?];
 
 export interface HotelProfile {
   name: string;
@@ -14,6 +14,9 @@ export interface Guest {
   owner: string;
   breed: string;
   age: AgeGroup;
+  birthDate?: string;
+  photo?: string;
+  neutered?: boolean;
 }
 
 export interface Booking {
@@ -23,6 +26,8 @@ export interface Booking {
   type: StayType;
   paid: boolean;
   total: number;
+  customTotal?: number;
+  intactSurcharge?: boolean;
 }
 
 export interface SeasonRange {
@@ -34,6 +39,7 @@ export interface SeasonRange {
 export type Rates = Record<AgeGroup, SeasonalPrices> & {
   day: Price;
   high: SeasonRange[];
+  christmas?: SeasonRange[];
 };
 
 export interface HotelData {

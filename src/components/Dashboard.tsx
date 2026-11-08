@@ -1,3 +1,8 @@
+import { readPhoto } from "../utils/photo.ts";
+import { ClientPicker } from "./ClientPicker.tsx";
+import { clientKey, groupClients } from "../utils/clients.ts";
+import { GuestAgeFields } from "./GuestAgeFields.tsx";
+import { ageGroupFromBirth, ageInMonths, guestAgeGroup, isBirthDate } from "../utils/age.ts";
 import { useLanguage } from "../context/LanguageContext.tsx";
 import React, { useEffect, useState } from "react";
 import {
@@ -86,14 +91,23 @@ export default function Dashboard() {
     [modal, S] = useState<Modal | null>(null),
     [query, Q] = useState(""),
     [formError, setFormError] = useState("");
+  const [guestPhoto, setGuestPhoto] = useState("");
+  const [readingPhoto, setReadingPhoto] = useState(false);
+  const [editingGuest, setEditingGuest] = useState<string | null>(null);
+  const [selectedClient, setSelectedClient] = useState("");
   const data = storage.data;
   if (!data?.hotel) throw new Error("Dashboard requires a registered hotel.");
   const { hotel, rates, guests, bookings, occupancy, capacity } = data;
+  const clients = groupClients(guests);
   const month = calendarDate.getMonth(),
     year = calendarDate.getFullYear();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const monthStart = Date.UTC(year, month, 1);
+  const monthEnd = Date.UTC(year, month + 1, 1);
   const ownerInitials = initials(hotel.owner).toUpperCase();
   useEffect(() => {
     setFormError("");
+    if (!modal) { setGuestPhoto(""); setEditingGuest(null); setSelectedClient(""); }
     if (!modal) return;
     const previousFocus = document.activeElement;
     const previousOverflow = document.body.style.overflow;
@@ -442,10 +456,10 @@ export default function Dashboard() {
                   {t("As estadias dos seus hóspedes vão aparecer aqui.")}
                 </EmptyState>
               ) : (
-                <div className="calendar">
+                <div className="calendar" style={{ "--days": daysInMonth } as React.CSSProperties}>
                   <div className="calhead">
                     <span>{t("HÓSPEDE")}</span>
-                    {Array.from({ length: 7 }, (_, i) => (
+                    {Array.from({ length: daysInMonth }, (_, i) => (
                       <div key={i}>
                         <small>
                           {new Date(year, month, i + 1)
@@ -456,11 +470,11 @@ export default function Dashboard() {
                       </div>
                     ))}
                   </div>
-                  {guests.slice(0, 4).map((g, i) => (
+                  {guests.map((g, i) => (
                     <div className="calrow" key={g.name}>
                       <div className="guestcell">
                         <span className="guest-avatar">
-                          <PawPrint size={18} />
+                          {g.photo ? <img src={g.photo} alt={g.name} /> : <PawPrint size={18} />}
                         </span>
                         <div>
                           {g.name}
@@ -472,17 +486,16 @@ export default function Dashboard() {
                           .filter(
                             (b) =>
                               b.dog === g.name &&
-                              +b.start.slice(0, 4) === year &&
-                              +b.start.slice(5, 7) === month + 1 &&
-                              +b.start.slice(8) <= 7,
+                              Date.parse(b.start) < monthEnd &&
+                              (b.type === "Daycare" ? Date.parse(b.start) + 86400000 : Date.parse(b.end)) > monthStart,
                           )
                           .map((b, j) => (
                             <button
                               key={j}
                               className={"stay stay" + i}
                               style={{
-                                left: `${(Math.max(0, +b.start.slice(8) - 1) * 100) / 7}%`,
-                                width: `${(Math.min(7, Math.max(1, (new Date(b.end).getTime() - new Date(b.start).getTime()) / 86400000)) * 100) / 7}%`,
+                                left: `${Math.max(0, (Date.parse(b.start) - monthStart) / 86400000) * 100 / daysInMonth}%`,
+                                width: `${(Math.min(monthEnd, b.type === "Daycare" ? Date.parse(b.start) + 86400000 : Date.parse(b.end)) - Math.max(monthStart, Date.parse(b.start))) / 86400000 * 100 / daysInMonth}%`,
                               }}
                               onClick={() => P("Payments")}
                             >
@@ -523,21 +536,36 @@ export default function Dashboard() {
                 </EmptyState>
               </div>
             ) : (
-              <div className="guestgrid">
-                {guests.map((g) => (
+              <div className="client-list">
+                {clients.map(client => <section className="client-group" key={clientKey(client.name)} aria-label={client.name}>
+                  <div className="panelheading">
+                    <div><h3>{client.name}</h3><p>{t("{count} cães", { count: client.dogs.length })}</p></div>
+                    <button className="secondary" onClick={() => { setSelectedClient(client.name); S("guest"); }}>{t("Adicionar cão a este cliente")}</button>
+                  </div>
+                  <div className="guestgrid">
+                {client.dogs.map((g) => (
                   <div className="panel guestcard" key={g.name}>
                     <span className="guest-avatar guest-avatar-large">
-                      <PawPrint size={32} />
+                      {g.photo ? <img src={g.photo} alt={g.name} /> : <PawPrint size={32} />}
                     </span>
                     <h3>{g.name}</h3>
+                    {g.birthDate && <p>{t("Idade: {years} anos e {months} meses · {group}", {
+                      years: Math.floor(ageInMonths(g.birthDate) / 12),
+                      months: ageInMonths(g.birthDate) % 12,
+                      group: t(ageLabels[guestAgeGroup(g)]),
+                    })}</p>}
                     <p>
-                      {breedLabel(g.breed, t)} · {t(ageLabels[g.age] ?? g.age)}
+                      {breedLabel(g.breed, t)} · {t(ageLabels[guestAgeGroup(g)])}
                     </p>
                     <hr />
                     <small>{t("TUTOR")}</small>
                     <h4>{g.owner}</h4>
+                    <p>{g.neutered === undefined ? t("Castração por indicar") : g.neutered ? t("Castrado") : t("Não castrado")}</p>
+                    <button className="secondary" onClick={() => { setEditingGuest(g.name); setGuestPhoto(g.photo ?? ""); S("guest"); }}>{t("Editar hóspede")}</button>
                   </div>
                 ))}
+                  </div>
+                </section>)}
               </div>
             ))}
           {(page === "Payments" || page === "Bookings") && (
@@ -649,13 +677,14 @@ export default function Dashboard() {
                     <th>{t("Faixa etária")}</th>
                     <th>{t("Época baixa (€)")}</th>
                     <th>{t("Época alta (€)")}</th>
+                    <th>{t("Época de Natal (€)")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {ages.map((a) => (
                     <tr key={a}>
                       <td>{t(ageLabels[a])}</td>
-                      {([0, 1] as const).map((i) => (
+                      {([0, 1, 2] as const).map((i) => (
                         <td key={i}>
                           <input
                             type="number"
@@ -664,7 +693,7 @@ export default function Dashboard() {
                             value={rates[a][i] ?? ""}
                             placeholder={t("Por definir")}
                             aria-label={t(
-                              i
+                              i === 2 ? "Preço de {age} — época de Natal" : i
                                 ? "Preço de {age} — época alta"
                                 : "Preço de {age} — época baixa",
                               { age: t(ageLabels[a]) },
@@ -677,7 +706,7 @@ export default function Dashboard() {
                                   : Math.max(0, +e.target.value);
                               persist("rates", {
                                 ...rates,
-                                [a]: [prices[0], prices[1]],
+                                [a]: [prices[0], prices[1], prices[2] ?? null],
                               });
                             }}
                           />
@@ -709,6 +738,7 @@ export default function Dashboard() {
                   />{" "}
                   €
                 </h4>
+                <SeasonEditor christmas ranges={rates.christmas ?? []} onChange={christmas => persist("rates", { ...rates, christmas })} />
                 <SeasonEditor ranges={rates.high} onChange={high => persist("rates", { ...rates, high })} />
               </div>
             </div>
@@ -914,18 +944,30 @@ export default function Dashboard() {
                     const value = fields.get(name);
                     return typeof value === "string" ? value : "";
                   };
+                  if (readingPhoto) return;
                   if (modal === "guest") {
-                    const age = field("age");
+                    const birthDate = field("birthDate");
+                    if (birthDate && (!isBirthDate(birthDate) || ageInMonths(birthDate) < 0)) {
+                      setFormError("Indique uma data de nascimento válida, até hoje."); return;
+                    }
+                    const age = birthDate ? ageGroupFromBirth(birthDate) : field("age");
                     if (!isAgeGroup(age)) return;
+                    if (guests.some(g => g.name === field("name") && g.name !== editingGuest)) {
+                      setFormError("Já existe um hóspede com este nome."); return;
+                    }
                     persist("guests", [
-                      ...guests,
+                      ...guests.filter(g => g.name !== editingGuest),
                       {
                         name: field("name"),
-                        owner: field("owner"),
+                        owner: clients.find(client => clientKey(client.name) === clientKey(field("owner")))?.name ?? field("owner").trim().replace(/\s+/g, " "),
                         breed: field("breed"),
                         age,
+                        birthDate: birthDate || undefined,
+                        photo: guestPhoto,
+                        neutered: field("neutered") === "" ? undefined : field("neutered") === "yes",
                       },
                     ]);
+                    if (editingGuest) persist("bookings", bookings.map(b => b.dog === editingGuest ? { ...b, dog: field("name") } : b));
                   } else {
                     const dog = field("dog"),
                       start = field("start"),
@@ -934,7 +976,7 @@ export default function Dashboard() {
                     if (!isStayType(type)) return;
                     let total;
                     try {
-                      total = bookingPrice(data, dog, start, end, type);
+                      total = bookingPrice(data, dog, start, end, type, { customTotal: field("customTotal") === "" ? undefined : Number(field("customTotal")), intactSurcharge: field("intactSurcharge") === "on" });
                     } catch (error) {
                       setFormError(asStorageError(error).message);
                       return;
@@ -947,6 +989,8 @@ export default function Dashboard() {
                         type,
                         end: type === "Daycare" ? start : end,
                         total,
+                        customTotal: field("customTotal") === "" ? undefined : Number(field("customTotal")),
+                        intactSurcharge: field("intactSurcharge") === "on",
                         paid: false,
                       },
                     ]);
@@ -956,26 +1000,29 @@ export default function Dashboard() {
               >
                 {modal === "guest" ? (
                   <>
+                    <label>{t("Fotografia do hóspede")}
+                      <input type="file" accept="image/png,image/jpeg,image/webp" disabled={readingPhoto} onChange={async e => {
+                        const file = e.target.files?.[0]; if (!file) return;
+                        setReadingPhoto(true); setFormError("");
+                        try { setGuestPhoto(await readPhoto(file)); }
+                        catch (error) { setFormError(asStorageError(error).message); }
+                        finally { setReadingPhoto(false); }
+                      }} />
+                    </label>
+                    {guestPhoto && <><img className="guest-photo-preview" src={guestPhoto} alt={t("Fotografia do hóspede")} /><button type="button" onClick={() => setGuestPhoto("")}>{t("Remover imagem")}</button></>}
+                    <label>{t("Castrado")}
+                      <select name="neutered" defaultValue={guests.find(g => g.name === editingGuest)?.neutered === undefined ? "" : guests.find(g => g.name === editingGuest)?.neutered ? "yes" : "no"}><option value="">{t("Por indicar")}</option><option value="yes">{t("Sim")}</option><option value="no">{t("Não")}</option></select>
+                    </label>
                     <label>
                       {t("Nome do cão")}
-                      <input name="name" required maxLength={100} />
+                      <input name="name" required maxLength={100} defaultValue={editingGuest ?? ""} />
                     </label>
-                    <label>
-                      {t("Nome do tutor")}
-                      <input name="owner" required maxLength={100} />
-                    </label>
+                    <ClientPicker clients={clients.map(client => client.name)} initial={guests.find(g => g.name === editingGuest)?.owner ?? selectedClient} />
                     <label>
                       {t("Raça")}
-                      <input name="breed" required maxLength={100} />
+                      <input name="breed" required maxLength={100} defaultValue={guests.find(g => g.name === editingGuest)?.breed} />
                     </label>
-                    <label>
-                      {t("Faixa etária")}
-                      <select name="age">
-                        <option value="Puppy">{t("Cachorro")}</option>
-                        <option value="Adult">{t("Adulto")}</option>
-                        <option value="Senior">{t("Sénior")}</option>
-                      </select>
-                    </label>
+                    <GuestAgeFields guest={guests.find(g => g.name === editingGuest)} />
                   </>
                 ) : (
                   <>
@@ -1018,6 +1065,9 @@ export default function Dashboard() {
                         defaultValue={localDate(1)}
                       />
                     </label>
+                    <label>{t("Preço total personalizado (€)")}<input name="customTotal" type="number" min="0" max="1000000" step="0.01" placeholder={t("Usar cálculo automático")} /></label>
+                    <label><input type="checkbox" name="intactSurcharge" /> {t("Aplicar +2 € por noite/dia se não for castrado")}</label>
+                    <p className="hint">{t("O preço personalizado substitui o total calculado, incluindo suplementos.")}</p>
                     <p className="hint">
                       {t(
                         "O hotel é cobrado por noite, de acordo com a época e a faixa etária do cão. A creche tem um preço diário.",
@@ -1040,7 +1090,7 @@ export default function Dashboard() {
                     </button>
                   </div>
                 )}
-                <button className="primary" type="submit">
+                <button className="primary" type="submit" disabled={readingPhoto}>
                   {modal === "guest"
                     ? t("Guardar hóspede")
                     : t("Criar reserva")}

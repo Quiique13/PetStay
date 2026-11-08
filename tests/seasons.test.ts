@@ -13,6 +13,33 @@ function fixture() {
   return data;
 }
 
+test("Christmas overrides high season across New Year and requires its own price", () => {
+  const data = fixture();
+  data.rates.high = [{ start: "12-01", end: "01-31" }];
+  data.rates.christmas = [{ start: "12-24", end: "01-02" }];
+  data.rates.Adult = [10, 20, 30];
+  assert.equal(bookingPrice(data, "Bobi", "2026-12-23", "2026-12-26", "Boarding"), 80);
+  assert.equal(bookingPrice(data, "Bobi", "2026-12-31", "2027-01-04", "Boarding"), 110);
+  data.rates.Adult[2] = null;
+  assert.throws(() => bookingPrice(data, "Bobi", "2026-12-24", "2026-12-25", "Boarding"));
+  assert.doesNotThrow(() => validateData(data));
+  assert.throws(() => validateData({ ...data, rates: { ...data.rates, christmas: [{ start: "02-30", end: "03-01" }] } }));
+});
+
+test("optional intact surcharge and custom totals preserve zero and override missing rates", () => {
+  const data = fixture();
+  data.guests[0].neutered = false;
+  const options = { intactSurcharge: true };
+  assert.equal(bookingPrice(data, "Bobi", "2026-06-01", "2026-06-03", "Boarding", options), 24);
+  assert.equal(bookingPrice(data, "Bobi", "2026-06-01", "2026-06-03", "Boarding"), 20);
+  assert.equal(bookingPrice(data, "Bobi", "2026-06-01", "2026-06-01", "Daycare", options), 9);
+  data.guests[0].neutered = true;
+  assert.equal(bookingPrice(data, "Bobi", "2026-06-01", "2026-06-03", "Boarding", options), 20);
+  data.rates.Adult = [null, null];
+  assert.equal(bookingPrice(data, "Bobi", "2026-06-01", "2026-06-03", "Boarding", { ...options, customTotal: 0 }), 0);
+  assert.throws(() => bookingPrice(data, "Bobi", "2026-06-01", "2026-06-03", "Boarding", { customTotal: -1 }));
+});
+
 test("boarding uses inclusive daily boundaries and excludes the checkout night", () => {
   const data = fixture();
   data.rates.high = [{ start: "07-15", end: "07-20" }];

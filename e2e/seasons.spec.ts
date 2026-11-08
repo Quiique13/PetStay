@@ -50,7 +50,7 @@ test("daily season ranges migrate, save, and price a stay across mid-month bound
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 960 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
-    await page.locator(".season-editor").screenshot({ path: testInfo.outputPath(`seasons-${width}.png`) });
+    await page.getByRole("group", { name: "Época alta", exact: true }).screenshot({ path: testInfo.outputPath(`seasons-${width}.png`) });
   }
   expect(exceptions).toEqual([]);
 });

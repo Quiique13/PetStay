@@ -212,6 +212,7 @@ test("mobile installs an offline shell, saves offline, and fits small screens", 
   await page.getByLabel("Nome do cão", { exact: true }).fill("Luna");
   await page.getByLabel("Nome do tutor", { exact: true }).fill("Sofia");
   await page.getByLabel("Raça", { exact: true }).fill("Labrador");
+  await page.locator('[name="birthDate"]').fill("2020-05-15");
   await page
     .getByRole("button", { name: "Guardar hóspede", exact: true })
     .click();

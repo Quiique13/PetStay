@@ -1,3 +1,4 @@
+import { readPhoto } from "../utils/photo.ts";
 import { useLanguage } from "../context/LanguageContext.tsx";
 import { useState } from "react";
 import type { ChangeEvent } from "react";
@@ -27,31 +28,21 @@ export function HotelProfileForm({
   const [uploadError, setUploadError] = useState("");
   const [reading, setReading] = useState(false);
 
-  function upload(event: ChangeEvent<HTMLInputElement>) {
+  async function upload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
     event.target.value = "";
-    if (
-      !["image/png", "image/jpeg", "image/webp"].includes(file.type) ||
-      file.size > 1024 * 1024
-    ) {
-      setUploadError("Escolha uma imagem PNG, JPG ou WebP com até 1 MB.");
-      return;
-    }
     setUploadError("");
     setReading(true);
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") setAvatar(reader.result);
-      setReading(false);
-    };
-    reader.onerror = () => {
+    try {
+      setAvatar(await readPhoto(file));
+    } catch (error) {
       setUploadError(
-        "Não foi possível abrir a imagem. Tente outra fotografia.",
+        error instanceof Error ? error.message : "Erro ao abrir imagem.",
       );
+    } finally {
       setReading(false);
-    };
-    reader.readAsDataURL(file);
+    }
   }
 
   return (
@@ -79,7 +70,7 @@ export function HotelProfileForm({
               onChange={upload}
             />
           </label>
-          <p>{t("PNG, JPG ou WebP · até 1 MB · opcional")}</p>
+          <p>{t("PNG, JPG ou WebP · até 20 MB · opcional")}</p>
           {avatar && (
             <button
               type="button"

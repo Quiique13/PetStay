@@ -4,6 +4,11 @@ Aplicação de gestão para proprietários de hotéis para animais, em portuguê
 
 ## Funcionalidades
 
+- Um cliente pode ter vários cães: selecione um cliente existente ao adicionar um hóspede ou use «Adicionar cão a este cliente» na lista agrupada por tutor.
+- Idade e faixa etária calculadas pela data de nascimento completa; as reservas usam a idade em cada noite.
+- Fotografias nos hóspedes, preço total personalizado por reserva e suplemento opcional de 2 € por noite/dia para cães não castrados.
+- Calendário mensal completo e época de Natal com datas e preços próprios.
+
 - Registo inicial do hotel com nome, nome do responsável e avatar opcional.
 - Perfil do hotel editável na barra lateral ou no avatar do cabeçalho.
 - Início limpo, sem hóspedes, reservas, preços ou períodos de época alta predefinidos.
@@ -24,7 +29,7 @@ A pasta `/data/` está no `.gitignore`, incluindo cópias de segurança e fichei
 
 ## Windows — versão portátil
 
-Descarregue **PetStay-1.3.0-windows-x64-portable.exe** na [versão mais recente no GitHub](https://github.com/Quiique13/PetStay/releases/latest). Coloque o ficheiro numa pasta onde possa guardar dados e abra-o com um duplo clique. Não é necessário instalar a aplicação, Node.js ou npm. Esta versão destina-se ao Windows 10/11 de 64 bits (x64).
+Descarregue **PetStay-1.4.0-windows-x64-portable.exe** na [versão mais recente no GitHub](https://github.com/Quiique13/PetStay/releases/latest). Coloque o ficheiro numa pasta onde possa guardar dados e abra-o com um duplo clique. Não é necessário instalar a aplicação, Node.js ou npm. Esta versão destina-se ao Windows 10/11 de 64 bits (x64).
 
 O executável cria a pasta **`data/` ao seu lado**, com os registos do hotel e uma pasta `.runtime/` para os ficheiros internos da janela. Para transportar a aplicação para outro computador, feche-a e copie **o executável e a pasta `data/` em conjunto**. Para atualizar, feche a aplicação e substitua apenas o executável, mantendo a pasta `data/`. Os downloads não incluem dados de nenhum hotel.
 
@@ -34,7 +39,7 @@ Para usar os dados da versão de desenvolvimento, feche os dois servidores e cop
 
 ### Windows — instalador
 
-Também pode descarregar **PetStay-1.3.0-windows-x64-setup.exe** na [versão mais recente no GitHub](https://github.com/Quiique13/PetStay/releases/latest). O assistente instala a aplicação para o utilizador atual e cria atalhos no ambiente de trabalho e no menu Iniciar.
+Também pode descarregar **PetStay-1.4.0-windows-x64-setup.exe** na [versão mais recente no GitHub](https://github.com/Quiique13/PetStay/releases/latest). O assistente instala a aplicação para o utilizador atual e cria atalhos no ambiente de trabalho e no menu Iniciar.
 
 A versão instalada guarda os registos em **%APPDATA%\PetStay\data**, separados da pasta da aplicação. Para transferir os dados da versão portátil, exporte uma cópia e importe-a na versão instalada. As atualizações e a desinstalação preservam os dados.
 
