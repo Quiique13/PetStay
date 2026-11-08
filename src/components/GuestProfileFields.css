@@ -1,0 +1,27 @@
+.dialog.dog-profile-dialog { width: min(620px, calc(100vw - 32px)); }
+.dog-photo-section { display: flex; align-items: center; gap: 22px; padding: 20px; background: var(--accent-soft); border-radius: 14px; }
+.dog-photo-frame { position: relative; width: 104px; height: 104px; border-radius: 22px; background: var(--surface); display: grid; place-items: center; color: var(--accent-text); flex-shrink: 0; }
+.dog-photo-frame .guest-photo-preview { width: 100%; height: 100%; border-radius: inherit; }
+.dog-photo-camera { position: absolute; bottom: -5px; right: -5px; background: var(--surface); border: 1px solid var(--line); padding: 6px; border-radius: 50%; display: flex; }
+.dog-photo-controls { display: grid; gap: 8px; min-width: 0; }
+.dialog .dog-photo-controls p { font-size: calc(12px * var(--text-scale, 1)); margin: 0; line-height: 1.4; }
+.dog-photo-controls small { color: var(--muted); font-size: calc(10px * var(--text-scale, 1)); }
+.dialog .dog-upload-button { display: inline-flex; align-items: center; gap: 7px; justify-self: start; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; }
+.dog-photo-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.dog-photo-controls:focus-within .dog-upload-button { outline: 2px solid var(--accent-text); outline-offset: 2px; }
+.dog-form-section { min-width: 0; margin: 0; border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 14px; }
+.dog-form-section legend { font-size: calc(12px * var(--text-scale, 1)); font-weight: 700; padding: 0 7px; }
+.dog-form-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.dog-form-section .hint, .dog-form-section p { margin: 0; }
+.dialog .dog-status-option { display: flex; align-items: center; gap: 9px; }
+.dog-status-option input { margin: 0; }
+.memorial-cross { display: inline-block; margin-right: 7px; color: var(--muted); font-family: Georgia, serif; font-weight: 400; }
+.owner-filter { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; color: var(--muted); font-size: calc(12px * var(--text-scale, 1)); }
+.owner-filter select { min-width: 180px; max-width: 100%; }
+@media (max-width: 480px) {
+  .dialog.dog-profile-dialog { padding: 22px 18px; }
+  .dog-photo-section { padding: 14px; gap: 14px; }
+  .dog-photo-frame { width: 76px; height: 76px; border-radius: 17px; }
+  .dog-form-columns { grid-template-columns: 1fr; gap: 14px; }
+  .dog-form-section { padding: 14px; }
+}

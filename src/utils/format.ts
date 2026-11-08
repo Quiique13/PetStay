@@ -1,4 +1,10 @@
 export function createFormatters(locale: string) {
+  const weekdayLabels: Record<string, string[]> = {
+    en: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    pt: ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"],
+    fr: ["dim", "lun", "mar", "mer", "jeu", "ven", "sam"],
+    es: ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"],
+  };
   const currency = new Intl.NumberFormat(locale, {
     style: "currency",
     currency: "EUR",
@@ -11,6 +17,7 @@ export function createFormatters(locale: string) {
   });
   const date = new Intl.DateTimeFormat(locale);
   return {
+    weekdayShort: (day: Date) => (weekdayLabels[locale.split("-")[0]] ?? weekdayLabels.en)[day.getDay()],
     money: (value: number) => currency.format(value),
     shortMoney: (value: number) => compact.format(value),
     formatDate: (value: string) => date.format(new Date(`${value}T12:00:00`)),

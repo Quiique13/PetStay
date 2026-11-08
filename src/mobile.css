@@ -10,7 +10,7 @@
   border-radius: 9px;
   background: var(--surface);
   color: var(--accent-text);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 600;
   padding: 12px 16px;
   cursor: pointer;
@@ -28,7 +28,7 @@ button:disabled,
   min-height: 44px;
 }
 .data-trigger span {
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
 }
 .data-transfer {
   display: grid;
@@ -37,7 +37,7 @@ button:disabled,
 }
 .data-transfer > p,
 .data-transfer .import-preview p {
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
   line-height: 1.8;
   color: var(--muted);
 }
@@ -69,7 +69,7 @@ button:disabled,
   padding: 20px;
 }
 .import-preview h3 {
-  font-size: 20px;
+  font-size: calc(20px * var(--text-scale, 1));
   overflow-wrap: anywhere;
 }
 .import-preview dl {
@@ -79,11 +79,11 @@ button:disabled,
   margin: 0;
 }
 .import-preview dt {
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   color: var(--muted);
 }
 .import-preview dd {
-  font-size: 24px;
+  font-size: calc(24px * var(--text-scale, 1));
   font-weight: 700;
   margin: 6px 0 0;
 }
@@ -91,7 +91,7 @@ button:disabled,
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
   line-height: 1.7;
 }
 .confirm-import input {
@@ -115,7 +115,7 @@ button:disabled,
   margin-top: 2px;
 }
 .data-transfer .transfer-note {
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
 }
 .recovery-action {
   display: inline-flex;
@@ -130,7 +130,7 @@ button:disabled,
 }
 .onboarding-import summary {
   color: var(--accent-text);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale, 1));
   font-weight: 700;
   cursor: pointer;
   padding: 10px 0;
@@ -158,10 +158,10 @@ button:disabled,
   min-width: 180px;
 }
 .mobile-install strong {
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
 }
 .mobile-install p {
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   line-height: 1.7;
   margin-top: 4px;
   color: var(--accent-text);
@@ -193,10 +193,10 @@ button:disabled,
     width: 25px;
   }
   aside .brand-name {
-    font-size: 23px;
+    font-size: calc(23px * var(--text-scale, 1));
   }
   aside .brand-name small {
-    font-size: 9px;
+    font-size: calc(9px * var(--text-scale, 1));
     margin-top: 4px;
     max-width: none;
   }
@@ -223,7 +223,7 @@ button:disabled,
     justify-content: center;
     gap: 5px;
     padding: 8px 2px;
-    font-size: 10px;
+    font-size: calc(10px * var(--text-scale, 1));
     border-radius: 12px;
   }
   aside nav button svg {
@@ -286,12 +286,12 @@ button:disabled,
     padding: 24px;
   }
   .onboarding-story h1 {
-    font-size: 36px;
+    font-size: calc(36px * var(--text-scale, 1));
     margin: 10px 0;
     letter-spacing: -1px;
   }
   .onboarding-story p {
-    font-size: 13px;
+    font-size: calc(13px * var(--text-scale, 1));
   }
   .onboarding-story ul,
   .onboarding-story > small {
@@ -302,12 +302,12 @@ button:disabled,
     max-width: 600px;
   }
   .onboarding-card h2 {
-    font-size: 27px;
+    font-size: calc(27px * var(--text-scale, 1));
   }
   input:not([type="checkbox"]):not([type="range"]),
   select,
   .search input {
-    font-size: 16px;
+    font-size: calc(16px * var(--text-scale, 1));
     min-height: 44px;
   }
   .primary,
@@ -357,13 +357,13 @@ button:disabled,
     display: block;
     padding: 0;
     border: 0;
-    font-size: 13px;
+    font-size: calc(13px * var(--text-scale, 1));
     overflow-wrap: anywhere;
   }
   .records-table td::before {
     display: block;
     content: attr(data-label);
-    font-size: 10px;
+    font-size: calc(10px * var(--text-scale, 1));
     color: var(--muted);
     margin-bottom: 6px;
   }
@@ -376,7 +376,7 @@ button:disabled,
     padding: 14px 8px;
   }
   .pricing-table th {
-    font-size: 10px;
+    font-size: calc(10px * var(--text-scale, 1));
     letter-spacing: 0;
   }
   .pricing-table input[type="number"] {
@@ -385,7 +385,7 @@ button:disabled,
     padding: 8px;
   }
   .pricing-table td:first-child {
-    font-size: 12px;
+    font-size: calc(12px * var(--text-scale, 1));
   }
   .season {
     padding: 20px 16px;
@@ -427,7 +427,7 @@ button:disabled,
 
 @media (max-width: 360px) {
   .nav-mobile {
-    font-size: 9px;
+    font-size: calc(9px * var(--text-scale, 1));
     letter-spacing: -0.2px;
   }
   .content {
@@ -438,10 +438,10 @@ button:disabled,
     padding: 12px;
   }
   .stat > span {
-    font-size: 10px;
+    font-size: calc(10px * var(--text-scale, 1));
   }
   .stat strong {
-    font-size: 25px;
+    font-size: calc(25px * var(--text-scale, 1));
   }
   .onboarding-card {
     padding-left: 20px;

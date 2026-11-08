@@ -100,6 +100,29 @@ test("settings save the hotel profile and device appearance", async ({
     path: testInfo.outputPath("settings-light-mobile.png"),
     fullPage: true,
   });
+  for (const [label, value] of [["Lavanda", "lavender"], ["Âmbar", "amber"], ["Ardósia", "slate"]]) {
+    await page.getByRole("radio", { name: label, exact: true }).check();
+    await expect(page.locator("html")).toHaveAttribute("data-color-scheme", value);
+  }
+  const originalSize = await page.locator(".heading h1").evaluate(el => parseFloat(getComputedStyle(el).fontSize));
+  await page.getByRole("radio", { name: /Muito grande/ }).check();
+  const enlargedSize = await page.locator(".heading h1").evaluate(el => parseFloat(getComputedStyle(el).fontSize));
+  expect(enlargedSize).toBeCloseTo(originalSize * 1.5, 0);
+  await page.getByRole("radio", { name: "Reforçado", exact: true }).check();
+  await expect(page.locator("html")).toHaveAttribute("data-contrast", "enhanced");
+  await page.getByRole("radio", { name: "Máximo", exact: true }).check();
+  await page.getByRole("radio", { name: "Escuro", exact: true }).check();
+  await expect(page.locator("html")).toHaveCSS("color", "rgb(255, 255, 255)");
+  await page.reload();
+  await page.getByRole("button", { name: "Definições", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-contrast", "high");
+  await expect(page.locator("html")).toHaveAttribute("data-text-size", "largest");
+  await expect(page.locator("html")).toHaveAttribute("data-color-scheme", "slate");
+  for (const width of [320, 390, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  }
+  await page.screenshot({ path: testInfo.outputPath("settings-high-contrast-large.png"), fullPage: true });
   await page
     .getByRole("button", { name: "Gerir preços e épocas", exact: true })
     .click();

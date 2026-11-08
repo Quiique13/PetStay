@@ -112,7 +112,8 @@ function isHotelData(data: unknown): data is HotelData {
         isAgeGroup(guest.age) &&
         (guest.birthDate === undefined || (isBirthDate(guest.birthDate) && ageInMonths(guest.birthDate) >= 0)) &&
         image(guest.photo) &&
-        (guest.neutered === undefined || typeof guest.neutered === "boolean"),
+        (guest.neutered === undefined || typeof guest.neutered === "boolean") &&
+        (guest.deceased === undefined || typeof guest.deceased === "boolean"),
     )
   )
     return false;
@@ -131,6 +132,9 @@ function isHotelData(data: unknown): data is HotelData {
         typeof booking.paid === "boolean" &&
         amount(booking.total) &&
         (booking.customTotal === undefined || amount(booking.customTotal)) &&
+        (booking.customRate === undefined || amount(booking.customRate)) &&
+        !(booking.customTotal !== undefined && booking.customRate !== undefined) &&
+        (booking.discountPercent === undefined || (typeof booking.discountPercent === "number" && Number.isFinite(booking.discountPercent) && booking.discountPercent >= 0 && booking.discountPercent <= 100)) &&
         (booking.intactSurcharge === undefined ||
           typeof booking.intactSurcharge === "boolean"),
     )
@@ -186,7 +190,7 @@ export function bookingPrice(
   start: string,
   end: string,
   type: StayType,
-  options: { customTotal?: number; intactSurcharge?: boolean } = {},
+  options: { customTotal?: number; customRate?: number; discountPercent?: number; intactSurcharge?: boolean } = {},
 ): number {
   const guest = data.guests.find((item) => item.name === dog);
   if (!guest)
@@ -201,6 +205,11 @@ export function bookingPrice(
   )
     throw new Error("A data de saída deve ser posterior à data de entrada.");
   guestAgeGroup(guest, first);
+  const discount = options.discountPercent ?? 0;
+  if (!Number.isFinite(discount) || discount < 0 || discount > 100) throw new Error("O desconto deve estar entre 0 e 100%.");
+  if (options.customRate !== undefined && (!Number.isFinite(options.customRate) || options.customRate < 0 || options.customRate > 1_000_000)) throw new Error("Preço personalizado inválido.");
+  if (options.customRate !== undefined && options.customTotal !== undefined) throw new Error("Escolha apenas um tipo de preço personalizado.");
+  const discounted = (total: number) => Math.round((total * (1 - discount / 100) + Number.EPSILON) * 100) / 100;
   if (options.customTotal !== undefined) {
     if (
       !Number.isFinite(options.customTotal) ||
@@ -208,15 +217,16 @@ export function bookingPrice(
       options.customTotal > 1_000_000
     )
       throw new Error("Preço personalizado inválido.");
-    return options.customTotal;
+    return discounted(options.customTotal);
   }
   const extra = options.intactSurcharge && guest.neutered === false ? 2 : 0;
   if (type === "Daycare") {
-    if (data.rates.day === null)
+    const rate = options.customRate ?? data.rates.day;
+    if (rate === null)
       throw new Error(
         "Defina o preço diário da creche em Preços e épocas antes de criar esta reserva.",
       );
-    return data.rates.day + extra;
+    return discounted(rate + extra);
   }
   let total = 0;
   const day = new Date(start + "T12:00:00"),
@@ -225,7 +235,7 @@ export function bookingPrice(
     throw new Error("A data de saída deve ser posterior à data de entrada.");
   }
   while (day < last) {
-    const rate = nightlyRate(data.rates, guestAgeGroup(guest, day), day);
+    const rate = options.customRate ?? nightlyRate(data.rates, guestAgeGroup(guest, day), day);
     if (rate === null)
       throw new Error(
         "Defina o preço de hotel para a faixa etária e época desta estadia em Preços e épocas.",
@@ -233,5 +243,5 @@ export function bookingPrice(
     total += rate + extra;
     day.setDate(day.getDate() + 1);
   }
-  return Math.round((total + Number.EPSILON) * 100) / 100;
+  return discounted(total);
 }

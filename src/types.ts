@@ -17,6 +17,7 @@ export interface Guest {
   birthDate?: string;
   photo?: string;
   neutered?: boolean;
+  deceased?: boolean;
 }
 
 export interface Booking {
@@ -27,6 +28,8 @@ export interface Booking {
   paid: boolean;
   total: number;
   customTotal?: number;
+  customRate?: number;
+  discountPercent?: number;
   intactSurcharge?: boolean;
 }
 

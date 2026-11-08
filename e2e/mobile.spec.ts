@@ -68,13 +68,11 @@ test("desktop → mobile → desktop keeps hotel records and confirms replacemen
     await page
       .getByText("Já tem um hotel? Importar cópia", { exact: true })
       .click();
-    await page
-      .getByLabel("Ficheiro de cópia PetStay")
-      .setInputFiles({
-        name: "desktop.json",
-        mimeType: "application/json",
-        buffer: exported,
-      });
+    await page.getByLabel("Ficheiro de cópia PetStay").setInputFiles({
+      name: "desktop.json",
+      mimeType: "application/json",
+      buffer: exported,
+    });
     await expect(
       page.getByRole("heading", { name: data.hotel!.name, exact: true }),
     ).toBeVisible();
@@ -103,13 +101,11 @@ test("desktop → mobile → desktop keeps hotel records and confirms replacemen
     updated.bookings[0].paid = true;
     expect(JSON.parse(fromPhone.toString()).data).toEqual(updated);
 
-    await computer
-      .getByLabel("Ficheiro de cópia PetStay")
-      .setInputFiles({
-        name: "phone.json",
-        mimeType: "application/json",
-        buffer: fromPhone,
-      });
+    await computer.getByLabel("Ficheiro de cópia PetStay").setInputFiles({
+      name: "phone.json",
+      mimeType: "application/json",
+      buffer: fromPhone,
+    });
     await expect(
       computer.getByRole("button", {
         name: "Importar e substituir",
@@ -130,13 +126,11 @@ test("desktop → mobile → desktop keeps hotel records and confirms replacemen
     expect(await store.readRecovery()).toEqual(data);
 
     // A malformed file must not enable import or alter the saved data.
-    await computer
-      .getByLabel("Ficheiro de cópia PetStay")
-      .setInputFiles({
-        name: "broken.json",
-        mimeType: "application/json",
-        buffer: Buffer.from('{"schemaVersion":99}'),
-      });
+    await computer.getByLabel("Ficheiro de cópia PetStay").setInputFiles({
+      name: "broken.json",
+      mimeType: "application/json",
+      buffer: Buffer.from('{"schemaVersion":99}'),
+    });
     await expect(computer.getByRole("alert")).toContainText("incompatível");
     expect((await store.read()).data).toEqual(updated);
     await expect(

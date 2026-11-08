@@ -127,10 +127,16 @@ test("language changes translate the whole app and preserve profiles and unsaved
     await page
       .getByRole("button", { name: variant.pricing, exact: true })
       .click();
-    const addPeriod = page.getByRole("button", { name: variant.addPeriod, exact: true });
+    const addPeriod = page.getByRole("button", {
+      name: variant.addPeriod,
+      exact: true,
+    });
     await expect(addPeriod).toBeVisible();
     if (index === 0) await addPeriod.click();
-    const startMonth = page.getByRole("combobox", { name: variant.startMonth, exact: true });
+    const startMonth = page.getByRole("combobox", {
+      name: variant.startMonth,
+      exact: true,
+    });
     await expect(startMonth).toBeVisible();
     await expect(startMonth).toContainText(variant.month);
     await expect(

@@ -98,3 +98,17 @@ select:focus-visible {
   background: var(--accent-border);
   color: var(--text);
 }
+
+:root[data-color-scheme="lavender"] { --green: #6952a3; --accent-text: #58418f; --accent-soft: #eeeaf8; --accent-border: #d7ceeb; --brown: #58418f; --chart: #8067b6; }
+:root[data-color-scheme="amber"] { --green: #956018; --accent-text: #7a4b0c; --accent-soft: #faf0da; --accent-border: #e9d4a8; --brown: #7a4b0c; --chart: #a97528; }
+:root[data-color-scheme="slate"] { --green: #4d6273; --accent-text: #374f62; --accent-soft: #eaf0f4; --accent-border: #cbd8e1; --brown: #374f62; --chart: #627c91; }
+:root[data-theme="dark"][data-color-scheme="lavender"] { --green: #6952a3; --accent-text: #d5c3ff; --accent-soft: #342b49; --accent-border: #63517e; --brown: #d5c3ff; --chart: #c3acec; }
+:root[data-theme="dark"][data-color-scheme="amber"] { --green: #895611; --accent-text: #f5ce83; --accent-soft: #3e3220; --accent-border: #79613a; --brown: #f5ce83; --chart: #e5bb71; }
+:root[data-theme="dark"][data-color-scheme="slate"] { --green: #4d6273; --accent-text: #c2d9eb; --accent-soft: #293742; --accent-border: #536b7c; --brown: #c2d9eb; --chart: #b1cada; }
+:root[data-contrast="enhanced"] { --text: #241c15; --muted: #514a40; --line: #a49c8d; --focus: #704100; }
+:root[data-theme="dark"][data-contrast="enhanced"] { --text: #ffffff; --muted: #d5d9dc; --line: #838e98; --focus: #ffe19c; }
+:root[data-contrast="high"] { --page-bg: #ffffff; --surface: #ffffff; --surface-soft: #eeeeee; --text: #000000; --muted: #222222; --line: #333333; --green: #111111; --accent-text: #000000; --accent-soft: #eeeeee; --accent-border: #444444; --brown: #000000; --warm-bg: #ffffff; --warm-text: #000000; --warm-border: #333333; --violet-bg: #eeeeee; --violet-text: #000000; --error-text: #8a0000; --error-bg: #ffffff; --error-border: #8a0000; --focus: #0000cc; --chart: #000000; }
+:root[data-theme="dark"][data-contrast="high"] { --page-bg: #000000; --surface: #000000; --surface-soft: #191919; --text: #ffffff; --muted: #ffffff; --line: #ffffff; --green: #333333; --accent-text: #ffffff; --accent-soft: #222222; --accent-border: #ffffff; --brown: #ffffff; --warm-bg: #000000; --warm-text: #ffffff; --warm-border: #ffffff; --violet-bg: #191919; --violet-text: #ffffff; --error-text: #ffb9a6; --error-bg: #000000; --error-border: #ffb9a6; --focus: #ffff00; --chart: #ffffff; }
+:root { font-size: calc(16px * var(--text-scale, 1)); }
+:root:not([data-text-size="default"]) .appearance-choices { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); }
+:root:not([data-text-size="default"]) nav button { height: auto; min-height: 44px; }

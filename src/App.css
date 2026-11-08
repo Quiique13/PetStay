@@ -24,7 +24,7 @@
 }
 .onboarding-story p {
   color: var(--accent-text);
-  font-size: 15px;
+  font-size: calc(15px * var(--text-scale, 1));
   line-height: 1.8;
   max-width: 370px;
 }
@@ -40,7 +40,7 @@
   gap: 12px;
   align-items: center;
   color: var(--accent-text);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
 }
 .onboarding-story li svg {
   flex-shrink: 0;
@@ -56,12 +56,12 @@
   margin: auto;
 }
 .onboarding-card h2 {
-  font-size: 31px;
+  font-size: calc(31px * var(--text-scale, 1));
   margin: 12px 0;
 }
 .onboarding-card > p {
   color: var(--muted);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale, 1));
   line-height: 1.8;
 }
 .hotel-profile-form {
@@ -72,7 +72,7 @@
 .hotel-profile-form > label {
   display: grid;
   gap: 9px;
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 600;
 }
 .hotel-profile-form input {
@@ -98,7 +98,7 @@
 }
 .avatar-picker p,
 .dialog .avatar-picker p {
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale, 1));
   color: var(--muted);
   margin: 9px 0;
   line-height: 1.5;
@@ -113,7 +113,7 @@
   background: var(--surface);
   border-radius: 8px;
   padding: 9px 12px;
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   font-weight: 600;
 }
 .upload-avatar input {
@@ -138,7 +138,7 @@
   border-radius: 12px;
   background: var(--accent-soft);
   color: var(--accent-text);
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale, 1));
   font-weight: 800;
   overflow: hidden;
 }
@@ -152,13 +152,13 @@
   width: 88px;
   height: 88px;
   border-radius: 22px;
-  font-size: 28px;
+  font-size: calc(28px * var(--text-scale, 1));
 }
 .onboarding-card .setup-note {
   margin-top: 26px;
   padding-top: 20px;
   border-top: 1px solid var(--line);
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
 }
 .empty-state {
   text-align: center;
@@ -175,23 +175,23 @@
   margin-bottom: 14px;
 }
 .empty-state h3 {
-  font-size: 17px;
+  font-size: calc(17px * var(--text-scale, 1));
 }
 .empty-state p,
 .dialog .empty-state p {
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--muted);
   margin: 9px auto 20px;
   line-height: 1.7;
   max-width: 340px;
 }
 .empty-state .primary {
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
 }
 .form-error,
 .dialog .form-error p {
   color: var(--error-text);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
   line-height: 1.7;
 }
 .form-error {
@@ -217,10 +217,10 @@
   margin-right: auto;
 }
 .setup-checklist h3 {
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale, 1));
 }
 .setup-checklist p {
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   color: var(--muted);
   margin-top: 5px;
 }
@@ -233,7 +233,7 @@
   padding: 10px;
   border-radius: 8px;
   color: var(--accent-text);
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
 }
 .guest-avatar {
   display: inline-grid;
@@ -267,7 +267,7 @@
   gap: 10px;
   margin-bottom: 20px;
   color: var(--accent-text);
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   line-height: 1.6;
 }
 .storage-error {
@@ -321,7 +321,7 @@ aside {
   border-radius: 18px;
 }
 .brand-name {
-  font-size: 30px;
+  font-size: calc(30px * var(--text-scale, 1));
   font-weight: 900;
   letter-spacing: 1px;
   color: var(--brown);
@@ -330,7 +330,7 @@ aside {
 .brand-name small {
   display: block;
   font-family: "DM Sans Variable", sans-serif;
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   font-weight: 600;
   letter-spacing: 0.3px;
   margin-top: 8px;
@@ -348,7 +348,7 @@ aside {
   border-radius: 12px;
   padding: 13px 10px;
   margin-bottom: 28px;
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   font-weight: 700;
 }
 .hotel > div {
@@ -357,7 +357,7 @@ aside {
   line-height: 1.5;
 }
 .hotel > .hotel-avatar {
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale, 1));
 }
 aside .brand-symbol {
   width: 44px;
@@ -366,11 +366,11 @@ aside .brand-symbol {
   border-radius: 13px;
 }
 aside .brand-name {
-  font-size: 27px;
+  font-size: calc(27px * var(--text-scale, 1));
   min-width: 0;
 }
 aside .brand-name small {
-  font-size: 9px;
+  font-size: calc(9px * var(--text-scale, 1));
   letter-spacing: 0;
 }
 .dialog .upload-avatar {
@@ -383,17 +383,17 @@ table input[type="number"] {
   width: 116px;
 }
 .hotel > span {
-  font-size: 22px;
+  font-size: calc(22px * var(--text-scale, 1));
 }
 .hotel small {
   display: block;
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale, 1));
   font-weight: 400;
   color: var(--muted);
   margin-top: 5px;
 }
 .navlabel {
-  font-size: 9px;
+  font-size: calc(9px * var(--text-scale, 1));
   letter-spacing: 1.6px;
   color: var(--muted);
   margin: 0 12px 10px;
@@ -409,7 +409,7 @@ nav button {
   text-align: left;
   padding: 13px 12px;
   border-radius: 9px;
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--muted);
 }
 nav button.active {
@@ -419,7 +419,7 @@ nav button.active {
 }
 nav button em {
   margin-left: auto;
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale, 1));
   font-style: normal;
   border-radius: 5px;
   background: var(--accent-soft);
@@ -435,14 +435,14 @@ nav button em {
   padding: 17px 14px;
 }
 .help > span {
-  font-size: 24px;
+  font-size: calc(24px * var(--text-scale, 1));
 }
 .help h4 {
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale, 1));
   margin-top: 8px;
 }
 .help p {
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   line-height: 1.7;
   color: var(--muted);
   margin: 7px 0 12px;
@@ -450,7 +450,7 @@ nav button em {
 .help button {
   display: flex;
   gap: 8px;
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale, 1));
   align-items: center;
   color: var(--brown);
   font-weight: 700;
@@ -462,7 +462,7 @@ nav button em {
   margin-top: 22px;
   padding-top: 20px;
   border-top: 1px solid var(--line);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 600;
 }
 .avatar {
@@ -473,7 +473,7 @@ nav button em {
   background: var(--warm-bg);
   color: var(--brown);
   border-radius: 50%;
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   font-weight: 700;
   flex-shrink: 0;
 }
@@ -498,7 +498,7 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 0 38px;
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   background: var(--surface);
 }
 .crumb {
@@ -515,7 +515,7 @@ header {
 }
 .headerRight > span {
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale, 1));
 }
 .headerRight i {
   display: inline-block;
@@ -551,22 +551,22 @@ header {
   margin-bottom: 26px;
 }
 .eyebrow {
-  font-size: 9px;
+  font-size: calc(9px * var(--text-scale, 1));
   font-weight: 700;
   letter-spacing: 1.7px;
   color: var(--muted);
   margin-bottom: 9px;
 }
 h1 {
-  font-size: 29px;
+  font-size: calc(29px * var(--text-scale, 1));
   font-weight: 800;
   letter-spacing: -0.7px;
 }
 h1 span {
-  font-size: 23px;
+  font-size: calc(23px * var(--text-scale, 1));
 }
 .heading p {
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--muted);
   margin-top: 7px;
 }
@@ -579,7 +579,7 @@ h1 span {
   border-radius: 9px;
   color: white;
   background: var(--green);
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-weight: 600;
   white-space: nowrap;
 }
@@ -598,24 +598,24 @@ h1 span {
   z-index: 1;
 }
 .tag {
-  font-size: 8px;
+  font-size: calc(8px * var(--text-scale, 1));
   letter-spacing: 1.6px;
   color: var(--muted);
   font-weight: 700;
 }
 h2 {
-  font-size: 32px;
+  font-size: calc(32px * var(--text-scale, 1));
   line-height: 1.15;
   font-weight: 900;
   color: var(--brown);
   margin: 10px 0;
 }
 .welcome p {
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   color: var(--muted);
 }
 .welcome button {
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   display: flex;
   align-items: center;
   gap: 16px;
@@ -640,7 +640,7 @@ h2 {
 .spark {
   position: absolute;
   z-index: 1;
-  font-size: 40px;
+  font-size: calc(40px * var(--text-scale, 1));
   color: #d9a445;
   left: 8%;
   top: 20px;
@@ -653,7 +653,7 @@ h2 {
   box-shadow: 0 4px 12px #4930150f;
   padding: 10px 13px;
   border-radius: 9px;
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale, 1));
   display: flex;
   align-items: center;
   gap: 8px;
@@ -675,21 +675,21 @@ h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   color: var(--muted);
 }
 .stat i {
   font-style: normal;
-  font-size: 19px;
+  font-size: calc(19px * var(--text-scale, 1));
 }
 .stat strong {
   display: block;
   font-family: "Nunito Variable", sans-serif;
-  font-size: 29px;
+  font-size: calc(29px * var(--text-scale, 1));
   margin: 6px 0;
 }
 .stat small {
-  font-size: 9px;
+  font-size: calc(9px * var(--text-scale, 1));
   color: var(--muted);
 }
 .panel {
@@ -707,17 +707,17 @@ h2 {
   gap: 16px;
 }
 .panelheading h3 {
-  font-size: 16px;
+  font-size: calc(16px * var(--text-scale, 1));
   font-weight: 800;
 }
 .panelheading p {
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale, 1));
   color: var(--muted);
   margin-top: 6px;
 }
 .count {
   font-family: "DM Sans Variable", sans-serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--text-scale, 1));
   font-weight: 500;
   background: var(--surface-soft);
   padding: 4px 7px;
@@ -729,7 +729,7 @@ h2 {
   display: flex;
   align-items: center;
   gap: 13px;
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   white-space: nowrap;
 }
 .month button {
@@ -754,10 +754,10 @@ h2 {
   border-bottom: 1px solid var(--line);
   padding: 0 0 13px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
 }
 .calhead > span {
-  font-size: 9px;
+  font-size: calc(9px * var(--text-scale, 1));
   letter-spacing: 1px;
   align-self: center;
 }
@@ -766,7 +766,7 @@ h2 {
 }
 .calhead small {
   display: block;
-  font-size: 8px;
+  font-size: calc(8px * var(--text-scale, 1));
   margin-bottom: 6px;
 }
 .calhead .today {
@@ -781,7 +781,7 @@ h2 {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   font-weight: 700;
 }
 .guestcell img {
@@ -792,7 +792,7 @@ h2 {
 }
 .guestcell small {
   display: block;
-  font-size: 8px;
+  font-size: calc(8px * var(--text-scale, 1));
   font-weight: 400;
   color: var(--muted);
   margin-top: 4px;
@@ -818,7 +818,7 @@ h2 {
   align-items: center;
   gap: 6px;
   text-align: left;
-  font-size: 9px;
+  font-size: calc(9px * var(--text-scale, 1));
   padding: 0 10px;
   background: var(--accent-soft);
   color: var(--accent-text);
@@ -827,7 +827,7 @@ h2 {
 }
 .stay span {
   margin-left: auto;
-  font-size: 8px;
+  font-size: calc(8px * var(--text-scale, 1));
   opacity: 0.7;
 }
 .stay1 {
@@ -847,7 +847,7 @@ h2 {
   align-items: center;
   gap: 17px;
   padding: 15px 23px;
-  font-size: 9px;
+  font-size: calc(9px * var(--text-scale, 1));
   color: var(--muted);
 }
 .legend > span {
@@ -869,7 +869,7 @@ h2 {
   align-items: center;
   gap: 8px;
   margin-left: auto;
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale, 1));
   color: var(--accent-text);
 }
 .bottomgrid {
@@ -881,7 +881,7 @@ h2 {
   color: var(--accent-text);
 }
 .softtag {
-  font-size: 9px;
+  font-size: calc(9px * var(--text-scale, 1));
   background: var(--surface-soft);
   border-radius: 5px;
   padding: 6px 8px;
@@ -892,7 +892,7 @@ h2 {
   align-items: center;
   gap: 22px;
   padding: 0 23px 12px;
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale, 1));
   color: var(--muted);
 }
 .simcontrols label:first-child {
@@ -922,10 +922,10 @@ h2 {
   font-family: "Nunito Variable", sans-serif;
   display: block;
   color: var(--accent-text);
-  font-size: 25px;
+  font-size: calc(25px * var(--text-scale, 1));
 }
 .simcontrols small {
-  font-size: 8px;
+  font-size: calc(8px * var(--text-scale, 1));
 }
 .seasoncard {
   border: 1px solid var(--warm-border);
@@ -940,18 +940,18 @@ h2 {
 }
 .seasoncard > span {
   display: block;
-  font-size: 8px;
+  font-size: calc(8px * var(--text-scale, 1));
   letter-spacing: 1.4px;
   color: var(--muted);
 }
 .seasoncard h3 {
-  font-size: 23px;
+  font-size: calc(23px * var(--text-scale, 1));
   line-height: 1.2;
   color: var(--warm-text);
   margin: 12px 0;
 }
 .seasoncard p {
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale, 1));
   color: var(--muted);
   line-height: 1.8;
 }
@@ -959,7 +959,7 @@ h2 {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale, 1));
   font-weight: 700;
   color: var(--warm-text);
   margin-top: 16px;
@@ -969,7 +969,7 @@ footer {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 9px;
+  font-size: calc(9px * var(--text-scale, 1));
   color: var(--muted);
   padding: 3px 0;
 }
@@ -996,10 +996,10 @@ footer > span {
   margin-bottom: 12px;
 }
 .guestcard h3 {
-  font-size: 20px;
+  font-size: calc(20px * var(--text-scale, 1));
 }
 .guestcard p {
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
   color: var(--muted);
   margin-top: 6px;
 }
@@ -1010,21 +1010,21 @@ footer > span {
 }
 .guestcard small {
   color: var(--muted);
-  font-size: 9px;
+  font-size: calc(9px * var(--text-scale, 1));
   letter-spacing: 1px;
 }
 .guestcard h4 {
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale, 1));
   margin-top: 8px;
 }
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
   text-align: left;
 }
 th {
-  font-size: 9px;
+  font-size: calc(9px * var(--text-scale, 1));
   letter-spacing: 0.6px;
   font-weight: 500;
   color: var(--muted);
@@ -1050,13 +1050,13 @@ tr:last-child td {
 .search input {
   border: 0;
   background: none;
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   width: 150px;
   padding: 9px 0;
 }
 .paid,
 .pending {
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale, 1));
   border-radius: 6px;
   padding: 7px 10px;
   background: var(--accent-soft);
@@ -1070,14 +1070,14 @@ tr:last-child td {
   padding: 23px;
 }
 .season h4 {
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale, 1));
   margin-bottom: 16px;
 }
 .season h4 input {
   margin: 0 8px;
 }
 .season p {
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   color: var(--muted);
   margin-top: -6px;
   margin-bottom: 18px;
@@ -1099,7 +1099,7 @@ tr:last-child td {
 }
 .season-range legend,
 .season-boundary > span {
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   font-weight: 600;
 }
 .season-range legend {
@@ -1139,7 +1139,7 @@ tr:last-child td {
   border: 1px solid var(--line);
   border-radius: 7px;
   padding: 11px 13px;
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
 }
 .season p {
   line-height: 1.6;
@@ -1192,11 +1192,11 @@ tr:last-child td {
   width: 18px;
 }
 .dialog h2 {
-  font-size: 25px;
+  font-size: calc(25px * var(--text-scale, 1));
   margin: 8px 0 24px;
 }
 .dialog p {
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale, 1));
   line-height: 1.8;
   color: var(--muted);
 }
@@ -1207,16 +1207,16 @@ tr:last-child td {
 .dialog label {
   display: grid;
   gap: 7px;
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   font-weight: 500;
 }
 .dialog .hint {
-  font-size: 10px;
+  font-size: calc(10px * var(--text-scale, 1));
 }
 .textbutton {
   padding: 0;
   text-align: left;
-  font-size: 11px;
+  font-size: calc(11px * var(--text-scale, 1));
   color: var(--accent-text);
 }
 @media (min-width: 1600px) {
@@ -1230,7 +1230,7 @@ tr:last-child td {
     padding: 36px;
   }
   .welcome h2 {
-    font-size: 40px;
+    font-size: calc(40px * var(--text-scale, 1));
   }
 }
 @media (max-width: 1150px) {
@@ -1243,7 +1243,7 @@ tr:last-child td {
     height: 62px;
   }
   .brand-name {
-    font-size: 27px;
+    font-size: calc(27px * var(--text-scale, 1));
   }
   .content {
     padding: 28px 24px;
@@ -1258,7 +1258,7 @@ tr:last-child td {
     padding: 14px;
   }
   .stat small {
-    font-size: 8px;
+    font-size: calc(8px * var(--text-scale, 1));
   }
   .bottomgrid {
     grid-template-columns: 1fr;
@@ -1294,10 +1294,10 @@ tr:last-child td {
     height: 48px;
   }
   .brand-name {
-    font-size: 25px;
+    font-size: calc(25px * var(--text-scale, 1));
   }
   .brand-name small {
-    font-size: 10px;
+    font-size: calc(10px * var(--text-scale, 1));
     margin-top: 5px;
   }
   .hotel,
@@ -1313,7 +1313,7 @@ tr:last-child td {
   }
   nav button {
     white-space: nowrap;
-    font-size: 11px;
+    font-size: calc(11px * var(--text-scale, 1));
     padding: 10px;
   }
   nav button svg {
@@ -1333,37 +1333,37 @@ tr:last-child td {
     align-items: flex-start;
   }
   h1 {
-    font-size: 24px;
+    font-size: calc(24px * var(--text-scale, 1));
   }
   .eyebrow {
-    font-size: 8px;
+    font-size: calc(8px * var(--text-scale, 1));
   }
   .heading p {
-    font-size: 11px;
+    font-size: calc(11px * var(--text-scale, 1));
     line-height: 1.6;
     max-width: 270px;
   }
   .primary {
     padding: 11px 13px;
-    font-size: 11px;
+    font-size: calc(11px * var(--text-scale, 1));
   }
   .welcome > div:first-child {
     padding: 25px;
   }
   .welcome h2 {
-    font-size: 31px;
+    font-size: calc(31px * var(--text-scale, 1));
   }
   .stats {
     grid-template-columns: repeat(2, 1fr);
   }
   .stat small {
-    font-size: 9px;
+    font-size: calc(9px * var(--text-scale, 1));
   }
   .panelheading {
     padding: 18px;
   }
   .panelheading h3 {
-    font-size: 14px;
+    font-size: calc(14px * var(--text-scale, 1));
   }
   .calendar {
     padding: 0 18px;
@@ -1386,7 +1386,7 @@ tr:last-child td {
   th,
   td {
     padding: 13px 14px;
-    font-size: 10px;
+    font-size: calc(10px * var(--text-scale, 1));
   }
   .panel:has(table) {
     overflow-x: auto;
@@ -1417,12 +1417,12 @@ tr:last-child td {
     width: 70%;
   }
   .welcome p {
-    font-size: 10px;
+    font-size: calc(10px * var(--text-scale, 1));
     line-height: 1.6;
     max-width: 170px;
   }
   .welcome button {
-    font-size: 10px;
+    font-size: calc(10px * var(--text-scale, 1));
     gap: 7px;
   }
   .dogscene {
@@ -1437,11 +1437,11 @@ tr:last-child td {
     display: none;
   }
   .welcome h2 {
-    font-size: 28px;
+    font-size: calc(28px * var(--text-scale, 1));
   }
   .month {
     gap: 7px;
-    font-size: 9px;
+    font-size: calc(9px * var(--text-scale, 1));
   }
   .count {
     display: none;
@@ -1458,15 +1458,15 @@ tr:last-child td {
     margin-left: auto;
   }
   .simcontrols > div > strong {
-    font-size: 22px;
+    font-size: calc(22px * var(--text-scale, 1));
   }
   .legend {
     padding: 14px;
-    font-size: 8px;
+    font-size: calc(8px * var(--text-scale, 1));
     gap: 10px;
   }
   .legend button {
-    font-size: 9px;
+    font-size: calc(9px * var(--text-scale, 1));
     gap: 4px;
   }
   .guestgrid {
@@ -1479,7 +1479,7 @@ tr:last-child td {
     padding: 26px;
   }
   .dialog h2 {
-    font-size: 23px;
+    font-size: calc(23px * var(--text-scale, 1));
   }
 }
 
@@ -1488,3 +1488,11 @@ tr:last-child td {
 .calhead, .calrow { min-width: calc(175px + var(--days, 31) * 32px); }
 .guestcell { position: sticky; left: 0; background: var(--surface); z-index: 2; }
 .dialog input[type="checkbox"] { width: auto; }
+.birthday-reminders { margin-bottom: 20px; padding: 18px 22px; }
+.birthday-notifications h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; }
+.birthday-alert { border-left: 3px solid var(--accent-text); padding: 8px 12px; margin: 8px 0; background: var(--accent-soft); border-radius: 5px; }
+.birthday-alert small { display: block; color: var(--muted); margin-top: 5px; }
+.dialog .booking-price-fields { margin: 0; padding: 14px; border: 1px solid var(--line); border-radius: 10px; display: grid; gap: 12px; min-width: 0; }
+.dialog .booking-price-fields legend { padding: 0 6px; font-weight: 600; }
+.dialog .booking-price-fields label:has(input[type="radio"]) { display: flex; align-items: center; gap: 8px; }
+.dialog .booking-price-fields input[type="radio"] { width: auto; margin: 0; }

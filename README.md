@@ -11,7 +11,7 @@ Use no computador ou telemóvel, diretamente no navegador. Também pode instalar
 | Como pretende usar? | Acesso direto |
 | --- | --- |
 | No navegador, Android ou iPhone | **[Abrir a aplicação web](https://quiique13.github.io/PetStay/)** |
-| No Windows, sem instalação | **[Descarregar o executável portátil](https://github.com/Quiique13/PetStay/releases/download/v1.4.0/PetStay-1.4.0-windows-x64-portable.exe)** |
+| No Windows, sem instalação | **[Descarregar o executável portátil](https://github.com/Quiique13/PetStay/releases/download/v1.5.0/PetStay-1.5.0-windows-x64-portable.exe)** |
 | Todas as versões e checksums | [GitHub Releases](https://github.com/Quiique13/PetStay/releases) |
 
 No Windows, coloque o `.exe` numa pasta onde possa guardar dados e abra-o com um duplo clique. Não precisa de instalar Node.js ou npm. O hotel fica na pasta `data/` junto do executável; mantenha essa pasta ao atualizar.

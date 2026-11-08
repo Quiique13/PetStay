@@ -1,8 +1,16 @@
-import { readPhoto } from "../utils/photo.ts";
-import { ClientPicker } from "./ClientPicker.tsx";
+import { GuestProfileFields } from "./GuestProfileFields.tsx";
+import { MemorialCross } from "./MemorialCross.tsx";
+import { useBirthdayAlerts } from "../hooks/useBirthdayAlerts.ts";
+import { BirthdayNotifications } from "./BirthdayNotifications.tsx";
+import { BirthdaysCalendar } from "./BirthdaysCalendar.tsx";
+import { BookingPriceFields } from "./BookingPriceFields.tsx";
 import { clientKey, groupClients } from "../utils/clients.ts";
-import { GuestAgeFields } from "./GuestAgeFields.tsx";
-import { ageGroupFromBirth, ageInMonths, guestAgeGroup, isBirthDate } from "../utils/age.ts";
+import {
+  ageGroupFromBirth,
+  ageInMonths,
+  guestAgeGroup,
+  isBirthDate,
+} from "../utils/age.ts";
 import { useLanguage } from "../context/LanguageContext.tsx";
 import React, { useEffect, useState } from "react";
 import {
@@ -36,7 +44,7 @@ import {
 import { useHotel } from "../context/HotelContext.tsx";
 import { bookingPrice, isAgeGroup, isStayType } from "../utils/hotel-data.ts";
 import { asStorageError } from "../types.ts";
-import type { HotelData } from "../types.ts";
+import type { Booking, HotelData } from "../types.ts";
 import { Brand } from "./Brand.tsx";
 import { HotelAvatar } from "./HotelAvatar.tsx";
 import { HotelProfileForm } from "./HotelProfileForm.tsx";
@@ -84,7 +92,7 @@ const icons = [
 ];
 export default function Dashboard() {
   const { t, locale } = useLanguage();
-  const { money, shortMoney, formatDate, monthName } = createFormatters(locale);
+  const { money, shortMoney, formatDate, monthName, weekdayShort } = createFormatters(locale);
   const storage = useHotel();
   const [page, P] = useState<Page>("Overview"),
     [calendarDate, setCalendarDate] = useState(() => new Date()),
@@ -95,19 +103,40 @@ export default function Dashboard() {
   const [readingPhoto, setReadingPhoto] = useState(false);
   const [editingGuest, setEditingGuest] = useState<string | null>(null);
   const [selectedClient, setSelectedClient] = useState("");
+  const [guestView, setGuestView] = useState<"dogs" | "birthdays">("dogs");
+  const [ownerFilter, setOwnerFilter] = useState("");
+  const [editingBooking, setEditingBooking] = useState<number | null>(null);
   const data = storage.data;
   if (!data?.hotel) throw new Error("Dashboard requires a registered hotel.");
   const { hotel, rates, guests, bookings, occupancy, capacity } = data;
   const clients = groupClients(guests);
+  const visibleClients = clients.filter(client => !ownerFilter || clientKey(client.name) === ownerFilter);
+  const visibleGuests = guests.filter(guest => !ownerFilter || clientKey(guest.owner) === ownerFilter);
+  const birthdayNotices = useBirthdayAlerts(guests);
+  const savedBooking =
+    editingBooking === null ? undefined : bookings[editingBooking];
+  function editBooking(booking: Booking) {
+    setEditingBooking(bookings.indexOf(booking));
+    S("booking");
+  }
   const month = calendarDate.getMonth(),
     year = calendarDate.getFullYear();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const monthStart = Date.UTC(year, month, 1);
   const monthEnd = Date.UTC(year, month + 1, 1);
+  const calendarBookings = bookings.filter(booking => Date.parse(booking.start) < monthEnd
+    && (booking.type === "Daycare" ? Date.parse(booking.start) + 86400000 : Date.parse(booking.end)) > monthStart);
+  const calendarDogs = new Set(calendarBookings.map(booking => booking.dog));
+  const calendarGuests = guests.filter(guest => calendarDogs.has(guest.name));
   const ownerInitials = initials(hotel.owner).toUpperCase();
   useEffect(() => {
     setFormError("");
-    if (!modal) { setGuestPhoto(""); setEditingGuest(null); setSelectedClient(""); }
+    if (!modal) {
+      setGuestPhoto("");
+      setEditingGuest(null);
+      setSelectedClient("");
+      setEditingBooking(null);
+    }
     if (!modal) return;
     const previousFocus = document.activeElement;
     const previousOverflow = document.body.style.overflow;
@@ -260,7 +289,7 @@ export default function Dashboard() {
               aria-label={t("Notificações")}
             >
               <Bell size={19} />
-              <b />
+              {(birthdayNotices.length > 0 || bookings.some(booking => !booking.paid)) && <b />}
             </button>
             <button
               className="profile-trigger"
@@ -336,6 +365,7 @@ export default function Dashboard() {
           )}
           {page === "Overview" && (
             <>
+              {birthdayNotices.length > 0 && <div className="panel birthday-reminders" role="status"><BirthdayNotifications alerts={birthdayNotices} /></div>}
               {(guests.length === 0 ||
                 rates.day === null ||
                 ages.some((age) => rates[age].includes(null))) && (
@@ -456,48 +486,51 @@ export default function Dashboard() {
                   {t("As estadias dos seus hóspedes vão aparecer aqui.")}
                 </EmptyState>
               ) : (
-                <div className="calendar" style={{ "--days": daysInMonth } as React.CSSProperties}>
+                <div
+                  className="calendar"
+                  style={{ "--days": daysInMonth } as React.CSSProperties}
+                >
                   <div className="calhead">
                     <span>{t("HÓSPEDE")}</span>
                     {Array.from({ length: daysInMonth }, (_, i) => (
                       <div key={i}>
                         <small>
-                          {new Date(year, month, i + 1)
-                            .toLocaleDateString(locale, { weekday: "short" })
-                            .toUpperCase()}
+                          {weekdayShort(new Date(year, month, i + 1)).toUpperCase()}
                         </small>
                         {i + 1}
                       </div>
                     ))}
                   </div>
-                  {guests.map((g, i) => (
+                  {calendarGuests.map((g, i) => (
                     <div className="calrow" key={g.name}>
                       <div className="guestcell">
                         <span className="guest-avatar">
-                          {g.photo ? <img src={g.photo} alt={g.name} /> : <PawPrint size={18} />}
+                          {g.photo ? (
+                            <img src={g.photo} alt={g.name} />
+                          ) : (
+                            <PawPrint size={18} />
+                          )}
                         </span>
                         <div>
-                          {g.name}
+                          {g.deceased && <MemorialCross />}{g.name}
                           <small>{breedLabel(g.breed, t)}</small>
                         </div>
                       </div>
                       <div className="track">
-                        {bookings
+                        {calendarBookings
                           .filter(
                             (b) =>
-                              b.dog === g.name &&
-                              Date.parse(b.start) < monthEnd &&
-                              (b.type === "Daycare" ? Date.parse(b.start) + 86400000 : Date.parse(b.end)) > monthStart,
+                              b.dog === g.name,
                           )
                           .map((b, j) => (
                             <button
                               key={j}
                               className={"stay stay" + i}
                               style={{
-                                left: `${Math.max(0, (Date.parse(b.start) - monthStart) / 86400000) * 100 / daysInMonth}%`,
-                                width: `${(Math.min(monthEnd, b.type === "Daycare" ? Date.parse(b.start) + 86400000 : Date.parse(b.end)) - Math.max(monthStart, Date.parse(b.start))) / 86400000 * 100 / daysInMonth}%`,
+                                left: `${(Math.max(0, (Date.parse(b.start) - monthStart) / 86400000) * 100) / daysInMonth}%`,
+                                width: `${(((Math.min(monthEnd, b.type === "Daycare" ? Date.parse(b.start) + 86400000 : Date.parse(b.end)) - Math.max(monthStart, Date.parse(b.start))) / 86400000) * 100) / daysInMonth}%`,
                               }}
-                              onClick={() => P("Payments")}
+                              onClick={() => editBooking(b)}
                             >
                               {b.type === "Daycare" ? "☀" : "☾"}{" "}
                               {t(stayLabels[b.type] ?? b.type)}
@@ -507,6 +540,7 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ))}
+                  {!calendarGuests.length && <p className="hint">{t("Sem reservas neste mês.")}</p>}
                 </div>
               )}
               <div className="legend">
@@ -522,7 +556,20 @@ export default function Dashboard() {
               </div>
             </div>
           )}
-          {page === "Guests & clients" &&
+          {page === "Guests & clients" && <>
+            <div className="guest-view-switch" role="group" aria-label={t("Vista dos hóspedes")}>
+              <button className="secondary" aria-pressed={guestView === "dogs"} onClick={() => setGuestView("dogs")}>{t("Lista de hóspedes")}</button>
+              <button className="secondary" aria-pressed={guestView === "birthdays"} onClick={() => setGuestView("birthdays")}>{t("Aniversários")}</button>
+            </div>
+            <label className="owner-filter">{t("Filtrar por tutor")}
+              <select aria-label={t("Filtrar por tutor")} value={ownerFilter} onChange={e => setOwnerFilter(e.target.value)}>
+                <option value="">{t("Todos os tutores")}</option>
+                {clients.map(client => <option key={clientKey(client.name)} value={clientKey(client.name)}>{client.name}</option>)}
+              </select>
+            </label>
+            {guestView === "birthdays" && <BirthdaysCalendar guests={visibleGuests} />}
+          </>}
+          {page === "Guests & clients" && guestView === "dogs" &&
             (guests.length === 0 ? (
               <div className="panel">
                 <EmptyState
@@ -537,35 +584,84 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="client-list">
-                {clients.map(client => <section className="client-group" key={clientKey(client.name)} aria-label={client.name}>
-                  <div className="panelheading">
-                    <div><h3>{client.name}</h3><p>{t("{count} cães", { count: client.dogs.length })}</p></div>
-                    <button className="secondary" onClick={() => { setSelectedClient(client.name); S("guest"); }}>{t("Adicionar cão a este cliente")}</button>
-                  </div>
-                  <div className="guestgrid">
-                {client.dogs.map((g) => (
-                  <div className="panel guestcard" key={g.name}>
-                    <span className="guest-avatar guest-avatar-large">
-                      {g.photo ? <img src={g.photo} alt={g.name} /> : <PawPrint size={32} />}
-                    </span>
-                    <h3>{g.name}</h3>
-                    {g.birthDate && <p>{t("Idade: {years} anos e {months} meses · {group}", {
-                      years: Math.floor(ageInMonths(g.birthDate) / 12),
-                      months: ageInMonths(g.birthDate) % 12,
-                      group: t(ageLabels[guestAgeGroup(g)]),
-                    })}</p>}
-                    <p>
-                      {breedLabel(g.breed, t)} · {t(ageLabels[guestAgeGroup(g)])}
-                    </p>
-                    <hr />
-                    <small>{t("TUTOR")}</small>
-                    <h4>{g.owner}</h4>
-                    <p>{g.neutered === undefined ? t("Castração por indicar") : g.neutered ? t("Castrado") : t("Não castrado")}</p>
-                    <button className="secondary" onClick={() => { setEditingGuest(g.name); setGuestPhoto(g.photo ?? ""); S("guest"); }}>{t("Editar hóspede")}</button>
-                  </div>
+                {visibleClients.map((client) => (
+                  <section
+                    className="client-group"
+                    key={clientKey(client.name)}
+                    aria-label={client.name}
+                  >
+                    <div className="panelheading">
+                      <div>
+                        <h3>{client.name}</h3>
+                        <p>
+                          {t("{count} cães", { count: client.dogs.length })}
+                        </p>
+                      </div>
+                      <button
+                        className="secondary"
+                        onClick={() => {
+                          setSelectedClient(client.name);
+                          S("guest");
+                        }}
+                      >
+                        {t("Adicionar cão a este cliente")}
+                      </button>
+                    </div>
+                    <div className="guestgrid">
+                      {client.dogs.map((g) => (
+                        <div className="panel guestcard" key={g.name}>
+                          <span className="guest-avatar guest-avatar-large">
+                            {g.photo ? (
+                              <img src={g.photo} alt={g.name} />
+                            ) : (
+                              <PawPrint size={32} />
+                            )}
+                          </span>
+                          <h3>{g.deceased && <MemorialCross />}{g.name}</h3>
+                          {g.deceased && <p className="softtag">{t("Falecido")}</p>}
+                          {g.birthDate && !g.deceased && (
+                            <p>
+                              {t(
+                                "Idade: {years} anos e {months} meses · {group}",
+                                {
+                                  years: Math.floor(
+                                    ageInMonths(g.birthDate) / 12,
+                                  ),
+                                  months: ageInMonths(g.birthDate) % 12,
+                                  group: t(ageLabels[guestAgeGroup(g)]),
+                                },
+                              )}
+                            </p>
+                          )}
+                          <p>
+                            {breedLabel(g.breed, t)} ·{" "}
+                            {t(ageLabels[guestAgeGroup(g)])}
+                          </p>
+                          <hr />
+                          <small>{t("TUTOR")}</small>
+                          <h4>{g.owner}</h4>
+                          <p>
+                            {g.neutered === undefined
+                              ? t("Castração por indicar")
+                              : g.neutered
+                                ? t("Castrado")
+                                : t("Não castrado")}
+                          </p>
+                          <button
+                            className="secondary"
+                            onClick={() => {
+                              setEditingGuest(g.name);
+                              setGuestPhoto(g.photo ?? "");
+                              S("guest");
+                            }}
+                          >
+                            {t("Editar hóspede")}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
                 ))}
-                  </div>
-                </section>)}
               </div>
             ))}
           {(page === "Payments" || page === "Bookings") && (
@@ -594,12 +690,13 @@ export default function Dashboard() {
                     <th>{t("Datas")}</th>
                     <th>{t("Total")}</th>
                     <th>{t("Pagamento")}</th>
+                    <th>{t("Editar reserva")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.length === 0 && (
                     <tr>
-                      <td colSpan={5}>
+                      <td colSpan={6}>
                         <EmptyState
                           title={
                             bookings.length
@@ -653,6 +750,17 @@ export default function Dashboard() {
                           {b.paid ? t("✓ Pago") : t("Marcar como pago")}
                         </button>
                       </td>
+                      <td data-label={t("Editar reserva")}>
+                        <button
+                          className="secondary"
+                          onClick={() => editBooking(b)}
+                          aria-label={t("Editar reserva de {name}", {
+                            name: b.dog,
+                          })}
+                        >
+                          {t("Editar reserva")}
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -693,9 +801,11 @@ export default function Dashboard() {
                             value={rates[a][i] ?? ""}
                             placeholder={t("Por definir")}
                             aria-label={t(
-                              i === 2 ? "Preço de {age} — época de Natal" : i
-                                ? "Preço de {age} — época alta"
-                                : "Preço de {age} — época baixa",
+                              i === 2
+                                ? "Preço de {age} — época de Natal"
+                                : i
+                                  ? "Preço de {age} — época alta"
+                                  : "Preço de {age} — época baixa",
                               { age: t(ageLabels[a]) },
                             )}
                             onChange={(e) => {
@@ -738,8 +848,17 @@ export default function Dashboard() {
                   />{" "}
                   €
                 </h4>
-                <SeasonEditor christmas ranges={rates.christmas ?? []} onChange={christmas => persist("rates", { ...rates, christmas })} />
-                <SeasonEditor ranges={rates.high} onChange={high => persist("rates", { ...rates, high })} />
+                <SeasonEditor
+                  christmas
+                  ranges={rates.christmas ?? []}
+                  onChange={(christmas) =>
+                    persist("rates", { ...rates, christmas })
+                  }
+                />
+                <SeasonEditor
+                  ranges={rates.high}
+                  onChange={(high) => persist("rates", { ...rates, high })}
+                />
               </div>
             </div>
           )}
@@ -882,7 +1001,9 @@ export default function Dashboard() {
             <PawPrint size={13} />
             <span>
               {hotel.name} · PetStay{" "}
-              <span className="app-version">v{import.meta.env.VITE_APP_VERSION}</span>
+              <span className="app-version">
+                v{import.meta.env.VITE_APP_VERSION}
+              </span>
             </span>
           </footer>
         </section>
@@ -890,7 +1011,7 @@ export default function Dashboard() {
       {modal && (
         <div className="overlay">
           <div
-            className="dialog"
+            className={`dialog ${modal === "guest" ? "dog-profile-dialog" : ""}`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="dialog-title"
@@ -906,7 +1027,11 @@ export default function Dashboard() {
               {modal === "guest"
                 ? t("Um novo amigo de quatro patas")
                 : modal === "booking"
-                  ? t("Planear uma boa estadia")
+                  ? t(
+                      savedBooking
+                        ? "Editar reserva"
+                        : "Planear uma boa estadia",
+                    )
                   : modal === "profile"
                     ? t("Perfil do hotel")
                     : modal === "data"
@@ -915,7 +1040,14 @@ export default function Dashboard() {
                         ? t("Bem-vindo ao PetStay")
                         : t("Novidades do seu hotel")}
             </h2>
-            {modal === "data" ? (
+            {modal === "notifications" ? (
+              <>
+                <BirthdayNotifications alerts={birthdayNotices} />
+                <p>{t(bookings.filter(booking => !booking.paid).length === 1
+                  ? "{count} reserva tem pagamentos pendentes. Aceda a Pagamentos para registar um pagamento."
+                  : "{count} reservas têm pagamentos pendentes. Aceda a Pagamentos para registar um pagamento.", { count: bookings.filter(booking => !booking.paid).length })}</p>
+              </>
+            ) : modal === "data" ? (
               <DataTransfer />
             ) : modal === "profile" ? (
               <HotelProfileForm
@@ -947,88 +1079,109 @@ export default function Dashboard() {
                   if (readingPhoto) return;
                   if (modal === "guest") {
                     const birthDate = field("birthDate");
-                    if (birthDate && (!isBirthDate(birthDate) || ageInMonths(birthDate) < 0)) {
-                      setFormError("Indique uma data de nascimento válida, até hoje."); return;
+                    if (
+                      birthDate &&
+                      (!isBirthDate(birthDate) || ageInMonths(birthDate) < 0)
+                    ) {
+                      setFormError(
+                        "Indique uma data de nascimento válida, até hoje.",
+                      );
+                      return;
                     }
-                    const age = birthDate ? ageGroupFromBirth(birthDate) : field("age");
+                    const age = birthDate
+                      ? ageGroupFromBirth(birthDate)
+                      : field("age");
                     if (!isAgeGroup(age)) return;
-                    if (guests.some(g => g.name === field("name") && g.name !== editingGuest)) {
-                      setFormError("Já existe um hóspede com este nome."); return;
+                    if (
+                      guests.some(
+                        (g) =>
+                          g.name === field("name") && g.name !== editingGuest,
+                      )
+                    ) {
+                      setFormError("Já existe um hóspede com este nome.");
+                      return;
                     }
                     persist("guests", [
-                      ...guests.filter(g => g.name !== editingGuest),
+                      ...guests.filter((g) => g.name !== editingGuest),
                       {
                         name: field("name"),
-                        owner: clients.find(client => clientKey(client.name) === clientKey(field("owner")))?.name ?? field("owner").trim().replace(/\s+/g, " "),
+                        owner:
+                          clients.find(
+                            (client) =>
+                              clientKey(client.name) ===
+                              clientKey(field("owner")),
+                          )?.name ?? field("owner").trim().replace(/\s+/g, " "),
                         breed: field("breed"),
                         age,
                         birthDate: birthDate || undefined,
                         photo: guestPhoto,
-                        neutered: field("neutered") === "" ? undefined : field("neutered") === "yes",
+                        deceased: field("deceased") === "on",
+                        neutered:
+                          field("neutered") === ""
+                            ? undefined
+                            : field("neutered") === "yes",
                       },
                     ]);
-                    if (editingGuest) persist("bookings", bookings.map(b => b.dog === editingGuest ? { ...b, dog: field("name") } : b));
+                    if (editingGuest)
+                      persist(
+                        "bookings",
+                        bookings.map((b) =>
+                          b.dog === editingGuest
+                            ? { ...b, dog: field("name") }
+                            : b,
+                        ),
+                      );
                   } else {
                     const dog = field("dog"),
                       start = field("start"),
                       end = field("end"),
                       type = field("type");
                     if (!isStayType(type)) return;
+                    const priceOptions = {
+                      customTotal: field("customTotal") === "" ? undefined : Number(field("customTotal")),
+                      customRate: field("customRate") === "" ? undefined : Number(field("customRate")),
+                      discountPercent: field("discountPercent") === "" ? 0 : Number(field("discountPercent")),
+                      intactSurcharge: field("intactSurcharge") === "on",
+                    };
                     let total;
                     try {
-                      total = bookingPrice(data, dog, start, end, type, { customTotal: field("customTotal") === "" ? undefined : Number(field("customTotal")), intactSurcharge: field("intactSurcharge") === "on" });
+                      total = bookingPrice(data, dog, start, end, type, priceOptions);
                     } catch (error) {
                       setFormError(asStorageError(error).message);
                       return;
                     }
-                    persist("bookings", [
-                      ...bookings,
-                      {
-                        dog,
-                        start,
-                        type,
-                        end: type === "Daycare" ? start : end,
-                        total,
-                        customTotal: field("customTotal") === "" ? undefined : Number(field("customTotal")),
-                        intactSurcharge: field("intactSurcharge") === "on",
-                        paid: false,
-                      },
-                    ]);
+                    const updatedBooking: Booking = {
+                      dog,
+                      start,
+                      type,
+                      end: type === "Daycare" ? start : end,
+                      total,
+                      ...priceOptions,
+                      paid: savedBooking?.paid ?? false,
+                    };
+                    persist(
+                      "bookings",
+                      editingBooking === null
+                        ? [...bookings, updatedBooking]
+                        : bookings.map((booking, index) =>
+                            index === editingBooking ? updatedBooking : booking,
+                          ),
+                    );
                   }
                   S(null);
                 }}
               >
                 {modal === "guest" ? (
-                  <>
-                    <label>{t("Fotografia do hóspede")}
-                      <input type="file" accept="image/png,image/jpeg,image/webp" disabled={readingPhoto} onChange={async e => {
-                        const file = e.target.files?.[0]; if (!file) return;
-                        setReadingPhoto(true); setFormError("");
-                        try { setGuestPhoto(await readPhoto(file)); }
-                        catch (error) { setFormError(asStorageError(error).message); }
-                        finally { setReadingPhoto(false); }
-                      }} />
-                    </label>
-                    {guestPhoto && <><img className="guest-photo-preview" src={guestPhoto} alt={t("Fotografia do hóspede")} /><button type="button" onClick={() => setGuestPhoto("")}>{t("Remover imagem")}</button></>}
-                    <label>{t("Castrado")}
-                      <select name="neutered" defaultValue={guests.find(g => g.name === editingGuest)?.neutered === undefined ? "" : guests.find(g => g.name === editingGuest)?.neutered ? "yes" : "no"}><option value="">{t("Por indicar")}</option><option value="yes">{t("Sim")}</option><option value="no">{t("Não")}</option></select>
-                    </label>
-                    <label>
-                      {t("Nome do cão")}
-                      <input name="name" required maxLength={100} defaultValue={editingGuest ?? ""} />
-                    </label>
-                    <ClientPicker clients={clients.map(client => client.name)} initial={guests.find(g => g.name === editingGuest)?.owner ?? selectedClient} />
-                    <label>
-                      {t("Raça")}
-                      <input name="breed" required maxLength={100} defaultValue={guests.find(g => g.name === editingGuest)?.breed} />
-                    </label>
-                    <GuestAgeFields guest={guests.find(g => g.name === editingGuest)} />
-                  </>
+                  <GuestProfileFields guest={guests.find(g => g.name === editingGuest)} clients={clients.map(client => client.name)} initialClient={selectedClient} photo={guestPhoto} reading={readingPhoto} onPhoto={setGuestPhoto} onReading={setReadingPhoto} onError={setFormError} />
                 ) : (
                   <>
                     <label>
                       {t("Hóspede")}
-                      <select name="dog" required>
+                      <select
+                        name="dog"
+                        required
+                        defaultValue={savedBooking?.dog}
+                      >
                         {guests.map((g) => (
                           <option key={g.name}>{g.name}</option>
                         ))}
@@ -1043,7 +1196,7 @@ export default function Dashboard() {
                     </button>
                     <label>
                       {t("Tipo de estadia")}
-                      <select name="type">
+                      <select name="type" defaultValue={savedBooking?.type}>
                         <option value="Boarding">{t("Hotel")}</option>
                         <option value="Daycare">{t("Creche")}</option>
                       </select>
@@ -1054,7 +1207,7 @@ export default function Dashboard() {
                         type="date"
                         name="start"
                         required
-                        defaultValue={localDate()}
+                        defaultValue={savedBooking?.start ?? localDate()}
                       />
                     </label>
                     <label>
@@ -1062,12 +1215,22 @@ export default function Dashboard() {
                       <input
                         type="date"
                         name="end"
-                        defaultValue={localDate(1)}
+                        defaultValue={savedBooking?.end ?? localDate(1)}
                       />
                     </label>
-                    <label>{t("Preço total personalizado (€)")}<input name="customTotal" type="number" min="0" max="1000000" step="0.01" placeholder={t("Usar cálculo automático")} /></label>
-                    <label><input type="checkbox" name="intactSurcharge" /> {t("Aplicar +2 € por noite/dia se não for castrado")}</label>
-                    <p className="hint">{t("O preço personalizado substitui o total calculado, incluindo suplementos.")}</p>
+                    <BookingPriceFields
+                      initialTotal={savedBooking?.customTotal}
+                      initialRate={savedBooking?.customRate}
+                      initialDiscount={savedBooking?.discountPercent}
+                    />
+                    <label>
+                      <input
+                        type="checkbox"
+                        name="intactSurcharge"
+                        defaultChecked={savedBooking?.intactSurcharge}
+                      />{" "}
+                      {t("Aplicar +2 € por noite/dia se não for castrado")}
+                    </label>
                     <p className="hint">
                       {t(
                         "O hotel é cobrado por noite, de acordo com a época e a faixa etária do cão. A creche tem um preço diário.",
@@ -1090,10 +1253,14 @@ export default function Dashboard() {
                     </button>
                   </div>
                 )}
-                <button className="primary" type="submit" disabled={readingPhoto}>
+                <button
+                  className="primary"
+                  type="submit"
+                  disabled={readingPhoto}
+                >
                   {modal === "guest"
                     ? t("Guardar hóspede")
-                    : t("Criar reserva")}
+                    : t(savedBooking ? "Guardar reserva" : "Criar reserva")}
                 </button>
               </form>
             ) : (

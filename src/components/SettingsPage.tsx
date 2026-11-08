@@ -28,6 +28,9 @@ const schemes = [
   { value: "forest", label: "Floresta", color: "#547447" },
   { value: "ocean", label: "Oceano", color: "#326b91" },
   { value: "berry", label: "Amora", color: "#87506c" },
+  { value: "lavender", label: "Lavanda", color: "#6952a3" },
+  { value: "amber", label: "Âmbar", color: "#956018" },
+  { value: "slate", label: "Ardósia", color: "#4d6273" },
 ] as const;
 
 export function SettingsPage({ onPricing }: { onPricing: () => void }) {
@@ -135,6 +138,25 @@ export function SettingsPage({ onPricing }: { onPricing: () => void }) {
                 </span>
               </label>
             ))}
+          </div>
+        </fieldset>
+        <fieldset className="settings-options">
+          <legend>{t("Contraste")}</legend>
+          <div className="appearance-choices">
+            {([{ value: "standard", label: "Normal" }, { value: "enhanced", label: "Reforçado" }, { value: "high", label: "Máximo" }] as const).map(({ value, label }) => <label className="appearance-choice" key={value}>
+              <input type="radio" name="contrast" checked={appearance.contrast === value} onChange={() => update({ contrast: value })} />
+              <span><strong>{t(label)}</strong></span>
+            </label>)}
+          </div>
+          <p>{t("Aumente o contraste do texto, das superfícies e dos contornos.")}</p>
+        </fieldset>
+        <fieldset className="settings-options">
+          <legend>{t("Tamanho do texto")}</legend>
+          <div className="appearance-choices">
+            {([{ value: "default", label: "Padrão", percent: "100%" }, { value: "large", label: "Grande", percent: "125%" }, { value: "largest", label: "Muito grande", percent: "150%" }] as const).map(({ value, label, percent }) => <label className="appearance-choice" key={value}>
+              <input type="radio" name="text-size" checked={appearance.textSize === value} onChange={() => update({ textSize: value })} />
+              <span><strong>{t(label)}</strong><small>{percent}</small></span>
+            </label>)}
           </div>
         </fieldset>
         <p className="settings-note">
