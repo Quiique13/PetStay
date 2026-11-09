@@ -12,7 +12,7 @@
 .dog-photo-frame {
   position: relative;
   width: 104px;
-  height: 104px;
+  aspect-ratio: 1;
   border-radius: 22px;
   background: var(--surface);
   display: grid;
@@ -21,9 +21,16 @@
   flex-shrink: 0;
 }
 .dog-photo-frame .guest-photo-preview {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   border-radius: inherit;
+}
+.dog-photo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
 }
 .dog-photo-camera {
   position: absolute;
@@ -132,7 +139,6 @@
   }
   .dog-photo-frame {
     width: 76px;
-    height: 76px;
     border-radius: 17px;
   }
   .dog-form-columns {

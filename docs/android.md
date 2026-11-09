@@ -53,7 +53,7 @@ npm.cmd run android:run
 The APK is `android/app/build/outputs/apk/debug/app-debug.apk`. Release signing
 is intentionally unconfigured; release keys must be supplied separately.
 
-The `android` Vite mode builds into `dist-android`, uses device storage, and
+The `android` Vite mode builds into `dist-android`, uses account Firestore sync with a local offline cache, and
 does not register a PWA service worker. Browser installation prompts are hidden
 in the native app. The browser/PWA and desktop build commands are unchanged.
 
@@ -73,7 +73,7 @@ Run `npm.cmd test` and `npm.cmd run test:mobile`. The native bridge browser test
 mocks Android's credential response and Firebase's token exchange to verify
 session persistence and sign-out. It does not replace a device test: after
 adding the real config, verify Google login, email login, logout, and reopening
-on an emulator or phone. Firebase Authentication does not add cloud data sync.
+on an emulator or phone. From 1.7.0, publish the [Firestore rules](firestore-sync.md) to enable account data sync.
 
 References: [Firebase Android setup](https://firebase.google.com/docs/android/setup),
 [Capacitor Android](https://capacitorjs.com/docs/android),

@@ -18,3 +18,22 @@ release/
 # Private device data, backups and temporary writes. Never commit this folder.
 /data/
 petstay-*.json
+
+# Credentials, signing material and Firebase CLI caches.
+**/google-services.json
+**/GoogleService-Info.plist
+*service-account*.json
+*serviceAccount*.json
+*firebase-adminsdk*.json
+**/application_default_credentials.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+.firebase/
+.runtime/
+/hotel.json
+/momo.json
+/before-import.json

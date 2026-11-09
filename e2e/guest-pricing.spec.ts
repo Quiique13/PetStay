@@ -23,6 +23,8 @@ test("guest photos, custom prices, monthly calendar and hotel photo changes pers
     buffer: readFileSync("src/assets/hotel-dog.jpg"),
   };
   await dialog.locator('input[type="file"]').setInputFiles(photo);
+  await page.locator(".photo-crop-dialog").screenshot({ path: testInfo.outputPath("dog-crop-tool.png") });
+  await page.getByRole("button", { name: "Usar fotografia", exact: true }).click();
   await expect(dialog.locator(".guest-photo-preview")).toBeVisible();
   await dialog.locator('[name="name"]').fill("Bobi");
   await dialog.locator('[name="owner"]').fill("Maria");

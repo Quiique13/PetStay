@@ -15,7 +15,6 @@ import {
   serializeBackup,
 } from "../services/backup.ts";
 import type { BackupPreview } from "../services/backup.ts";
-import { loadImportRecovery } from "../services/device-storage.ts";
 import { useAuth } from "../context/AuthContext.tsx";
 import { isMobileApp } from "../services/storage-mode.ts";
 import { asStorageError } from "../types.ts";
@@ -89,7 +88,7 @@ export function DataTransfer() {
       setConfirmed(false);
       setShareFile(null);
       setDownloadUrl(null);
-      setMessage("Dados importados e guardados neste dispositivo.");
+      setMessage(storage.cloud ? "Dados importados. Consulte o estado de sincronização da conta." : "Dados importados e guardados neste dispositivo.");
       if (isMobileApp) void navigator.storage?.persist?.().catch(() => {});
     } catch (cause) {
       setError(asStorageError(cause).message);
@@ -106,7 +105,7 @@ export function DataTransfer() {
     setConfirmed(false);
     try {
       if (!user) throw new Error("Inicie sessão para abrir os dados do hotel.");
-      const data = await loadImportRecovery(user);
+      const data = await storage.loadRecovery();
       if (!data?.hotel)
         throw new Error(
           "Ainda não existe uma cópia anterior à importação neste dispositivo.",
@@ -127,7 +126,7 @@ export function DataTransfer() {
     >
       <p>
         {t(
-          "Leve o seu hotel consigo. Exporte uma cópia neste dispositivo e importe-a no computador ou no telemóvel.",
+          storage.cloud ? "O seu hotel é sincronizado com a sua conta. Exporte também cópias de segurança para um local privado." : "Leve o seu hotel consigo. Exporte uma cópia neste dispositivo e importe-a no computador ou no telemóvel.",
         )}
       </p>
       <div className="transfer-actions">
@@ -212,7 +211,7 @@ export function DataTransfer() {
           )}
           <p>
             {t(
-              "A importação substitui todos os dados deste dispositivo. Não junta alterações feitas nos dois dispositivos. A versão anterior fica disponível em «Recuperar dados anteriores».",
+              storage.cloud ? "A importação substitui o hotel desta conta em todos os dispositivos. Não junta alterações. A versão anterior fica disponível em Recuperar dados anteriores." : "A importação substitui todos os dados deste dispositivo. Não junta alterações feitas nos dois dispositivos. A versão anterior fica disponível em «Recuperar dados anteriores».",
             )}
           </p>
           {storage.data?.hotel && (
@@ -223,7 +222,7 @@ export function DataTransfer() {
                 disabled={busy}
                 onChange={(event) => setConfirmed(event.target.checked)}
               />{" "}
-              {t("Confirmo que quero substituir os dados deste dispositivo.")}
+              {t(storage.cloud ? "Confirmo que quero substituir os dados desta conta em todos os dispositivos." : "Confirmo que quero substituir os dados deste dispositivo.")}
             </label>
           )}
           <div className="transfer-actions">
@@ -269,7 +268,7 @@ export function DataTransfer() {
       )}
       <p className="transfer-note">
         {t(
-          "Os dispositivos funcionam de forma independente. Para levar alterações de volta, exporte uma nova cópia no dispositivo mais atualizado. Guarde estas cópias num local privado.",
+          storage.cloud ? "Entre com a mesma conta nos outros dispositivos e aguarde a indicação Sincronizado antes de mudar de dispositivo. Alterações sem ligação ficam pendentes neste dispositivo." : "Os dispositivos funcionam de forma independente. Para levar alterações de volta, exporte uma nova cópia no dispositivo mais atualizado. Guarde estas cópias num local privado.",
         )}
       </p>
     </section>

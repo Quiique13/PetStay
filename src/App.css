@@ -236,10 +236,12 @@
   font-size: calc(11px * var(--text-scale, 1));
 }
 .guest-avatar {
+  position: relative;
   display: inline-grid;
   place-items: center;
   width: 32px;
-  height: 32px;
+  aspect-ratio: 1;
+  overflow: hidden;
   border-radius: 50%;
   background: var(--warm-bg);
   color: var(--warm-text);
@@ -247,7 +249,6 @@
 }
 .guest-avatar-large {
   width: 88px;
-  height: 88px;
   margin-bottom: 12px;
 }
 
@@ -627,7 +628,10 @@ h2 {
 .dogscene {
   position: relative;
   width: 43%;
-  min-height: 244px;
+  max-width: 300px;
+  aspect-ratio: 1;
+  align-self: center;
+  flex-shrink: 0;
 }
 .dogscene > img {
   width: 100%;
@@ -786,7 +790,7 @@ h2 {
 }
 .guestcell img {
   width: 32px;
-  height: 32px;
+  aspect-ratio: 1;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -990,7 +994,7 @@ footer > span {
 }
 .guestcard > img {
   width: 88px;
-  height: 88px;
+  aspect-ratio: 1;
   object-fit: cover;
   border-radius: 50%;
   margin-bottom: 12px;
@@ -1484,6 +1488,8 @@ tr:last-child td {
 }
 
 .guest-avatar img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1491,7 +1497,7 @@ tr:last-child td {
 }
 .guest-photo-preview {
   width: 96px;
-  height: 96px;
+  aspect-ratio: 1;
   object-fit: cover;
   border-radius: 12px;
 }
@@ -1507,6 +1513,37 @@ tr:last-child td {
 }
 .dialog input[type="checkbox"] {
   width: auto;
+}
+.dialog .booking-surcharge-option {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--control-radius);
+  background: var(--surface-soft);
+  color: var(--text);
+  font-size: calc(12px * var(--text-scale, 1));
+  line-height: 1.5;
+  cursor: pointer;
+}
+.dialog .booking-surcharge-option:hover,
+.dialog .booking-surcharge-option:focus-within {
+  border-color: var(--accent-border);
+}
+.dialog .booking-surcharge-option:has(input:checked) {
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+}
+.dialog .booking-surcharge-option input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
 }
 .birthday-reminders {
   margin-bottom: 20px;
@@ -1551,4 +1588,52 @@ tr:last-child td {
 .dialog .booking-price-fields input[type="radio"] {
   width: auto;
   margin: 0;
+}
+.cloud-sync {
+  padding: 12px clamp(16px, 4vw, 48px);
+  background: var(--surface, #fff);
+  color: var(--text, #24312b);
+  border-bottom: 1px solid var(--line);
+  font-size: 0.875rem;
+}
+.cloud-sync-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.cloud-sync-status span {
+  flex: 1;
+  min-width: 220px;
+}
+.cloud-sync button {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.cloud-conflict {
+  max-width: 860px;
+  margin: 24px auto;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 24px;
+}
+.cloud-conflict h2 {
+  margin-top: 0;
+}
+.cloud-copies {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+.cloud-copies article {
+  border: 1px solid var(--line);
+  padding: 18px;
+  border-radius: 14px;
+}
+.cloud-copies button {
+  display: block;
+  margin-top: 12px;
+  width: 100%;
 }

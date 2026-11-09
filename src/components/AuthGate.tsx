@@ -213,7 +213,7 @@ function LoginScreen() {
         </div>
         <p className="auth-note">
           {t(
-            "Cada conta tem o seu hotel neste dispositivo. O início de sessão requer internet; os dados não são sincronizados entre dispositivos.",
+            "O seu hotel está associado à sua conta. Entre com a mesma conta para sincronizar os dados entre dispositivos. O primeiro acesso requer internet.",
           )}
         </p>
         <AppearanceMenu />

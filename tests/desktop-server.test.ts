@@ -31,6 +31,8 @@ test("desktop serves only packaged assets and preserves hotel records across res
   const page = await fetch(local.url);
   assert.equal(await page.text(), "<html>PetStay</html>");
   assert.match(page.headers.get("content-security-policy") ?? "", /script-src 'self'/);
+  assert.match(page.headers.get("content-security-policy") ?? "", /img-src 'self' data: blob:/);
+  assert.match(page.headers.get("content-security-policy") ?? "", /connect-src[^;]+https:\/\/firestore.googleapis.com/);
   assert.equal((await fetch(local.url, { method: "HEAD" })).status, 200);
   assert.equal((await fetch(local.url, { method: "POST" })).status, 405);
   for (const path of ["/data/hotel.json", "/data/hotel.json.bak", "/%2e%2e%2fprivate.txt", "/%5c..%5cprivate.txt", "/missing.js", "/%00"]) {
@@ -49,8 +51,18 @@ test("desktop serves only packaged assets and preserves hotel records across res
   assert.equal(save.status, 200);
   assert.equal(JSON.parse(await readFile(join(accountDataDirectory(data, "test-owner"), "hotel.json"), "utf8")).data.hotel.name, "Portable test");
   await stop();
-  local = await startDesktopServer(assets, data, verifyToken);
-  const reopened = await (await fetch(local.url + "/api/storage", { headers: authorization })).json();
+  const previousPort = Number(new URL(local.url).port);
+  local = await startDesktopServer(assets, data, verifyToken, previousPort);
+  assert.equal(Number(new URL(local.url).port), previousPort);
+  // Use a fresh socket: Undici's old keep-alive pool can still contain a closed
+  // connection to this exact port immediately after restarting the server.
+  const reopened = await new Promise<{ data: unknown; revision: number }>((done, reject) => {
+    const req = request(local.url + "/api/storage", { headers: authorization, agent: false }, response => {
+      let body = ""; response.setEncoding("utf8"); response.on("data", chunk => { body += chunk; });
+      response.on("end", () => { try { done(JSON.parse(body)); } catch (cause) { reject(cause); } });
+    });
+    req.on("error", reject); req.end();
+  });
   assert.deepEqual(reopened.data, hotel);
   assert.equal(reopened.revision, 1);
 });

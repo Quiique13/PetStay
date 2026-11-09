@@ -8,7 +8,7 @@ const { version } = JSON.parse(readFileSync(new URL("./package.json", import.met
 
 export default defineConfig(({ mode }) => {
   const android = mode === "android";
-  const mobile = mode === "mobile" || android;
+  const mobile = mode === "mobile" || mode === "mobile-test" || mode === "cloud-test" || android;
   return {
   base: android ? "./" : mobile ? (process.env.PETSTAY_MOBILE_BASE ?? "./") : "/",
   define: {

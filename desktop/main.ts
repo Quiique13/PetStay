@@ -1,6 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
 import type { IpcMainInvokeEvent } from "electron";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Server } from "node:http";
 import { startDesktopServer } from "../server/desktop-server.ts";
@@ -32,7 +32,21 @@ if (!app.requestSingleInstanceLock()) {
     window?.focus();
   });
   app.whenReady().then(async () => {
-    const local = await startDesktopServer(join(app.getAppPath(), "dist"), dataDirectory);
+    // IndexedDB and Firebase persistence belong to an origin, including its port.
+    // Reuse the port across launches so offline drafts and sign-in survive restarts.
+    const portFile = join(runtimeDirectory, "server-port");
+    let preferredPort = 0;
+    try {
+      const saved = Number(readFileSync(portFile, "utf8"));
+      if (Number.isInteger(saved) && saved >= 1024 && saved <= 65535) preferredPort = saved;
+    } catch {}
+    let local: Awaited<ReturnType<typeof startDesktopServer>>;
+    try { local = await startDesktopServer(join(app.getAppPath(), "dist"), dataDirectory, undefined, preferredPort); }
+    catch (cause) {
+      if ((cause as NodeJS.ErrnoException).code === "EADDRINUSE") throw new Error("A porta guardada do PetStay está ocupada. Feche as outras instâncias ou reinicie o computador para preservar o acesso à cópia offline.");
+      throw cause;
+    }
+    writeFileSync(portFile, new URL(local.url).port, "utf8");
     server = local.server;
     cancelSignIn = local.desktopAuth.cancel;
     window = new BrowserWindow({

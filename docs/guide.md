@@ -1,14 +1,20 @@
 # Guia do PetStay
 
-Aplicação de gestão para proprietários de hotéis para animais, em português de Portugal, desenvolvida com React, TypeScript e Vite. Cada instalação tem um perfil de hotel e guarda os dados no próprio dispositivo.
+Aplicação de gestão para proprietários de hotéis para animais, em português de Portugal, desenvolvida com React, TypeScript e Vite. Desde a versão 1.7.0, cada conta tem um hotel no Cloud Firestore, sincronizado entre dispositivos, com uma cópia local para trabalho sem ligação. Consulte a [configuração de sincronização](firestore-sync.md).
 
-Desde a versão 1.6, entre com Google ou email e palavra-passe. Cada conta tem o seu próprio hotel neste dispositivo, sem sincronização automática. Os dados anteriores ficam preservados; importe uma cópia para a conta pretendida. Consulte a [configuração do acesso e migração](firebase-auth.md).
+Entre com Google ou email e palavra-passe. A mesma conta abre o mesmo hotel nos dispositivos com a versão 1.7.0 ou posterior e regras Firestore publicadas. Dados anteriores associados à conta são migrados; se existirem duas cópias diferentes, escolha a que pretende manter. Consulte a [configuração do acesso e migração](firebase-auth.md).
 
 ## Funcionalidades
 
 - Um cliente pode ter vários cães: selecione um cliente existente ao adicionar um hóspede ou use «Adicionar cão a este cliente» na lista agrupada por tutor.
 - Idade e faixa etária calculadas pela data de nascimento completa; as reservas usam a idade em cada noite.
 - Fotografias nos hóspedes, preço total personalizado por reserva e suplemento opcional de 2 € por noite/dia para cães não castrados.
+
+As fotografias dos cães usam um enquadramento quadrado (1:1). Ao adicionar ou
+alterar uma fotografia de hóspede, arraste a imagem e ajuste o zoom no editor de
+recorte; escolha **Usar fotografia** para aplicar. Pode voltar a **Recortar
+fotografia** para ajustar uma imagem existente. **Cancelar** mantém a fotografia
+anterior.
 - Calendário mensal completo e época de Natal com datas e preços próprios.
 
 - Registo inicial do hotel com nome, nome do responsável e avatar opcional.
@@ -23,7 +29,7 @@ Desde a versão 1.6, entre com Google ou email e palavra-passe. Cada conta tem o
 - Aplicação móvel instalável no Android e iPhone, com funcionamento offline.
 - Exportação e importação de cópias entre o computador e o telemóvel, com pré-visualização e recuperação.
 
-No computador, o perfil e o avatar do hotel, hóspedes, tutores, reservas, pagamentos, preços e definições do simulador são guardados em **`data/accounts/<identificador-da-conta>/hotel.json`**, no disco deste dispositivo. A versão móvel guarda os mesmos dados em **IndexedDB**, numa base separada por conta, no navegador ou aplicação instalada no telemóvel. O modo de armazenamento é escolhido na compilação; uma falha no servidor do computador nunca cria um hotel vazio no navegador.
+O perfil e avatar do hotel, hóspedes e tutores, fotografias, reservas, pagamentos, preços e definições do simulador são guardados no **Cloud Firestore**, separados pelo UID da conta, e numa cópia local IndexedDB. Os ficheiros anteriores em `data/accounts/<identificador-da-conta>/hotel.json` e as bases móveis por conta são preservados para migração. A aparência e o idioma continuam a ser preferências do dispositivo.
 
 Na primeira abertura, registe o hotel e depois adicione os hóspedes e preços manualmente. Os preços em branco significam «por definir»; uma reserva só pode ser criada depois de definir os preços relevantes. O valor zero só é usado quando for introduzido explicitamente.
 
@@ -31,7 +37,7 @@ A pasta `/data/` está no `.gitignore`, incluindo cópias de segurança e fichei
 
 ## Windows — versão portátil
 
-Descarregue **PetStay-1.6.1-windows-x64-portable.exe** na [versão mais recente no GitHub](https://github.com/Quiique13/PetStay/releases/latest). Coloque o ficheiro numa pasta onde possa guardar dados e abra-o com um duplo clique. Não é necessário instalar a aplicação, Node.js ou npm. Esta versão destina-se ao Windows 10/11 de 64 bits (x64).
+Descarregue o executável portátil na [versão mais recente no GitHub](https://github.com/Quiique13/PetStay/releases/latest). Para sincronizar, é necessária a versão **1.7.0 ou posterior**; se ainda não estiver publicada, compile-a com `npm run build:portable`. Coloque o ficheiro numa pasta onde possa guardar dados e abra-o com um duplo clique. Não é necessário instalar a aplicação, Node.js ou npm para usar o executável. Esta versão destina-se ao Windows 10/11 de 64 bits (x64).
 
 Na versão 1.6.1, o botão **Continuar com Google** abre o navegador predefinido.
 Conclua o início de sessão nesse navegador e volte à aplicação. Pode cancelar o
@@ -41,13 +47,13 @@ O executável cria a pasta **`data/` ao seu lado**, com os registos do hotel e u
 
 O executável não tem assinatura digital; o Windows poderá apresentar um aviso do SmartScreen. Os ficheiros `SHA256SUMS.txt` da versão permitem verificar a integridade do download com `Get-FileHash` no PowerShell.
 
-Para usar os dados da versão de desenvolvimento, feche os dois servidores e copie a pasta `data/` existente para junto do executável. Preserve uma cópia de segurança antes de a mover ou substituir.
+Para usar o hotel da versão de desenvolvimento, aguarde **Sincronizado** e entre na mesma conta no executável atualizado. Preserve as pastas `data/` anteriores: contêm os dados de migração e a cópia offline.
 
 ### Windows — instalador
 
-Também pode descarregar **PetStay-1.6.0-windows-x64-setup.exe** na [versão 1.6.0 no GitHub](https://github.com/Quiique13/PetStay/releases/tag/v1.6.0). O assistente instala a aplicação para o utilizador atual e cria atalhos no ambiente de trabalho e no menu Iniciar.
+Também pode descarregar **PetStay-1.7.0-windows-x64-setup.exe** na [versão 1.7.0 no GitHub](https://github.com/Quiique13/PetStay/releases/tag/v1.7.0). O assistente instala a aplicação para o utilizador atual e cria atalhos no ambiente de trabalho e no menu Iniciar. Para compilar ambos os executáveis Windows, use `npm run build:windows`.
 
-A versão instalada guarda os registos em **%APPDATA%\PetStay\data**, separados da pasta da aplicação. Para transferir os dados da versão portátil, exporte uma cópia e importe-a na versão instalada. As atualizações e a desinstalação preservam os dados.
+A versão instalada guarda a cópia local em **%APPDATA%\PetStay\data**, separada da pasta da aplicação. Entre na mesma conta da versão portátil para usar o hotel sincronizado. As atualizações e a desinstalação preservam os dados.
 
 Os executáveis portáteis, instaladores e respetivos checksums são distribuídos apenas através de GitHub Releases. O código de empacotamento Windows encontra-se em `desktop/` e `scripts/`; os ficheiros gerados ficam em `release/`, fora dos commits.
 
@@ -57,7 +63,7 @@ Abra [PetStay Mobile](https://quiique13.github.io/PetStay/) no telemóvel. No An
 
 Depois de o aviso indicar que está pronta para uso sem ligação, a aplicação abre e permite gerir o hotel offline. Os tipos de letra e a imagem decorativa também estão incluídos na aplicação. As atualizações apresentam um botão e só são aplicadas depois de guardar as alterações.
 
-Os registos do hotel ficam neste dispositivo; o Firebase trata apenas do acesso à conta. Limpar os dados do navegador, remover a aplicação ou usar navegação privada pode eliminar os registos. Guarde cópias externas regularmente; a cópia de recuperação interna não substitui uma exportação.
+Os registos sincronizados ficam na conta Firebase. Alterações sem ligação ficam pendentes neste dispositivo: aguarde **Sincronizado** antes de mudar de dispositivo. Limpar os dados do navegador ou remover a aplicação pode eliminar alterações ainda não sincronizadas. Guarde cópias externas regularmente.
 
 ### Transferir dados entre computador e telemóvel
 
@@ -69,9 +75,9 @@ Os registos do hotel ficam neste dispositivo; o Firebase trata apenas do acesso 
 
 A cópia inclui todos os campos: perfil, avatar, hóspedes e tutores, reservas, estado dos pagamentos, preços, períodos de época alta, capacidade e ocupação. As seleções de meses das versões anteriores são convertidas automaticamente em períodos com os mesmos dias. O ficheiro **`data/hotel.json` da versão 1.0** também pode ser importado diretamente; para exportar através da interface no computador, atualize o executável para a versão 1.1 ou posterior mantendo a pasta `data/`.
 
-A importação **substitui o hotel completo** e não junta alterações dos dois dispositivos. Para levar as alterações de volta, exporte uma nova cópia no dispositivo mais atualizado e importe-a no outro. Não existe sincronização automática.
+A importação **substitui o hotel completo da conta em todos os dispositivos** e não junta alterações. Para usar o mesmo hotel noutro dispositivo com a versão 1.7.0 ou posterior, basta entrar na mesma conta; não é necessário importar uma cópia.
 
-Antes de substituir dados existentes, é preservada uma cópia que pode voltar a abrir em **Recuperar dados anteriores**. No computador fica em `data/before-import.json`; no telemóvel fica no armazenamento interno da aplicação. Gravações posteriores não apagam esta cópia; uma nova importação substitui-a pela versão imediatamente anterior. Ficheiros inválidos, incompatíveis ou acima de 10 MB são recusados antes de alterar os dados.
+Antes de substituir dados existentes, é preservada uma cópia que pode voltar a abrir em **Recuperar dados anteriores**. Desde a versão 1.7.0, existe uma cópia local por conta e, após sincronizar a importação, uma cópia de recuperação no Firestore. Gravações posteriores não apagam esta cópia; uma nova importação substitui-a pela versão imediatamente anterior. Ficheiros inválidos, incompatíveis ou acima de 10 MB são recusados antes de alterar os dados.
 
 ### Compilar e verificar a aplicação móvel
 
@@ -107,7 +113,7 @@ Abra o endereço apresentado pelo Vite no terminal. O servidor local precisa de 
 
 Se existir um ficheiro antigo `data/momo.json`, a aplicação apresenta o registo do hotel. Ao concluir o registo, o novo hotel começa limpo em `data/hotel.json`. O ficheiro antigo é preservado para consulta e recuperação. Se os dados sem perfil já estiverem no novo ficheiro, é criada uma cópia permanente `data/before-hotel-setup-*.json` antes de começar o hotel.
 
-Os dados antigos do navegador não são importados automaticamente. Um hotel já registado mantém o perfil e os seus registos nas aberturas seguintes. Os navegadores neste dispositivo partilham o mesmo hotel local; não são criadas contas online ou sincronização entre dispositivos.
+Os dados antigos sem conta não são importados automaticamente. Os dados associados ao UID são migrados na primeira ligação ao Firestore. Um hotel já sincronizado mantém o perfil e os seus registos ao entrar com a mesma conta noutro dispositivo atualizado.
 
 ## Compilar
 

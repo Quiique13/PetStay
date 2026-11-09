@@ -72,7 +72,7 @@ export function SettingsPage({ onPricing }: { onPricing: () => void }) {
         />
         {saved && (
           <p className="settings-saved" role="status">
-            <Check size={16} /> {t("Perfil guardado neste dispositivo.")}
+            <Check size={16} /> {t(storage.cloud ? "Perfil guardado. Consulte o estado de sincronização da conta." : "Perfil guardado neste dispositivo.")}
           </p>
         )}
       </section>

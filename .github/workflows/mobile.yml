@@ -26,6 +26,11 @@ jobs:
       - run: npm test
       - run: npx playwright install --with-deps chromium webkit
       - run: npm run test:mobile
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm run test:cloud
       - name: Build for GitHub Pages
         run: npm run build:mobile
         env:

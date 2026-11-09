@@ -1,11 +1,12 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Camera, PawPrint, Upload } from "lucide-react";
 import type { Guest } from "../types.ts";
 import { useLanguage } from "../context/LanguageContext.tsx";
 import { ClientPicker } from "./ClientPicker.tsx";
 import { GuestAgeFields } from "./GuestAgeFields.tsx";
-import { readPhoto } from "../utils/photo.ts";
+import { validatePhoto } from "../utils/photo.ts";
 import { MemorialCross } from "./MemorialCross.tsx";
+import { PhotoCropper } from "./PhotoCropper.tsx";
 import "./GuestProfileFields.css";
 
 export function GuestProfileFields({
@@ -30,6 +31,22 @@ export function GuestProfileFields({
   const { t } = useLanguage();
   const photoId = useId();
   const [deceased, setDeceased] = useState(guest?.deceased ?? false);
+  const [cropImage, setCropImage] = useState<HTMLImageElement | null>(null);
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
+  useEffect(() => () => {
+    if (cropImage?.src.startsWith("blob:")) URL.revokeObjectURL(cropImage.src);
+  }, [cropImage]);
+  async function openCrop(source: string) {
+    const image = new Image();
+    image.src = source;
+    await image.decode();
+    if (mounted.current) setCropImage(image);
+    else if (source.startsWith("blob:")) URL.revokeObjectURL(source);
+  }
   return (
     <>
       <section
@@ -69,9 +86,13 @@ export function GuestProfileFields({
               if (!file) return;
               onReading(true);
               onError("");
+              let source = "";
               try {
-                onPhoto(await readPhoto(file));
+                validatePhoto(file);
+                source = URL.createObjectURL(file);
+                await openCrop(source);
               } catch (error) {
+                if (source) URL.revokeObjectURL(source);
                 onError(
                   error instanceof Error
                     ? error.message
@@ -83,14 +104,21 @@ export function GuestProfileFields({
             }}
           />
           {photo && (
-            <button
-              className="textbutton"
-              type="button"
-              disabled={reading}
-              onClick={() => onPhoto("")}
-            >
-              {t("Remover imagem")}
-            </button>
+            <div className="dog-photo-actions">
+              <button className="textbutton" type="button" disabled={reading} onClick={() => {
+                onReading(true);
+                onError("");
+                void openCrop(photo).catch(() => onError("Não foi possível abrir a imagem.")).finally(() => onReading(false));
+              }}>{t("Recortar fotografia")}</button>
+              <button
+                className="textbutton"
+                type="button"
+                disabled={reading}
+                onClick={() => onPhoto("")}
+              >
+                {t("Remover imagem")}
+              </button>
+            </div>
           )}
           <small>
             {reading
@@ -163,6 +191,10 @@ export function GuestProfileFields({
           )}
         </p>
       </fieldset>
+      {cropImage && <PhotoCropper image={cropImage} onCancel={() => setCropImage(null)} onUse={next => {
+        onPhoto(next);
+        setCropImage(null);
+      }} />}
     </>
   );
 }

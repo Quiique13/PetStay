@@ -13,7 +13,7 @@ const contentTypes: Record<string, string> = {
   ".woff": "font/woff", ".woff2": "font/woff2",
 };
 
-export async function startDesktopServer(assetsDirectory: string, dataDirectory: string, verifyToken: VerifyToken = createFirebaseTokenVerifier(process.env.VITE_FIREBASE_PROJECT_ID || undefined)) {
+export async function startDesktopServer(assetsDirectory: string, dataDirectory: string, verifyToken: VerifyToken = createFirebaseTokenVerifier(process.env.VITE_FIREBASE_PROJECT_ID || undefined), preferredPort = 0) {
   const root = resolve(assetsDirectory);
   const storage = createAccountStorageMiddleware(dataDirectory, verifyToken);
   const desktopAuth = createDesktopAuthBridge();
@@ -45,7 +45,7 @@ export async function startDesktopServer(assetsDirectory: string, dataDirectory:
             "Content-Type": contentTypes[extname(file)] ?? "application/octet-stream",
             "X-Content-Type-Options": "nosniff",
             "Cache-Control": "no-store",
-            "Content-Security-Policy": "default-src 'self'; script-src 'self' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; frame-src https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+            "Content-Security-Policy": "default-src 'self'; script-src 'self' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://firestore.googleapis.com; frame-src https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
           });
           response.end(request.method === "HEAD" ? undefined : contents);
         } catch { response.writeHead(404).end(); }
@@ -56,7 +56,7 @@ export async function startDesktopServer(assetsDirectory: string, dataDirectory:
   server.on("close", desktopAuth.cancel);
   await new Promise<void>((done, reject) => {
     server.once("error", reject);
-    server.listen(0, "127.0.0.1", () => { server.removeListener("error", reject); done(); });
+    server.listen(preferredPort, "127.0.0.1", () => { server.removeListener("error", reject); done(); });
   });
   const address = server.address();
   if (!address || typeof address === "string") throw new Error("Servidor local indisponível.");

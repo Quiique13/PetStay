@@ -19,8 +19,8 @@ older portable executable, close it and put the new executable beside the same
 `data/` folder. Do not delete or move that data folder when updating.
 
 PetStay includes Google sign-in, email/password sign-in and registration, password
-reset, persistent sessions and sign-out. Every Firebase UID has its own hotel on
-each device. Google and email sign-in resolve to the same hotel only when Firebase
+reset, persistent sessions and sign-out. Every Firebase UID has its own hotel in
+Cloud Firestore from version 1.7.0. Google and email sign-in resolve to the same hotel only when Firebase
 resolves them to the same UID.
 
 ## Enable the providers
@@ -53,6 +53,10 @@ Never put service-account keys or private credentials in `VITE_` variables.
 
 ## Account storage and existing data
 
+From **1.7.0**, follow [Firestore synchronization setup](firestore-sync.md). The
+following device stores are preserved as migration sources; they are not the
+primary store for new edits.
+
 - Browser/PWA: each UID has a separate IndexedDB database. A signed-in session and
   cached application can reopen and save offline on that device. New sign-ins,
   registration and password reset need internet.
@@ -70,8 +74,8 @@ Never put service-account keys or private credentials in `VITE_` variables.
   database, use the prior version on that same origin before upgrading, then import
   its backup into the intended account.
 
-Authentication does not add cloud synchronization. The same account starts with
-an empty hotel on another device until a backup is imported. Browser databases
+Before 1.7.0, authentication alone did not synchronize hotel data. Update all
+devices and publish the Firestore rules to enable account synchronization. Browser databases
 and desktop files remain accessible to someone with access to that browser profile
 or operating-system account; they are not encrypted per user.
 

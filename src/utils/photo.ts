@@ -1,9 +1,13 @@
-export async function readPhoto(file: File): Promise<string> {
+export function validatePhoto(file: File): void {
   if (
     !["image/png", "image/jpeg", "image/webp"].includes(file.type) ||
     file.size > 20 * 1024 * 1024
   )
     throw new Error("Escolha uma imagem PNG, JPG ou WebP com até 20 MB.");
+}
+
+export async function readPhoto(file: File): Promise<string> {
+  validatePhoto(file);
   const url = URL.createObjectURL(file);
   try {
     const image = new Image();

@@ -38,7 +38,7 @@ export function Onboarding() {
               <Check size={18} /> {t("Os seus preços, definidos por si")}
             </li>
             <li>
-              <Check size={18} /> {t("Dados guardados neste dispositivo")}
+              <Check size={18} /> {t(storage.cloud ? "Dados sincronizados com a sua conta" : "Dados guardados neste dispositivo")}
             </li>
           </ul>
         </div>

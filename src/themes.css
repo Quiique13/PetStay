@@ -929,7 +929,7 @@ select:focus-visible {
     padding: 20px 28px;
   }
   :root[data-color-scheme="slate"] .dogscene {
-    max-height: 180px;
+    max-width: 180px;
   }
 
   :root[data-color-scheme="citrus"] .app > aside {

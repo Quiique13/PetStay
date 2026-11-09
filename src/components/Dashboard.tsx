@@ -156,6 +156,7 @@ export default function Dashboard() {
       ?.querySelector<HTMLElement>("button, input, select, a[href]")
       ?.focus();
     function keyboard(event: KeyboardEvent) {
+      if (event.defaultPrevented || dialog?.inert) return;
       if (event.key === "Escape") S(null);
       if (event.key !== "Tab" || !dialog) return;
       const elements = Array.from(
@@ -313,7 +314,7 @@ export default function Dashboard() {
         </header>
         <section className="content">
           {isMobileApp && !isNativeApp && <InstallMobile />}
-          <div
+          {!storage.cloud && <div
             className={`storage-status ${storage.error ? "storage-error" : ""}`}
           >
             <span role={storage.error ? "alert" : "status"}>
@@ -333,7 +334,7 @@ export default function Dashboard() {
                   {t("Tentar guardar novamente")}
                 </button>
               ))}
-          </div>
+          </div>}
           <div className="heading">
             <div>
               <div className="eyebrow">
@@ -1310,13 +1311,13 @@ export default function Dashboard() {
                       initialRate={savedBooking?.customRate}
                       initialDiscount={savedBooking?.discountPercent}
                     />
-                    <label>
+                    <label className="booking-surcharge-option">
                       <input
                         type="checkbox"
                         name="intactSurcharge"
                         defaultChecked={savedBooking?.intactSurcharge}
-                      />{" "}
-                      {t("Aplicar +2 € por noite/dia se não for castrado")}
+                      />
+                      <span>{t("Aplicar +2 € por noite/dia se não for castrado")}</span>
                     </label>
                     <p className="hint">
                       {t(
@@ -1353,7 +1354,7 @@ export default function Dashboard() {
             ) : (
               <p>
                 {modal === "help"
-                  ? `${t("Adicione os hóspedes, defina os preços por época e crie uma reserva. Acompanhe os saldos em Pagamentos e explore a receita potencial no simulador.")} ${t(isMobileApp ? "Os dados ficam guardados neste navegador, no telemóvel. Exporte cópias regularmente em Dados e cópias." : "Os dados ficam guardados num ficheiro neste dispositivo. Use Dados e cópias para transferir o hotel para o telemóvel.")}`
+                  ? `${t("Adicione os hóspedes, defina os preços por época e crie uma reserva. Acompanhe os saldos em Pagamentos e explore a receita potencial no simulador.")} ${t(storage.cloud ? "O seu hotel é sincronizado com a sua conta. Exporte também cópias de segurança para um local privado." : isMobileApp ? "Os dados ficam guardados neste navegador, no telemóvel. Exporte cópias regularmente em Dados e cópias." : "Os dados ficam guardados num ficheiro neste dispositivo. Use Dados e cópias para transferir o hotel para o telemóvel.")}`
                   : t(
                       bookings.filter((b) => !b.paid).length === 1
                         ? "{count} reserva tem pagamentos pendentes. Aceda a Pagamentos para registar um pagamento."

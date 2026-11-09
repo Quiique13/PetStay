@@ -7,11 +7,13 @@ import { Brand } from "./components/Brand.tsx";
 import { Onboarding } from "./components/Onboarding.tsx";
 import Dashboard from "./components/Dashboard.tsx";
 import { AccountBar } from "./components/AccountBar.tsx";
+import { CloudSyncBanner } from "./components/CloudSyncBanner.tsx";
 
 export default function App() {
   return (
     <>
       <AccountBar />
+      <CloudSyncBanner />
       <HotelApp />
     </>
   );
@@ -25,6 +27,7 @@ function HotelApp() {
       ? `${storage.data.hotel.name} | PetStay`
       : t("PetStay — gestão de hotéis para animais");
   }, [storage.data?.hotel?.name, t]);
+  if (storage.conflict) return null;
   if (!storage.data) {
     return (
       <main className="storage-screen">
@@ -32,7 +35,11 @@ function HotelApp() {
         <h1>
           {storage.error
             ? t("Não foi possível abrir os dados")
-            : t("A abrir os dados do dispositivo…")}
+            : t(
+                storage.cloud
+                  ? "A abrir os dados da conta…"
+                  : "A abrir os dados do dispositivo…",
+              )}
         </h1>
         <p role={storage.error ? "alert" : "status"}>
           {t(

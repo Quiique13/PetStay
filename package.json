@@ -1,6 +1,6 @@
 {
   "name": "petstay",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "type": "module",
   "description": "PetStay — gestão de hotéis para animais",
   "author": "Quiique13",
@@ -8,6 +8,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "npm run typecheck && vite build",
     "build:portable": "npm run build && node scripts/build-desktop.mjs",
+    "build:windows": "npm run build && node scripts/build-desktop.mjs --installer",
     "dev:mobile": "vite --mode mobile --host 127.0.0.1",
     "build:mobile": "npm run typecheck && vite build --mode mobile",
     "build:android": "npm run typecheck && vite build --mode android",
@@ -17,10 +18,11 @@
     "android:fingerprints": "node scripts/android-gradle.mjs signingReport",
     "android:run": "npm run android:sync && node scripts/android-gradle.mjs run",
     "preview:mobile": "vite preview --mode mobile --host 127.0.0.1 --port 4174",
-    "test:mobile": "npm run build:mobile && npm run build && playwright test",
+    "test:mobile": "npm run typecheck && vite build --mode mobile-test && vite build --mode desktop-test && playwright test",
     "typecheck": "tsc --noEmit",
     "start": "vite preview --host 127.0.0.1",
     "test": "tsx --test tests/*.test.ts",
+    "test:cloud": "node scripts/test-cloud.mjs",
     "test:desktop": "node scripts/test-desktop.mjs",
     "test:portable": "node scripts/test-portable.mjs"
   },
@@ -42,6 +44,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^8.6.0",
+    "@firebase/rules-unit-testing": "^5.0.2",
     "@playwright/test": "^1.64.1",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
@@ -50,6 +53,7 @@
     "electron-builder": "^26.18.0",
     "esbuild": "^0.28.2",
     "fake-indexeddb": "^6.2.7",
+    "firebase-tools": "^15.35.0",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vite-plugin-pwa": "^2.0.0"

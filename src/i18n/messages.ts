@@ -2,10 +2,14 @@
 // Portuguese source messages are also the translation keys.
 import { authMessages } from "./auth-messages.ts";
 import { appearanceMessages } from "./appearance-messages.ts";
+import { photoMessages } from "./photo-messages.ts";
+import { cloudMessages } from "./cloud-messages.ts";
 
 export const messages = {
   ...authMessages,
   ...appearanceMessages,
+  ...photoMessages,
+  ...cloudMessages,
   Lavanda: ["Lavender", "Lavande", "Lavanda"],
   Âmbar: ["Amber", "Ambre", "Ámbar"],
   Ardósia: ["Slate", "Ardoise", "Pizarra"],

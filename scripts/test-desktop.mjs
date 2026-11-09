@@ -28,6 +28,8 @@ try {
   const page = await application.firstWindow();
   const context = application.context();
   await mockFirebase(context);
+  // This smoke test checks OAuth, without contacting the live database.
+  await context.route("https://firestore.googleapis.com/**", route => route.abort());
   await context.route("**/api/storage", route => route.fulfill({ json: {
     data: defaultData(), revision: 0, initialized: false,
   } }));
@@ -74,7 +76,7 @@ try {
     body: JSON.stringify({ idToken: "fixture-google-token" }),
   });
   assert.equal(callback.status, 204);
-  await expect(page.getByLabel("Nome do hotel", { exact: true })).toBeVisible();
+  await expect(page.locator(".account-bar")).toContainText(testEmail);
   assert.equal(exchanges, 1);
   await page.getByRole("button", { name: "Terminar sessão", exact: true }).click();
   await page.getByRole("button", { name: "Continuar com Google" }).click();

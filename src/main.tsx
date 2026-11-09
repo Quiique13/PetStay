@@ -16,13 +16,17 @@ if (!root) throw new Error("The app root element is missing.");
 createRoot(root).render(
   <LanguageProvider>
     <AppearanceProvider>
-      {new URLSearchParams(location.search).get("desktop-sign-in") === "1" ? <DesktopBrowserSignIn /> : <AuthProvider>
-        <AuthGate>
-          <HotelProvider>
-            <App />
-          </HotelProvider>
-        </AuthGate>
-      </AuthProvider>}
+      {new URLSearchParams(location.search).get("desktop-sign-in") === "1" ? (
+        <DesktopBrowserSignIn />
+      ) : (
+        <AuthProvider>
+          <AuthGate>
+            <HotelProvider>
+              <App />
+            </HotelProvider>
+          </AuthGate>
+        </AuthProvider>
+      )}
     </AppearanceProvider>
   </LanguageProvider>,
 );

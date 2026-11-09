@@ -100,9 +100,11 @@ try {
   const screenshot = await send("Page.captureScreenshot", { format: "png" });
   await writeFile(resolve("release/portable-smoke.png"), Buffer.from(screenshot.data, "base64"));
   await close();
+  const firstOriginPort = await readFile(join(temporary, "data", ".runtime", "server-port"), "utf8");
   await launch();
   await until(() => evaluate("!!document.querySelector('#auth-email')"), "Sign-in did not render after restarting");
   assert.equal(await readFile(join(temporary, "data", "hotel.json"), "utf8"), legacy);
+  assert.equal(await readFile(join(temporary, "data", ".runtime", "server-port"), "utf8"), firstOriginPort, "Origin must remain stable for account caches across restarts");
   assert.deepEqual(errors, [], "Renderer exceptions");
   await close();
   console.log("PASS: portable executable opens v" + version + ", protects storage, exposes the system-browser sign-in bridge, blocks embedded OAuth popups, validates registration, restarts, and preserves legacy data.");

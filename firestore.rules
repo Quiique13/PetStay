@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owner(uid) { return request.auth != null && request.auth.uid == uid; }
+    function pointer(value) {
+      return value == null || (value is map
+        && value.keys().hasOnly(['id', 'count'])
+        && value.id is string && value.id.matches('^[A-Za-z0-9_-]{1,80}$')
+        && value.count is int && value.count > 0 && value.count <= 128);
+    }
+    match /owners/{uid}/state/current {
+      allow read: if owner(uid);
+      function validHead() {
+        return request.resource.data.keys().hasOnly(['schemaVersion', 'revision', 'snapshot', 'previous', 'recovery', 'updatedAt'])
+        && request.resource.data.schemaVersion == 1
+        && request.resource.data.revision is int
+        && request.resource.data.snapshot != null && pointer(request.resource.data.snapshot)
+        && pointer(request.resource.data.previous) && pointer(request.resource.data.recovery)
+        && request.resource.data.updatedAt == request.time;
+      }
+      allow create: if owner(uid) && validHead() && request.resource.data.revision == 1;
+      allow update: if owner(uid) && validHead() && request.resource.data.revision == resource.data.revision + 1;
+    }
+    match /owners/{uid}/snapshots/{snapshot}/chunks/{chunk} {
+      allow read, delete: if owner(uid);
+      allow create: if owner(uid)
+        && request.resource.data.keys().hasOnly(['json'])
+        && request.resource.data.json is string && request.resource.data.json.size() <= 750000;
+      allow update: if owner(uid) && request.resource.data == resource.data;
+    }
+  }
+}
