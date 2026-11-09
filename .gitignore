@@ -2,6 +2,8 @@ node_modules/
 .npm-cache/
 dist/
 dist-mobile/
+dist-android/
+.android-tools/
 playwright-report/
 test-results/
 dist-desktop/

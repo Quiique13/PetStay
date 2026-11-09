@@ -7,6 +7,7 @@ import { AppearanceProvider } from "./context/AppearanceContext.tsx";
 import { LanguageProvider } from "./context/LanguageContext.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import { AuthGate } from "./components/AuthGate.tsx";
+import { DesktopBrowserSignIn } from "./components/DesktopBrowserSignIn.tsx";
 import "./themes.css";
 
 const root = document.getElementById("root");
@@ -15,13 +16,13 @@ if (!root) throw new Error("The app root element is missing.");
 createRoot(root).render(
   <LanguageProvider>
     <AppearanceProvider>
-      <AuthProvider>
+      {new URLSearchParams(location.search).get("desktop-sign-in") === "1" ? <DesktopBrowserSignIn /> : <AuthProvider>
         <AuthGate>
           <HotelProvider>
             <App />
           </HotelProvider>
         </AuthGate>
-      </AuthProvider>
+      </AuthProvider>}
     </AppearanceProvider>
   </LanguageProvider>,
 );

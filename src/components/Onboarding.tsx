@@ -6,7 +6,7 @@ import { Brand } from "./Brand.tsx";
 import { HotelProfileForm } from "./HotelProfileForm.tsx";
 import { DataTransfer } from "./DataTransfer.tsx";
 import { InstallMobile } from "./InstallMobile.tsx";
-import { isMobileApp } from "../services/storage-mode.ts";
+import { isMobileApp, isNativeApp } from "../services/storage-mode.ts";
 import { LanguageSelector } from "./LanguageSelector.tsx";
 import { AppearanceMenu } from "./ThemePicker.tsx";
 
@@ -68,7 +68,7 @@ export function Onboarding() {
           <summary>{t("Já tem um hotel? Importar cópia")}</summary>
           <DataTransfer />
         </details>
-        {isMobileApp && <InstallMobile />}
+        {isMobileApp && !isNativeApp && <InstallMobile />}
         <AppearanceMenu />
       </section>
     </main>

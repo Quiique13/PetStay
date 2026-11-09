@@ -170,7 +170,9 @@ test("desktop → mobile → desktop keeps hotel records and confirms replacemen
   }
 });
 
-test("mobile installs an offline shell, saves offline, and fits small screens", async ({
+const offlineTest = test.extend({ serviceWorkers: "allow" });
+
+offlineTest("mobile installs an offline shell, saves offline, and fits small screens", async ({
   page,
   context,
 }, testInfo) => {

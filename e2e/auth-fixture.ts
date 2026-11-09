@@ -62,6 +62,9 @@ export async function seedSignedInAccount(context: BrowserContext) {
 }
 
 export const test = base.extend({
+  // WebKit cannot route Firebase requests once a service worker controls a page.
+  // Keep fake credentials inside the mocked context; the offline test opts in.
+  serviceWorkers: "block",
   context: async ({ context }, use) => {
     await seedSignedInAccount(context);
     await use(context);

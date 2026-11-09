@@ -1,5 +1,31 @@
 // English, French, Spanish; Portuguese is the source language.
 export const authMessages = {
+  "Conclua o início de sessão no navegador que abriu.": [
+    "Finish signing in in the browser that opened.",
+    "Terminez la connexion dans le navigateur qui s’est ouvert.",
+    "Completa el inicio de sesión en el navegador que se ha abierto.",
+  ],
+  "Iniciar sessão no PetStay": ["Sign in to PetStay", "Se connecter à PetStay", "Iniciar sesión en PetStay"],
+  "Sessão enviada à aplicação. Pode fechar este separador e voltar ao PetStay.": [
+    "Sign-in sent to the app. You can close this tab and return to PetStay.",
+    "Connexion transmise à l’application. Vous pouvez fermer cet onglet et revenir à PetStay.",
+    "Inicio de sesión enviado a la aplicación. Puedes cerrar esta pestaña y volver a PetStay.",
+  ],
+  "Continue com Google neste navegador para entrar na aplicação PetStay.": [
+    "Continue with Google in this browser to sign in to the PetStay app.",
+    "Continuez avec Google dans ce navigateur pour vous connecter à l’application PetStay.",
+    "Continúa con Google en este navegador para entrar en la aplicación PetStay.",
+  ],
+  "Este pedido expirou. Volte ao PetStay e tente novamente.": [
+    "This request expired. Return to PetStay and try again.",
+    "Cette demande a expiré. Revenez à PetStay et réessayez.",
+    "Esta solicitud ha caducado. Vuelve a PetStay e inténtalo de nuevo.",
+  ],
+  "Os dados do hotel continuam guardados na pasta da aplicação.": [
+    "Your hotel data stays in the app’s folder.",
+    "Les données de votre hôtel restent dans le dossier de l’application.",
+    "Los datos de tu hotel permanecen en la carpeta de la aplicación.",
+  ],
   "Acesso ao PetStay": [
     "Sign in to PetStay",
     "Connexion à PetStay",

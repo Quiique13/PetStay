@@ -28,13 +28,13 @@ test("settings save the hotel profile and device appearance", async ({
   });
   await page.getByLabel("Nome do hotel", { exact: true }).fill(" ");
   await save.click();
-  await expect(page.getByRole("alert")).toContainText("Preencha");
+  await expect(page.locator(".hotel-profile-form").getByRole("alert")).toContainText("Preencha");
   await page
     .getByLabel("Nome do hotel", { exact: true })
     .fill("Hotel do Oceano");
   await page.getByLabel("O seu nome", { exact: true }).fill(" ");
   await save.click();
-  await expect(page.getByRole("alert")).toContainText("Preencha");
+  await expect(page.locator(".hotel-profile-form").getByRole("alert")).toContainText("Preencha");
   await page.getByLabel("O seu nome", { exact: true }).fill("Joana Costa");
   await save.click();
   await expect(

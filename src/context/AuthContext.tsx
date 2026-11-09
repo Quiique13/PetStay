@@ -1,18 +1,16 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import {
-  browserPopupRedirectResolver,
   createUserWithEmailAndPassword,
-  GoogleAuthProvider,
   onAuthStateChanged,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
-  signInWithPopup,
   signOut,
 } from "firebase/auth";
 import type { Auth, User } from "firebase/auth";
 import { createFirebaseAuth } from "../services/firebase.ts";
 import { authErrorMessage } from "../services/auth-errors.ts";
+import { loginWithGoogle } from "../services/google-sign-in.ts";
 import { useLanguage } from "./LanguageContext.tsx";
 
 const AuthContext = createContext<{
@@ -75,17 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           signInWithEmailAndPassword(client(), email.trim(), password),
         register: (email, password) =>
           createUserWithEmailAndPassword(client(), email.trim(), password),
-        loginWithGoogle: () => {
-          const provider = new GoogleAuthProvider();
-          provider.setCustomParameters({ prompt: "select_account" });
-          // Pass the resolver explicitly so creating Auth does not load an OAuth iframe
-          // on every launch (including offline launches).
-          return signInWithPopup(
-            client(),
-            provider,
-            browserPopupRedirectResolver,
-          );
-        },
+        loginWithGoogle: () => loginWithGoogle(client()),
         resetPassword: (email) =>
           sendPasswordResetEmail(client(), email.trim()),
         logout: () => signOut(client()),

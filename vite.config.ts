@@ -7,16 +7,19 @@ import { readFileSync } from "node:fs";
 const { version } = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")) as { version: string };
 
 export default defineConfig(({ mode }) => {
-  const mobile = mode === "mobile";
+  const android = mode === "android";
+  const mobile = mode === "mobile" || android;
   return {
-  base: mobile ? (process.env.PETSTAY_MOBILE_BASE ?? "./") : "/",
+  base: android ? "./" : mobile ? (process.env.PETSTAY_MOBILE_BASE ?? "./") : "/",
   define: {
     "import.meta.env.VITE_STORAGE_MODE": JSON.stringify(mobile ? "mobile" : "desktop"),
     "import.meta.env.VITE_APP_VERSION": JSON.stringify(version),
   },
-  build: { outDir: mobile ? "dist-mobile" : "dist" },
+  build: { outDir: android ? "dist-android" : mobile ? "dist-mobile" : "dist" },
+  // Scan the application entry only, not generated Android/release HTML files.
+  optimizeDeps: { entries: ["index.html"] },
   plugins: [tailwind(), ...(!mobile ? [localStoragePlugin()] : []), VitePWA({
-    disable: !mobile,
+    disable: !mobile || android,
     registerType: "prompt",
     injectRegister: false,
     includeAssets: ["icons/*.png", "icons/*.svg"],
@@ -40,6 +43,7 @@ export default defineConfig(({ mode }) => {
   })],
   server: {
     host: "127.0.0.1",
+    watch: { ignored: ["**/android/**", "**/dist*/**", "**/release/**", "**/.android-tools/**"] },
     fs: { deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "**/data/**"] },
   },
   preview: { host: "127.0.0.1" },

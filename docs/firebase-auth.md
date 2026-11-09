@@ -1,5 +1,23 @@
 # Firebase Authentication
 
+For the native Android build (`com.app.petstay`), see [Android setup](android.md).
+
+The Windows portable build from 1.6.1 uses the default system browser for Google
+sign-in. Click **Continuar com Google** in PetStay, finish sign-in in the browser
+tab that opens, then return to the app. A single-use local callback transfers
+the Google credential to PetStay; tokens are not placed in URLs or written to
+the hotel files. The browser helper uses an in-memory Firebase session and does
+not open hotel records. **Cancelar** in PetStay cancels the pending request.
+Google rejects the embedded sign-in popup used by the older portable build.
+Email/password sign-in remains available directly in the app.
+
+For the portable build, authorize `127.0.0.1` using the steps below. Build a new
+portable executable with `npm.cmd run build:portable`; test the packaged app
+with `npm.cmd run test:desktop` and the actual portable executable with
+`npm.cmd run test:portable`. Outputs are in `release/v<version>/`. To replace an
+older portable executable, close it and put the new executable beside the same
+`data/` folder. Do not delete or move that data folder when updating.
+
 PetStay includes Google sign-in, email/password sign-in and registration, password
 reset, persistent sessions and sign-out. Every Firebase UID has its own hotel on
 each device. Google and email sign-in resolve to the same hotel only when Firebase

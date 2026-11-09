@@ -11,10 +11,14 @@ Use no computador ou telemóvel, diretamente no navegador. Também pode instalar
 | Como pretende usar? | Acesso direto |
 | --- | --- |
 | No navegador, Android ou iPhone | **[Abrir a aplicação web](https://quiique13.github.io/PetStay/)** |
-| No Windows, sem instalação | **[Descarregar o executável portátil](https://github.com/Quiique13/PetStay/releases/download/v1.6.0/PetStay-1.6.0-windows-x64-portable.exe)** |
+| No Windows, sem instalação | **[Descarregar o executável portátil](https://github.com/Quiique13/PetStay/releases/download/v1.6.1/PetStay-1.6.1-windows-x64-portable.exe)** |
 | Todas as versões e checksums | [GitHub Releases](https://github.com/Quiique13/PetStay/releases) |
 
 No Windows, coloque o `.exe` numa pasta onde possa guardar dados e abra-o com um duplo clique. Não precisa de instalar Node.js ou npm. O hotel fica na pasta `data/` junto do executável; mantenha essa pasta ao atualizar.
+
+Na versão portátil 1.6.1, o início de sessão com Google abre no navegador
+predefinido e regressa à aplicação. Para atualizar, feche o PetStay e coloque o
+novo executável junto da mesma pasta `data/`.
 
 - Organize hóspedes, tutores, reservas e pagamentos.
 - Consulte o calendário, defina épocas altas por dia e mês e simule receitas.
@@ -25,6 +29,9 @@ No Windows, coloque o `.exe` numa pasta onde possa guardar dados e abra-o com um
 [Abrir a aplicação web](https://quiique13.github.io/PetStay/) · [Descarregar para Windows](https://github.com/Quiique13/PetStay/releases/latest) · [Consultar o guia completo](docs/guide.md)
 
 ## Desenvolvimento
+
+Para compilar a aplicação Android (`com.app.petstay`), consulte a
+[configuração de Android e Firebase](docs/android.md).
 
 O acesso usa Firebase Authentication com Google ou email e palavra-passe. Cada
 conta tem o seu próprio hotel neste dispositivo. Consulte a

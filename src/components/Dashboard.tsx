@@ -54,7 +54,7 @@ import { SettingsPage } from "./SettingsPage.tsx";
 import { SeasonEditor } from "./SeasonEditor.tsx";
 import { monthlyRevenue } from "../utils/seasons.ts";
 import { InstallMobile } from "./InstallMobile.tsx";
-import { isMobileApp } from "../services/storage-mode.ts";
+import { isMobileApp, isNativeApp } from "../services/storage-mode.ts";
 import hotelDog from "../assets/hotel-dog.jpg";
 import {
   createFormatters,
@@ -312,7 +312,7 @@ export default function Dashboard() {
           </div>
         </header>
         <section className="content">
-          {isMobileApp && <InstallMobile />}
+          {isMobileApp && !isNativeApp && <InstallMobile />}
           <div
             className={`storage-status ${storage.error ? "storage-error" : ""}`}
           >

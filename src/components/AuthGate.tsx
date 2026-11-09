@@ -35,6 +35,7 @@ function LoginScreen() {
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [busy, setBusy] = useState(false);
+  const [desktopSignIn, setDesktopSignIn] = useState(false);
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
   const title =
@@ -105,13 +106,23 @@ function LoginScreen() {
             <button
               className="secondary auth-google"
               disabled={busy || !!auth.error}
-              onClick={() => void run(auth.loginWithGoogle)}
+              onClick={() => {
+                setDesktopSignIn(!!window.petStayDesktop);
+                void run(async () => {
+                  try { await auth.loginWithGoogle(); }
+                  finally { setDesktopSignIn(false); }
+                });
+              }}
             >
               <span aria-hidden="true" className="auth-google-icon">
                 G
               </span>
               {t("Continuar com Google")}
             </button>
+            {desktopSignIn && <>
+              <p role="status">{t("Conclua o início de sessão no navegador que abriu.")}</p>
+              <button className="textbutton" onClick={() => void window.petStayDesktop?.cancelSignIn()}>{t("Cancelar")}</button>
+            </>}
             <div className="auth-divider">{t("ou use o seu email")}</div>
           </>
         )}

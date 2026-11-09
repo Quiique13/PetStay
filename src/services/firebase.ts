@@ -1,7 +1,9 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
+import { Capacitor } from "@capacitor/core";
 import {
   browserLocalPersistence,
   inMemoryPersistence,
+  indexedDBLocalPersistence,
   initializeAuth,
 } from "firebase/auth";
 import { defaultFirebaseConfig } from "./firebase-config.ts";
@@ -21,6 +23,8 @@ export const firebaseConfig = {
 export function createFirebaseAuth() {
   const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   return initializeAuth(app, {
-    persistence: [browserLocalPersistence, inMemoryPersistence],
+    persistence: Capacitor.isNativePlatform()
+      ? [indexedDBLocalPersistence, browserLocalPersistence, inMemoryPersistence]
+      : [browserLocalPersistence, inMemoryPersistence],
   });
 }
