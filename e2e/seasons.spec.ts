@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./auth-fixture.ts";
 import { defaultData } from "../src/utils/hotel-data.ts";
 
 test("daily season ranges migrate, save, and price a stay across mid-month boundaries", async ({

@@ -4,7 +4,7 @@ import type { HotelData, StorageError, StorageSnapshot } from "../types.ts";
 const databaseName = "petstay-mobile";
 const storeName = "hotel";
 
-function openDatabase(): Promise<IDBDatabase> {
+function openDatabase(uid?: string): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     if (typeof indexedDB === "undefined") {
       reject(
@@ -14,7 +14,12 @@ function openDatabase(): Promise<IDBDatabase> {
       );
       return;
     }
-    const request = indexedDB.open(databaseName, 1);
+    // Keep the old, unowned database intact. It must never be assigned to the
+    // first person who happens to sign in on a shared device.
+    const name = uid
+      ? `${databaseName}-account-${encodeURIComponent(uid)}`
+      : databaseName;
+    const request = indexedDB.open(name, 1);
     request.onupgradeneeded = () => request.result.createObjectStore(storeName);
     request.onsuccess = () => resolve(request.result);
     request.onerror = () =>
@@ -44,8 +49,8 @@ function snapshot(record: StorageSnapshot | undefined): StorageSnapshot {
   return { ...record, data: validateData(record.data) };
 }
 
-export async function loadMobileData(): Promise<StorageSnapshot> {
-  const db = await openDatabase();
+export async function loadMobileData(uid?: string): Promise<StorageSnapshot> {
+  const db = await openDatabase(uid);
   try {
     return await new Promise((resolve, reject) => {
       const transaction = db.transaction(storeName, "readonly");
@@ -71,11 +76,12 @@ export async function saveMobileData(
   input: HotelData,
   revision: number,
   preserveRecovery = false,
+  uid?: string,
 ): Promise<StorageSnapshot> {
   const data = structuredClone(validateData(input));
   if (!Number.isInteger(revision) || revision < 0)
     throw new Error("Revisão inválida.");
-  const db = await openDatabase();
+  const db = await openDatabase(uid);
   try {
     return await new Promise((resolve, reject) => {
       const transaction = db.transaction(storeName, "readwrite");
@@ -118,8 +124,10 @@ export async function saveMobileData(
   }
 }
 
-export async function loadMobileRecovery(): Promise<StorageSnapshot | null> {
-  const db = await openDatabase();
+export async function loadMobileRecovery(
+  uid?: string,
+): Promise<StorageSnapshot | null> {
+  const db = await openDatabase(uid);
   try {
     return await new Promise((resolve, reject) => {
       const transaction = db.transaction(storeName, "readonly");

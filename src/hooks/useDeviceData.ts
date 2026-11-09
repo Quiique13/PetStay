@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { loadDeviceData, saveDeviceData } from "../services/device-storage.ts";
+import type { StorageAccount } from "../services/device-storage.ts";
 import { newHotelData, validateData } from "../utils/hotel-data.ts";
 import { asStorageError } from "../types.ts";
 import type { HotelData, HotelProfile, StorageError } from "../types.ts";
 
-export function useDeviceData() {
+export function useDeviceData(account: StorageAccount) {
   const [data, setData] = useState<HotelData | null>(null);
   const [status, setStatus] = useState<
     "loading" | "saved" | "saving" | "error"
@@ -25,7 +26,7 @@ export function useDeviceData() {
     if (latest.current) return;
     setStatus("loading");
     setError(null);
-    loadDeviceData()
+    loadDeviceData(account)
       .then((result) => {
         if (!active) return;
         revision.current = result.revision;
@@ -55,6 +56,7 @@ export function useDeviceData() {
       next,
       revision.current,
       preserveRecovery,
+      account,
     );
     revision.current = result.revision;
     saved.current = next;
@@ -116,6 +118,12 @@ export function useDeviceData() {
     return () => {
       document.removeEventListener("visibilitychange", flushOnBackground);
       window.removeEventListener("beforeunload", protectUnsavedChanges);
+      // Another tab can sign out or switch accounts. Finish the old account's
+      // pending write using this provider's captured identity before it unmounts.
+      if (latest.current !== saved.current && !failed.current) {
+        if (timer.current) clearTimeout(timer.current);
+        void persistLatest().catch(() => {});
+      }
     };
   }, []);
 

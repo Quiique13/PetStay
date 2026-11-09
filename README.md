@@ -11,7 +11,7 @@ Use no computador ou telemóvel, diretamente no navegador. Também pode instalar
 | Como pretende usar? | Acesso direto |
 | --- | --- |
 | No navegador, Android ou iPhone | **[Abrir a aplicação web](https://quiique13.github.io/PetStay/)** |
-| No Windows, sem instalação | **[Descarregar o executável portátil](https://github.com/Quiique13/PetStay/releases/download/v1.5.0/PetStay-1.5.0-windows-x64-portable.exe)** |
+| No Windows, sem instalação | **[Descarregar o executável portátil](https://github.com/Quiique13/PetStay/releases/download/v1.6.0/PetStay-1.6.0-windows-x64-portable.exe)** |
 | Todas as versões e checksums | [GitHub Releases](https://github.com/Quiique13/PetStay/releases) |
 
 No Windows, coloque o `.exe` numa pasta onde possa guardar dados e abra-o com um duplo clique. Não precisa de instalar Node.js ou npm. O hotel fica na pasta `data/` junto do executável; mantenha essa pasta ao atualizar.
@@ -25,6 +25,11 @@ No Windows, coloque o `.exe` numa pasta onde possa guardar dados e abra-o com um
 [Abrir a aplicação web](https://quiique13.github.io/PetStay/) · [Descarregar para Windows](https://github.com/Quiique13/PetStay/releases/latest) · [Consultar o guia completo](docs/guide.md)
 
 ## Desenvolvimento
+
+O acesso usa Firebase Authentication com Google ou email e palavra-passe. Cada
+conta tem o seu próprio hotel neste dispositivo. Consulte a
+[configuração do Firebase e migração dos dados existentes](docs/firebase-auth.md)
+para ativar os métodos de acesso e autorizar os domínios da aplicação.
 
 Requer Node.js e npm.
 

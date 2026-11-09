@@ -16,10 +16,12 @@ import {
 } from "../services/backup.ts";
 import type { BackupPreview } from "../services/backup.ts";
 import { loadImportRecovery } from "../services/device-storage.ts";
+import { useAuth } from "../context/AuthContext.tsx";
 import { isMobileApp } from "../services/storage-mode.ts";
 import { asStorageError } from "../types.ts";
 
 export function DataTransfer() {
+  const { user } = useAuth();
   const { t, locale } = useLanguage();
   const storage = useHotel();
   const [preview, setPreview] = useState<BackupPreview | null>(null);
@@ -103,7 +105,8 @@ export function DataTransfer() {
     setPreview(null);
     setConfirmed(false);
     try {
-      const data = await loadImportRecovery();
+      if (!user) throw new Error("Inicie sessão para abrir os dados do hotel.");
+      const data = await loadImportRecovery(user);
       if (!data?.hotel)
         throw new Error(
           "Ainda não existe uma cópia anterior à importação neste dispositivo.",

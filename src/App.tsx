@@ -6,8 +6,18 @@ import { useHotel } from "./context/HotelContext.tsx";
 import { Brand } from "./components/Brand.tsx";
 import { Onboarding } from "./components/Onboarding.tsx";
 import Dashboard from "./components/Dashboard.tsx";
+import { AccountBar } from "./components/AccountBar.tsx";
 
 export default function App() {
+  return (
+    <>
+      <AccountBar />
+      <HotelApp />
+    </>
+  );
+}
+
+function HotelApp() {
   const { t } = useLanguage();
   const storage = useHotel();
   useEffect(() => {

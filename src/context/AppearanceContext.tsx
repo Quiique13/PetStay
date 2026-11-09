@@ -1,22 +1,18 @@
 import { createContext, useContext, useLayoutEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { defaultAppearance, parseAppearance } from "../utils/appearance.ts";
+import type { Appearance } from "../utils/appearance.ts";
 
-type Mode = "light" | "dark" | "system";
-type ColorScheme = "forest" | "ocean" | "berry" | "lavender" | "amber" | "slate";
-interface Appearance { mode: Mode; colorScheme: ColorScheme; contrast: "standard" | "enhanced" | "high"; textSize: "default" | "large" | "largest" }
 const storageKey = "petstay-appearance";
-const defaults: Appearance = { mode: "system", colorScheme: "forest", contrast: "standard", textSize: "default" };
 
 function readAppearance(): Appearance {
   try {
-    const saved = JSON.parse(localStorage.getItem(storageKey) ?? "null");
-    return {
-      mode: ["light", "dark", "system"].includes(saved?.mode) ? saved.mode : defaults.mode,
-      colorScheme: ["forest", "ocean", "berry", "lavender", "amber", "slate"].includes(saved?.colorScheme) ? saved.colorScheme : defaults.colorScheme,
-      contrast: ["standard", "enhanced", "high"].includes(saved?.contrast) ? saved.contrast : defaults.contrast,
-      textSize: ["default", "large", "largest"].includes(saved?.textSize) ? saved.textSize : defaults.textSize,
-    };
-  } catch { return defaults; }
+    return parseAppearance(
+      JSON.parse(localStorage.getItem(storageKey) ?? "null"),
+    );
+  } catch {
+    return defaultAppearance;
+  }
 }
 
 const AppearanceContext = createContext<{
@@ -32,13 +28,23 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
   useLayoutEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     function apply() {
-      const dark = appearance.mode === "dark" || (appearance.mode === "system" && media.matches);
+      const dark =
+        appearance.mode === "dark" ||
+        (appearance.mode === "system" && media.matches);
       document.documentElement.dataset.theme = dark ? "dark" : "light";
       document.documentElement.dataset.colorScheme = appearance.colorScheme;
       document.documentElement.dataset.contrast = appearance.contrast;
       document.documentElement.dataset.textSize = appearance.textSize;
-      document.documentElement.style.setProperty("--text-scale", String({ default: 1, large: 1.25, largest: 1.5 }[appearance.textSize]));
-      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#191d21" : "#faf8f3");
+      document.documentElement.style.setProperty(
+        "--text-scale",
+        String({ default: 1, large: 1.25, largest: 1.5 }[appearance.textSize]),
+      );
+      const background = getComputedStyle(document.documentElement)
+        .getPropertyValue("--page-bg")
+        .trim();
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute("content", background);
     }
     apply();
     media.addEventListener("change", apply);
@@ -52,15 +58,22 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(storageKey, JSON.stringify(next));
       setError("");
     } catch {
-      setError("A aparência foi aplicada, mas não foi possível guardá-la neste dispositivo.");
+      setError(
+        "A aparência foi aplicada, mas não foi possível guardá-la neste dispositivo.",
+      );
     }
   }
 
-  return <AppearanceContext.Provider value={{ appearance, update, error }}>{children}</AppearanceContext.Provider>;
+  return (
+    <AppearanceContext.Provider value={{ appearance, update, error }}>
+      {children}
+    </AppearanceContext.Provider>
+  );
 }
 
 export function useAppearance() {
   const context = useContext(AppearanceContext);
-  if (!context) throw new Error("useAppearance must be used within AppearanceProvider.");
+  if (!context)
+    throw new Error("useAppearance must be used within AppearanceProvider.");
   return context;
 }

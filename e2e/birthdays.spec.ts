@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./auth-fixture.ts";
 import { defaultData } from "../src/utils/hotel-data.ts";
 
 test("birthday calendar shows all dogs, empty months and leap birthdays on small screens", async ({ page }) => {

@@ -1,11 +1,14 @@
 import { mkdir, readFile, writeFile, rename, copyFile, rm } from "node:fs/promises";
 import { join } from "node:path";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { defaultData, isRecord, validateData } from "../src/utils/hotel-data.ts";
 import { asStorageError } from "../src/types.ts";
 import type { StorageError, StorageSnapshot } from "../src/types.ts";
 import type { ServerResponse } from "node:http";
 import type { Connect, Plugin } from "vite";
+import type { IncomingMessage } from "node:http";
+import { createFirebaseTokenVerifier } from "./firebase-auth.ts";
+import type { VerifyToken } from "./firebase-auth.ts";
 
 function isMissingFile(error: unknown): boolean {
   return error instanceof Error && "code" in error && error.code === "ENOENT";
@@ -89,7 +92,32 @@ export function createLocalStore(directory: string) {
   return { read, save, readRecovery };
 }
 
-export function createStorageMiddleware(store: ReturnType<typeof createLocalStore>): Connect.NextHandleFunction {
+type LocalStore = ReturnType<typeof createLocalStore>;
+
+export function accountDataDirectory(directory: string, uid: string): string {
+  return join(directory, "accounts", createHash("sha256").update(uid).digest("hex"));
+}
+
+export function createAccountStorageMiddleware(
+  directory: string,
+  verifyToken: VerifyToken = createFirebaseTokenVerifier(),
+): Connect.NextHandleFunction {
+  const stores = new Map<string, LocalStore>();
+  return createStorageMiddleware(async request => {
+    const match = /^Bearer (\S+)$/i.exec(request.headers.authorization ?? "");
+    if (!match) throw new Error("Missing identity.");
+    const uid = await verifyToken(match[1]);
+    if (!uid) throw new Error("Missing identity.");
+    let store = stores.get(uid);
+    if (!store) {
+      store = createLocalStore(accountDataDirectory(directory, uid));
+      stores.set(uid, store);
+    }
+    return store;
+  });
+}
+
+export function createStorageMiddleware(source: LocalStore | ((request: IncomingMessage) => Promise<LocalStore>)): Connect.NextHandleFunction {
   function reply(response: ServerResponse, status: number, body: unknown) {
     response.writeHead(status, {
       "Content-Type": "application/json; charset=utf-8",
@@ -114,6 +142,9 @@ export function createStorageMiddleware(store: ReturnType<typeof createLocalStor
       || (request.headers.origin && request.headers.origin !== `http://${host}`)) {
       return reply(response, 403, { error: "O acesso aos dados só é permitido neste dispositivo." });
     }
+    let store: LocalStore;
+    try { store = typeof source === "function" ? await source(request) : source; }
+    catch { return reply(response, 401, { error: "Não foi possível verificar a sessão. Verifique a internet e inicie sessão novamente." }); }
     if (request.method === "GET") {
       if (path === "/api/storage/recovery") {
         try { return reply(response, 200, { data: await store.readRecovery() }); }
@@ -162,7 +193,8 @@ export function localStoragePlugin(): Plugin {
   return {
     name: "petstay-device-storage",
     configResolved(config) {
-      middleware = createStorageMiddleware(createLocalStore(join(config.root, "data")));
+      middleware = createAccountStorageMiddleware(join(config.root, "data"),
+        createFirebaseTokenVerifier(config.env.VITE_FIREBASE_PROJECT_ID || undefined));
     },
     configureServer(server) { server.middlewares.use(middleware); },
     configurePreviewServer(server) { server.middlewares.use(middleware); },

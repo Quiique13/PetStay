@@ -31,8 +31,18 @@ export function SeasonEditor({
   }
 
   return (
-    <div className="season-editor" role="group" aria-label={t(christmas ? "Época de Natal" : "Época alta")}>
-      {christmas && <p>{t("Nos dias de Natal, o preço de Natal tem prioridade sobre o preço de época alta.")}</p>}
+    <div
+      className="season-editor"
+      role="group"
+      aria-label={t(christmas ? "Época de Natal" : "Época alta")}
+    >
+      {christmas && (
+        <p>
+          {t(
+            "Nos dias de Natal, o preço de Natal tem prioridade sobre o preço de época alta.",
+          )}
+        </p>
+      )}
       <h4>
         {t(
           christmas

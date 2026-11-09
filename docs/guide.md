@@ -2,6 +2,8 @@
 
 Aplicação de gestão para proprietários de hotéis para animais, em português de Portugal, desenvolvida com React, TypeScript e Vite. Cada instalação tem um perfil de hotel e guarda os dados no próprio dispositivo.
 
+Desde a versão 1.6, entre com Google ou email e palavra-passe. Cada conta tem o seu próprio hotel neste dispositivo, sem sincronização automática. Os dados anteriores ficam preservados; importe uma cópia para a conta pretendida. Consulte a [configuração do acesso e migração](firebase-auth.md).
+
 ## Funcionalidades
 
 - Um cliente pode ter vários cães: selecione um cliente existente ao adicionar um hóspede ou use «Adicionar cão a este cliente» na lista agrupada por tutor.
@@ -21,7 +23,7 @@ Aplicação de gestão para proprietários de hotéis para animais, em portuguê
 - Aplicação móvel instalável no Android e iPhone, com funcionamento offline.
 - Exportação e importação de cópias entre o computador e o telemóvel, com pré-visualização e recuperação.
 
-No computador, o perfil e o avatar do hotel, hóspedes, tutores, reservas, pagamentos, preços e definições do simulador são guardados no ficheiro **`data/hotel.json`**, no disco deste dispositivo. A versão móvel guarda os mesmos dados em **IndexedDB**, no navegador ou aplicação instalada no telemóvel. O modo de armazenamento é escolhido na compilação; uma falha no servidor do computador nunca cria um hotel vazio no navegador.
+No computador, o perfil e o avatar do hotel, hóspedes, tutores, reservas, pagamentos, preços e definições do simulador são guardados em **`data/accounts/<identificador-da-conta>/hotel.json`**, no disco deste dispositivo. A versão móvel guarda os mesmos dados em **IndexedDB**, numa base separada por conta, no navegador ou aplicação instalada no telemóvel. O modo de armazenamento é escolhido na compilação; uma falha no servidor do computador nunca cria um hotel vazio no navegador.
 
 Na primeira abertura, registe o hotel e depois adicione os hóspedes e preços manualmente. Os preços em branco significam «por definir»; uma reserva só pode ser criada depois de definir os preços relevantes. O valor zero só é usado quando for introduzido explicitamente.
 
@@ -29,7 +31,7 @@ A pasta `/data/` está no `.gitignore`, incluindo cópias de segurança e fichei
 
 ## Windows — versão portátil
 
-Descarregue **PetStay-1.5.0-windows-x64-portable.exe** na [versão mais recente no GitHub](https://github.com/Quiique13/PetStay/releases/latest). Coloque o ficheiro numa pasta onde possa guardar dados e abra-o com um duplo clique. Não é necessário instalar a aplicação, Node.js ou npm. Esta versão destina-se ao Windows 10/11 de 64 bits (x64).
+Descarregue **PetStay-1.6.0-windows-x64-portable.exe** na [versão mais recente no GitHub](https://github.com/Quiique13/PetStay/releases/latest). Coloque o ficheiro numa pasta onde possa guardar dados e abra-o com um duplo clique. Não é necessário instalar a aplicação, Node.js ou npm. Esta versão destina-se ao Windows 10/11 de 64 bits (x64).
 
 O executável cria a pasta **`data/` ao seu lado**, com os registos do hotel e uma pasta `.runtime/` para os ficheiros internos da janela. Para transportar a aplicação para outro computador, feche-a e copie **o executável e a pasta `data/` em conjunto**. Para atualizar, feche a aplicação e substitua apenas o executável, mantendo a pasta `data/`. Os downloads não incluem dados de nenhum hotel.
 
@@ -39,7 +41,7 @@ Para usar os dados da versão de desenvolvimento, feche os dois servidores e cop
 
 ### Windows — instalador
 
-Também pode descarregar **PetStay-1.5.0-windows-x64-setup.exe** na [versão mais recente no GitHub](https://github.com/Quiique13/PetStay/releases/latest). O assistente instala a aplicação para o utilizador atual e cria atalhos no ambiente de trabalho e no menu Iniciar.
+Também pode descarregar **PetStay-1.6.0-windows-x64-setup.exe** na [versão mais recente no GitHub](https://github.com/Quiique13/PetStay/releases/latest). O assistente instala a aplicação para o utilizador atual e cria atalhos no ambiente de trabalho e no menu Iniciar.
 
 A versão instalada guarda os registos em **%APPDATA%\PetStay\data**, separados da pasta da aplicação. Para transferir os dados da versão portátil, exporte uma cópia e importe-a na versão instalada. As atualizações e a desinstalação preservam os dados.
 
@@ -51,7 +53,7 @@ Abra [PetStay Mobile](https://quiique13.github.io/PetStay/) no telemóvel. No An
 
 Depois de o aviso indicar que está pronta para uso sem ligação, a aplicação abre e permite gerir o hotel offline. Os tipos de letra e a imagem decorativa também estão incluídos na aplicação. As atualizações apresentam um botão e só são aplicadas depois de guardar as alterações.
 
-Os dados ficam neste dispositivo, sem contas nem envio para um servidor. Limpar os dados do navegador, remover a aplicação ou usar navegação privada pode eliminar os registos. Guarde cópias externas regularmente; a cópia de recuperação interna não substitui uma exportação.
+Os registos do hotel ficam neste dispositivo; o Firebase trata apenas do acesso à conta. Limpar os dados do navegador, remover a aplicação ou usar navegação privada pode eliminar os registos. Guarde cópias externas regularmente; a cópia de recuperação interna não substitui uma exportação.
 
 ### Transferir dados entre computador e telemóvel
 

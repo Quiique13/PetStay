@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./auth-fixture.ts";
 
 test("language changes translate the whole app and preserve profiles and unsaved input", async ({
   page,

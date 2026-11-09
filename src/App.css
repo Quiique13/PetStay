@@ -634,7 +634,7 @@ h2 {
   height: 100%;
   object-fit: cover;
   position: absolute;
-  object-position: center 38%;
+  object-position: center 0%;
   mask-image: linear-gradient(to right, transparent, #000 30%);
 }
 .spark {
@@ -1483,16 +1483,72 @@ tr:last-child td {
   }
 }
 
-.guest-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
-.guest-photo-preview { width: 96px; height: 96px; object-fit: cover; border-radius: 12px; }
-.calhead, .calrow { min-width: calc(175px + var(--days, 31) * 32px); }
-.guestcell { position: sticky; left: 0; background: var(--surface); z-index: 2; }
-.dialog input[type="checkbox"] { width: auto; }
-.birthday-reminders { margin-bottom: 20px; padding: 18px 22px; }
-.birthday-notifications h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; }
-.birthday-alert { border-left: 3px solid var(--accent-text); padding: 8px 12px; margin: 8px 0; background: var(--accent-soft); border-radius: 5px; }
-.birthday-alert small { display: block; color: var(--muted); margin-top: 5px; }
-.dialog .booking-price-fields { margin: 0; padding: 14px; border: 1px solid var(--line); border-radius: 10px; display: grid; gap: 12px; min-width: 0; }
-.dialog .booking-price-fields legend { padding: 0 6px; font-weight: 600; }
-.dialog .booking-price-fields label:has(input[type="radio"]) { display: flex; align-items: center; gap: 8px; }
-.dialog .booking-price-fields input[type="radio"] { width: auto; margin: 0; }
+.guest-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+.guest-photo-preview {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.calhead,
+.calrow {
+  min-width: calc(175px + var(--days, 31) * 32px);
+}
+.guestcell {
+  position: sticky;
+  left: 0;
+  background: var(--surface);
+  z-index: 2;
+}
+.dialog input[type="checkbox"] {
+  width: auto;
+}
+.birthday-reminders {
+  margin-bottom: 20px;
+  padding: 18px 22px;
+}
+.birthday-notifications h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+.birthday-alert {
+  border-left: 3px solid var(--accent-text);
+  padding: 8px 12px;
+  margin: 8px 0;
+  background: var(--accent-soft);
+  border-radius: 5px;
+}
+.birthday-alert small {
+  display: block;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.dialog .booking-price-fields {
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.dialog .booking-price-fields legend {
+  padding: 0 6px;
+  font-weight: 600;
+}
+.dialog .booking-price-fields label:has(input[type="radio"]) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dialog .booking-price-fields input[type="radio"] {
+  width: auto;
+  margin: 0;
+}

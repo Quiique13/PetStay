@@ -8,6 +8,7 @@ import { DataTransfer } from "./DataTransfer.tsx";
 import { InstallMobile } from "./InstallMobile.tsx";
 import { isMobileApp } from "../services/storage-mode.ts";
 import { LanguageSelector } from "./LanguageSelector.tsx";
+import { AppearanceMenu } from "./ThemePicker.tsx";
 
 export function Onboarding() {
   const { t } = useLanguage();
@@ -68,6 +69,7 @@ export function Onboarding() {
           <DataTransfer />
         </details>
         {isMobileApp && <InstallMobile />}
+        <AppearanceMenu />
       </section>
     </main>
   );

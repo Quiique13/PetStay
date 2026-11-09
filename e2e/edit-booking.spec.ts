@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./auth-fixture.ts";
 import { defaultData } from "../src/utils/hotel-data.ts";
 
 test("edit a filtered saved booking, preserve payment, cancel, and restore seasonal pricing", async ({

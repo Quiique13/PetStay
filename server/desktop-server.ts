@@ -1,7 +1,9 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
-import { createLocalStore, createStorageMiddleware } from "./local-store.ts";
+import { createAccountStorageMiddleware } from "./local-store.ts";
+import { createFirebaseTokenVerifier } from "./firebase-auth.ts";
+import type { VerifyToken } from "./firebase-auth.ts";
 
 const contentTypes: Record<string, string> = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
@@ -10,9 +12,9 @@ const contentTypes: Record<string, string> = {
   ".woff": "font/woff", ".woff2": "font/woff2",
 };
 
-export async function startDesktopServer(assetsDirectory: string, dataDirectory: string) {
+export async function startDesktopServer(assetsDirectory: string, dataDirectory: string, verifyToken: VerifyToken = createFirebaseTokenVerifier(process.env.VITE_FIREBASE_PROJECT_ID || undefined)) {
   const root = resolve(assetsDirectory);
-  const storage = createStorageMiddleware(createLocalStore(dataDirectory));
+  const storage = createAccountStorageMiddleware(dataDirectory, verifyToken);
   const server = createServer((request, response) => {
     const address = server.address();
     if (!address || typeof address === "string" || request.headers.host !== `127.0.0.1:${address.port}`) {
@@ -39,7 +41,7 @@ export async function startDesktopServer(assetsDirectory: string, dataDirectory:
             "Content-Type": contentTypes[extname(file)] ?? "application/octet-stream",
             "X-Content-Type-Options": "nosniff",
             "Cache-Control": "no-store",
-            "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+            "Content-Security-Policy": "default-src 'self'; script-src 'self' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; frame-src https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
           });
           response.end(request.method === "HEAD" ? undefined : contents);
         } catch { response.writeHead(404).end(); }

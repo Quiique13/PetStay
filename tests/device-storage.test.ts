@@ -5,6 +5,8 @@ import { loadDeviceData, saveDeviceData } from "../src/services/device-storage.t
 import { defaultData, newHotelData } from "../src/utils/hotel-data.ts";
 import { fixture } from "./storage-fixture.ts";
 
+const account = { uid: "test-owner", getIdToken: async () => "test-token" };
+
 async function browser(t: TestContext, entries: Record<string, string>) {
   const context = await fixture(t, true);
   const realFetch = globalThis.fetch;
@@ -26,7 +28,7 @@ async function browser(t: TestContext, entries: Record<string, string>) {
 
 test("first launch is clean even when old browser data exists", async t => {
   const { store, values } = await browser(t, { guests: "old browser data", rates: "old prices" });
-  const loaded = await loadDeviceData();
+  const loaded = await loadDeviceData(account);
   assert.equal(loaded.initialized, false);
   assert.deepEqual(loaded.data, defaultData());
   assert.equal((await store.read()).initialized, false);
@@ -38,17 +40,17 @@ test("existing device records take priority over stale browser data", async t =>
   const data = newHotelData({ name: "Hotel de teste", owner: "Pessoa", avatar: "" });
   data.rates.day = 31;
   await store.save(data, 0);
-  const loaded = await loadDeviceData();
+  const loaded = await loadDeviceData(account);
   assert.deepEqual(loaded.data, data);
   assert.equal(values.size, 1);
 });
 
 test("registration persists the hotel profile and reload skips setup", async t => {
   const { store } = await browser(t, {});
-  const initial = await loadDeviceData();
+  const initial = await loadDeviceData(account);
   assert.equal(initial.data.hotel, null);
   const registered = newHotelData({ name: "Meu hotel", owner: "Pessoa", avatar: "data:image/png;base64,aGVsbG8=" });
-  await saveDeviceData(registered, initial.revision);
-  assert.deepEqual((await loadDeviceData()).data, registered);
+  await saveDeviceData(registered, initial.revision, false, account);
+  assert.deepEqual((await loadDeviceData(account)).data, registered);
   assert.deepEqual((await store.read()).data, registered);
 });

@@ -1,10 +1,12 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./auth-fixture.ts";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { createLocalStore } from "../server/local-store.ts";
 import { startDesktopServer } from "../server/desktop-server.ts";
 import { newHotelData } from "../src/utils/hotel-data.ts";
+import { seedSignedInAccount, testUid, verifyTestToken } from "./auth-fixture.ts";
+import { accountDataDirectory } from "../server/local-store.ts";
 
 test("desktop → mobile → desktop keeps hotel records and confirms replacement", async ({
   page,
@@ -12,7 +14,7 @@ test("desktop → mobile → desktop keeps hotel records and confirms replacemen
 }) => {
   const directory = await mkdtemp(join(tmpdir(), "petstay-roundtrip-"));
   const dataDirectory = join(directory, "data");
-  const store = createLocalStore(dataDirectory);
+  const store = createLocalStore(accountDataDirectory(dataDirectory, testUid));
   const data = newHotelData({
     name: "Hotel São João",
     owner: "Ana Silva",
@@ -42,12 +44,13 @@ test("desktop → mobile → desktop keeps hotel records and confirms replacemen
   data.capacity = 18;
   data.occupancy = 73;
   await store.save(data, 0);
-  const desktop = await startDesktopServer(resolve("dist"), dataDirectory);
+  const desktop = await startDesktopServer(resolve("dist"), dataDirectory, verifyTestToken);
   const context = await browser.newContext({
     viewport: { width: 1440, height: 960 },
     acceptDownloads: true,
   });
   const computer = await context.newPage();
+  await seedSignedInAccount(context);
   try {
     await computer.goto(desktop.url);
     await computer

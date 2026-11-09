@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./auth-fixture.ts";
 import { readFileSync } from "node:fs";
 
 test("guest photos, custom prices, monthly calendar and hotel photo changes persist", async ({

@@ -6,6 +6,13 @@ import { request } from "node:http";
 import { startDesktopServer } from "../server/desktop-server.ts";
 import { newHotelData } from "../src/utils/hotel-data.ts";
 import { fixture } from "./storage-fixture.ts";
+import { accountDataDirectory } from "../server/local-store.ts";
+
+const verifyToken = async (token: string) => {
+  if (token !== "owner-token") throw new Error("Invalid token");
+  return "test-owner";
+};
+const authorization = { Authorization: "Bearer owner-token" };
 
 test("desktop serves only packaged assets and preserves hotel records across restarts", async t => {
   const { directory } = await fixture(t);
@@ -14,7 +21,7 @@ test("desktop serves only packaged assets and preserves hotel records across res
   await mkdir(assets);
   await writeFile(join(assets, "index.html"), "<html>PetStay</html>");
   await writeFile(join(directory, "private.txt"), "private");
-  let local = await startDesktopServer(assets, data);
+  let local = await startDesktopServer(assets, data, verifyToken);
   const stop = () => new Promise<void>((done, reject) => {
     local.server.close(error => error ? reject(error) : done());
     local.server.closeAllConnections();
@@ -37,13 +44,13 @@ test("desktop serves only packaged assets and preserves hotel records across res
   assert.equal((await fetch(local.url + "/api/storage", { headers: { Origin: "https://attacker.invalid" } })).status, 403);
   const hotel = newHotelData({ name: "Portable test", owner: "Test owner", avatar: "" });
   const save = await fetch(local.url + "/api/storage", {
-    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ data: hotel, revision: 0 }),
+    method: "PUT", headers: { ...authorization, "Content-Type": "application/json" }, body: JSON.stringify({ data: hotel, revision: 0 }),
   });
   assert.equal(save.status, 200);
-  assert.equal(JSON.parse(await readFile(join(data, "hotel.json"), "utf8")).data.hotel.name, "Portable test");
+  assert.equal(JSON.parse(await readFile(join(accountDataDirectory(data, "test-owner"), "hotel.json"), "utf8")).data.hotel.name, "Portable test");
   await stop();
-  local = await startDesktopServer(assets, data);
-  const reopened = await (await fetch(local.url + "/api/storage")).json();
+  local = await startDesktopServer(assets, data, verifyToken);
+  const reopened = await (await fetch(local.url + "/api/storage", { headers: authorization })).json();
   assert.deepEqual(reopened.data, hotel);
   assert.equal(reopened.revision, 1);
 });

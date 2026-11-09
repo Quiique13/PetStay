@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./auth-fixture.ts";
 
 test("settings save the hotel profile and device appearance", async ({
   page,
@@ -53,8 +53,8 @@ test("settings save the hotel profile and device appearance", async ({
     await page
       .locator(".settings-card")
       .first()
-      .evaluate((element) => getComputedStyle(element).backgroundColor),
-  ).toBe("rgb(34, 39, 44)");
+      .evaluate((element) => getComputedStyle(element).color),
+  ).toBe("rgb(225, 244, 255)");
   await page.reload();
   await page.getByRole("button", { name: "Definições", exact: true }).click();
   await expect(page.getByLabel("Nome do hotel", { exact: true })).toHaveValue(
