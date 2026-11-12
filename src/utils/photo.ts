@@ -6,6 +6,18 @@ export function validatePhoto(file: File): void {
     throw new Error("Escolha uma imagem PNG, JPG ou WebP com até 20 MB.");
 }
 
+export async function photoSource(file: File): Promise<string> {
+  validatePhoto(file);
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => typeof reader.result === "string"
+      ? resolve(reader.result)
+      : reject(new Error("Não foi possível abrir a imagem. Tente outra fotografia."));
+    reader.onerror = reader.onabort = () => reject(new Error("Não foi possível abrir a imagem. Tente outra fotografia."));
+    reader.readAsDataURL(file);
+  });
+}
+
 export async function readPhoto(file: File): Promise<string> {
   validatePhoto(file);
   const url = URL.createObjectURL(file);

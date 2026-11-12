@@ -6,6 +6,24 @@ import { photoMessages } from "./photo-messages.ts";
 import { cloudMessages } from "./cloud-messages.ts";
 
 export const messages = {
+  "Informação legal": ["Legal information", "Informations légales", "Información legal"],
+  "Sobre o PetStay": ["About PetStay", "À propos de PetStay", "Acerca de PetStay"],
+  Privacidade: ["Privacy", "Confidentialité", "Privacidad"],
+  "Termos de utilização": ["Terms of use", "Conditions d’utilisation", "Condiciones de uso"],
+  "Cookies e armazenamento": ["Cookies and storage", "Cookies et stockage", "Cookies y almacenamiento"],
+  "Direitos e pedidos": ["Rights and requests", "Droits et demandes", "Derechos y solicitudes"],
+  "O Google partilha o seu email e perfil básico para iniciar sessão. Não pedimos acesso ao Gmail ou Google Drive. Consulte a informação de privacidade antes de continuar.": [
+    "Google shares your email and basic profile to sign in. We do not request Gmail or Google Drive access. Read the privacy information before continuing.",
+    "Google partage votre email et votre profil de base pour vous connecter. Nous ne demandons pas d’accès à Gmail ou Google Drive. Consultez les informations de confidentialité avant de continuer.",
+    "Google comparte tu email y perfil básico para iniciar sesión. No solicitamos acceso a Gmail o Google Drive. Consulta la información de privacidad antes de continuar.",
+  ],
+  "Cancelar reserva": ["Cancel reservation", "Annuler la réservation", "Cancelar reserva"],
+  "Cancelar reserva de {name}": ["Cancel reservation for {name}", "Annuler la réservation de {name}", "Cancelar reserva de {name}"],
+  "Cancelar a reserva de {name} ({start} a {end})? A reserva será removida.": [
+    "Cancel the reservation for {name} ({start} to {end})? The reservation will be removed.",
+    "Annuler la réservation de {name} ({start} au {end}) ? La réservation sera supprimée.",
+    "¿Cancelar la reserva de {name} ({start} a {end})? La reserva se eliminará.",
+  ],
   ...authMessages,
   ...appearanceMessages,
   ...photoMessages,

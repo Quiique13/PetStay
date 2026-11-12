@@ -11,8 +11,8 @@ Use no computador ou telemóvel, diretamente no navegador. Também pode instalar
 | Como pretende usar? | Acesso direto |
 | --- | --- |
 | No navegador, Android ou iPhone | **[Abrir a aplicação web](https://quiique13.github.io/PetStay/)** |
-| No Windows, sem instalação | **[Descarregar o executável portátil](https://github.com/Quiique13/PetStay/releases/download/v1.7.0/PetStay-1.7.0-windows-x64-portable.exe)** |
-| No Windows, com instalação | **[Descarregar o instalador](https://github.com/Quiique13/PetStay/releases/download/v1.7.0/PetStay-1.7.0-windows-x64-setup.exe)** |
+| No Windows, sem instalação | **[Descarregar o executável portátil](https://github.com/Quiique13/PetStay/releases/download/v1.7.1/PetStay-1.7.1-windows-x64-portable.exe)** |
+| No Windows, com instalação | **[Descarregar o instalador](https://github.com/Quiique13/PetStay/releases/download/v1.7.1/PetStay-1.7.1-windows-x64-setup.exe)** |
 | Android, APK de teste | [Descarregar o APK](https://github.com/Quiique13/PetStay/releases/download/v1.7.0/PetStay-1.7.0-android-debug.apk) |
 | Todas as versões e checksums | [GitHub Releases](https://github.com/Quiique13/PetStay/releases) |
 

@@ -1,5 +1,10 @@
 # Firebase Authentication
 
+For public Google OAuth branding, privacy notices, GDPR preparation and the
+remaining operator decisions, see [legal readiness](legal-readiness.md).
+Standalone policy pages are generated from `legal/operator.json` during builds.
+They remain explicitly marked as drafts until the required details are complete.
+
 For the native Android build (`com.app.petstay`), see [Android setup](android.md).
 
 The Windows portable build from 1.6.1 uses the default system browser for Google

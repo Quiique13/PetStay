@@ -6,6 +6,7 @@ import { authErrorMessage } from "../services/auth-errors.ts";
 import { Brand } from "./Brand.tsx";
 import { LanguageSelector } from "./LanguageSelector.tsx";
 import { AppearanceMenu } from "./ThemePicker.tsx";
+import { LegalLinks } from "./LegalLinks.tsx";
 import "./Auth.css";
 
 type Mode = "login" | "register" | "reset";
@@ -101,6 +102,7 @@ function LoginScreen() {
               : "Entre com a sua conta Google ou com email e palavra-passe.",
           )}
         </p>
+        <LegalLinks disclosure={mode !== "reset"} />
         {mode !== "reset" && (
           <>
             <button

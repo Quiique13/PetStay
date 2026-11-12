@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext.tsx";
 import { useHotel } from "../context/HotelContext.tsx";
 import { useLanguage } from "../context/LanguageContext.tsx";
 import { authErrorMessage } from "../services/auth-errors.ts";
+import { LegalLinks } from "./LegalLinks.tsx";
 
 export function AccountBar() {
   const { user, logout } = useAuth();
@@ -38,6 +39,7 @@ export function AccountBar() {
   return (
     <div className="account-bar">
       <span>{user?.email || user?.displayName}</span>
+      <LegalLinks />
       <button disabled={busy} onClick={() => void leave()}>
         <LogOut size={16} />
         {t(busy ? "Aguarde…" : "Terminar sessão")}

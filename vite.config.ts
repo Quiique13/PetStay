@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import tailwind from "@tailwindcss/vite";
 import { localStoragePlugin } from "./server/local-store.ts";
+import { legalPagesPlugin } from "./server/legal-pages.ts";
 import { VitePWA } from "vite-plugin-pwa";
 import { readFileSync } from "node:fs";
 
@@ -18,7 +19,7 @@ export default defineConfig(({ mode }) => {
   build: { outDir: android ? "dist-android" : mobile ? "dist-mobile" : "dist" },
   // Scan the application entry only, not generated Android/release HTML files.
   optimizeDeps: { entries: ["index.html"] },
-  plugins: [tailwind(), ...(!mobile ? [localStoragePlugin()] : []), VitePWA({
+  plugins: [tailwind(), legalPagesPlugin(), ...(!mobile ? [localStoragePlugin()] : []), VitePWA({
     disable: !mobile || android,
     registerType: "prompt",
     injectRegister: false,

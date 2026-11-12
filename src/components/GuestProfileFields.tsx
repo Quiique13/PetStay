@@ -4,7 +4,7 @@ import type { Guest } from "../types.ts";
 import { useLanguage } from "../context/LanguageContext.tsx";
 import { ClientPicker } from "./ClientPicker.tsx";
 import { GuestAgeFields } from "./GuestAgeFields.tsx";
-import { validatePhoto } from "../utils/photo.ts";
+import { photoSource } from "../utils/photo.ts";
 import { MemorialCross } from "./MemorialCross.tsx";
 import { PhotoCropper } from "./PhotoCropper.tsx";
 import "./GuestProfileFields.css";
@@ -43,7 +43,11 @@ export function GuestProfileFields({
   async function openCrop(source: string) {
     const image = new Image();
     image.src = source;
-    await image.decode();
+    try {
+      await image.decode();
+    } catch {
+      throw new Error("Não foi possível abrir a imagem. Tente outra fotografia.");
+    }
     if (mounted.current) setCropImage(image);
     else if (source.startsWith("blob:")) URL.revokeObjectURL(source);
   }
@@ -88,11 +92,10 @@ export function GuestProfileFields({
               onError("");
               let source = "";
               try {
-                validatePhoto(file);
-                source = URL.createObjectURL(file);
+                source = await photoSource(file);
                 await openCrop(source);
               } catch (error) {
-                if (source) URL.revokeObjectURL(source);
+                if (source.startsWith("blob:")) URL.revokeObjectURL(source);
                 onError(
                   error instanceof Error
                     ? error.message

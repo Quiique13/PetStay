@@ -95,6 +95,33 @@ test("guest photos, custom prices, monthly calendar and hotel photo changes pers
   await dialog.getByRole("button", { name: "Guardar hóspede" }).click();
   await expect(page.locator(".client-group")).toHaveCount(1);
   await expect(page.locator(".client-group .guestcard")).toHaveCount(2);
+  await page.getByRole("button", { name: "Reservas", exact: true }).click();
+  const cancel = page.getByRole("button", { name: "Cancelar reserva de Bobi", exact: true });
+  await expect(cancel).toBeVisible();
+  page.once("dialog", async confirmation => {
+    expect(confirmation.message()).toContain("Bobi");
+    await confirmation.dismiss();
+  });
+  await cancel.click();
+  await expect(cancel).toBeVisible();
+  await page.getByRole("button", { name: "Editar reserva de Bobi", exact: true }).click();
+  const cancelInEditor = dialog.getByRole("button", { name: "Cancelar reserva", exact: true });
+  await expect(cancelInEditor).toBeVisible();
+  // Cancelling must work even when unsaved form fields are invalid.
+  await dialog.locator('[name="start"]').fill("");
+  page.once("dialog", confirmation => confirmation.dismiss());
+  await cancelInEditor.click();
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator('[name="start"]')).toHaveValue("");
+  page.once("dialog", confirmation => confirmation.accept());
+  await cancelInEditor.click();
+  await expect(dialog).toHaveCount(0);
+  await expect(cancel).toHaveCount(0);
+  await expect(page.getByText("Dados guardados neste dispositivo.", { exact: true })).toBeVisible();
+  await page.reload();
+  await page.getByRole("button", { name: "Reservas", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Cancelar reserva de Bobi", exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "Hóspedes e tutores", exact: true }).click();
   await expect(
     page.getByText("Dados guardados neste dispositivo.", { exact: true }),
   ).toBeVisible();

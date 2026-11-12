@@ -7,6 +7,7 @@ import { authErrorMessage } from "../services/auth-errors.ts";
 import { useLanguage } from "../context/LanguageContext.tsx";
 import { LanguageSelector } from "./LanguageSelector.tsx";
 import { Brand } from "./Brand.tsx";
+import { LegalLinks } from "./LegalLinks.tsx";
 import "./Auth.css";
 
 export function DesktopBrowserSignIn() {
@@ -61,6 +62,7 @@ export function DesktopBrowserSignIn() {
         <Brand />
         <LanguageSelector />
         <h1 id="desktop-sign-in-title">{t("Iniciar sessão no PetStay")}</h1>
+        <LegalLinks disclosure />
         {phase === "done" ? <p className="auth-success" role="status">{t("Sessão enviada à aplicação. Pode fechar este separador e voltar ao PetStay.")}</p> : <>
           <p>{t("Continue com Google neste navegador para entrar na aplicação PetStay.")}</p>
           {!valid && <p role="alert">{t("Este pedido expirou. Volte ao PetStay e tente novamente.")}</p>}

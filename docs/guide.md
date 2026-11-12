@@ -51,7 +51,7 @@ Para usar o hotel da versão de desenvolvimento, aguarde **Sincronizado** e entr
 
 ### Windows — instalador
 
-Também pode descarregar **PetStay-1.7.0-windows-x64-setup.exe** na [versão 1.7.0 no GitHub](https://github.com/Quiique13/PetStay/releases/tag/v1.7.0). O assistente instala a aplicação para o utilizador atual e cria atalhos no ambiente de trabalho e no menu Iniciar. Para compilar ambos os executáveis Windows, use `npm run build:windows`.
+Também pode descarregar **PetStay-1.7.1-windows-x64-setup.exe** na [versão 1.7.1 no GitHub](https://github.com/Quiique13/PetStay/releases/tag/v1.7.1). O assistente instala a aplicação para o utilizador atual e cria atalhos no ambiente de trabalho e no menu Iniciar. Para compilar ambos os executáveis Windows, use `npm run build:windows`.
 
 A versão instalada guarda a cópia local em **%APPDATA%\PetStay\data**, separada da pasta da aplicação. Entre na mesma conta da versão portátil para usar o hotel sincronizado. As atualizações e a desinstalação preservam os dados.
 

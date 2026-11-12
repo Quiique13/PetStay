@@ -124,6 +124,15 @@ export default function Dashboard() {
     setEditingBooking(bookings.indexOf(booking));
     S("booking");
   }
+  function cancelBooking(booking: Booking) {
+    if (!window.confirm(t("Cancelar a reserva de {name} ({start} a {end})? A reserva será removida.", {
+      name: booking.dog,
+      start: formatDate(booking.start),
+      end: formatDate(booking.end),
+    }))) return;
+    persist("bookings", bookings.filter((item) => item !== booking));
+    if (modal === "booking") S(null);
+  }
   const month = calendarDate.getMonth(),
     year = calendarDate.getFullYear();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -747,12 +756,13 @@ export default function Dashboard() {
                     <th>{t("Total")}</th>
                     <th>{t("Pagamento")}</th>
                     <th>{t("Editar reserva")}</th>
+                    <th>{t("Cancelar reserva")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.length === 0 && (
                     <tr>
-                      <td colSpan={6}>
+                      <td colSpan={7}>
                         <EmptyState
                           title={
                             bookings.length
@@ -815,6 +825,16 @@ export default function Dashboard() {
                           })}
                         >
                           {t("Editar reserva")}
+                        </button>
+                      </td>
+                      <td data-label={t("Cancelar reserva")}>
+                        <button
+                          type="button"
+                          className="secondary"
+                          aria-label={t("Cancelar reserva de {name}", { name: b.dog })}
+                          onClick={() => cancelBooking(b)}
+                        >
+                          {t("Cancelar reserva")}
                         </button>
                       </td>
                     </tr>
@@ -1329,7 +1349,7 @@ export default function Dashboard() {
                 {formError && (
                   <div className="form-error" role="alert">
                     <p>{t(formError)}</p>
-                    <button
+                    {modal === "booking" && <button
                       type="button"
                       className="textbutton"
                       onClick={() => {
@@ -1338,7 +1358,7 @@ export default function Dashboard() {
                       }}
                     >
                       {t("Definir preços")}
-                    </button>
+                    </button>}
                   </div>
                 )}
                 <button
@@ -1350,6 +1370,15 @@ export default function Dashboard() {
                     ? t("Guardar hóspede")
                     : t(savedBooking ? "Guardar reserva" : "Criar reserva")}
                 </button>
+                {modal === "booking" && savedBooking && (
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={() => cancelBooking(savedBooking)}
+                  >
+                    {t("Cancelar reserva")}
+                  </button>
+                )}
               </form>
             ) : (
               <p>
